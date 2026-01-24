@@ -1,0 +1,12 @@
+{
+  "name": "vidalita",
+  "version": "1.0.0",
+  "description": "Gym & Beauty Management System",
+  "type": "module",
+  "scripts": {
+    "build:frontend": "node build-frontend.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
