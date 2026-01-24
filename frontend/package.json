@@ -21,7 +21,6 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.17",
-    "@vitejs/plugin-basic-ssl": "^2.1.0",
     "@vitejs/plugin-vue": "^5.1.4",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
