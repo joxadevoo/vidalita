@@ -4,7 +4,7 @@
   "description": "Gym & Beauty Management System",
   "type": "module",
   "scripts": {
-    "build": "cd frontend && npm run build",
+    "build": "npm --prefix frontend run build",
     "build:frontend": "node build-frontend.js"
   },
   "keywords": [],
