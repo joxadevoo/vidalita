@@ -32,7 +32,6 @@
         </main>
       </div>
     </div>
-    <SyncStatus />
   </div>
 </template>
 
@@ -41,7 +40,6 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
 import TopBar from './components/TopBar.vue'
-import SyncStatus from './components/SyncStatus.vue'
 
 const route = useRoute()
 const isLoginPage = computed(() => route.path === '/login')

@@ -48,9 +48,10 @@
             <button
               type="submit"
               :disabled="loading"
-              class="w-full rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-50"
+              class="w-full flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {{ loading ? $t('login.loggingIn') : $t('login.loginButton') }}
+              <LoadingSpinner v-if="loading" class="!py-0 h-4 w-4" />
+              <span>{{ loading ? $t('login.loggingIn') : $t('login.loginButton') }}</span>
             </button>
           </form>
 
@@ -70,7 +71,8 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import api from '../lib/api'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
+import { authService } from '../services/supabaseService'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -89,10 +91,7 @@ const handleLogin = async () => {
 
   try {
     console.log('Login so\'rovi yuborilmoqda...', { username: form.username })
-    const { data } = await api.post('/auth/login', {
-      username: form.username,
-      password: form.password
-    })
+    const data = await authService.login(form.username, form.password)
     console.log('Login muvaffaqiyatli:', data)
 
     // User ma'lumotlarini localStorage'ga saqlash
@@ -103,7 +102,7 @@ const handleLogin = async () => {
     router.push('/')
   } catch (err: any) {
     console.error('Login xatosi:', err)
-    error.value = err?.response?.data?.error || t('login.error')
+    error.value = err.message || t('login.error')
   } finally {
     loading.value = false
   }

@@ -1,10 +1,10 @@
 import express from "express";
-import db from "../db/database.js";
+import supabase from "../db/supabase.js";
 
 const router = express.Router();
 
 // Login endpoint
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -12,21 +12,23 @@ router.post("/login", (req, res) => {
   }
 
   try {
-    const user = db.prepare("SELECT * FROM users WHERE username = ?").get(username);
+    const { data: user, error: fetchError } = await supabase.from('users').select('*').eq('username', username).maybeSingle();
+
+    if (fetchError) throw fetchError;
 
     if (!user) {
       return res.status(401).json({ error: "Username yoki password noto'g'ri" });
     }
 
-    // Parolni tekshirish (oddiy tekshiruv - production'da bcrypt ishlatish kerak!)
+    // Parolni tekshirish
     if (user.password !== password) {
       return res.status(401).json({ error: "Username yoki password noto'g'ri" });
     }
 
     // Last login yangilash
-    db.prepare("UPDATE users SET lastLogin = datetime('now') WHERE id = ?").run(user.id);
+    await supabase.from('users').update({ lastlogin: new Date().toISOString() }).eq('id', user.id);
 
-    // Muvaffaqiyatli javob (production'da JWT token qaytarish kerak)
+    // Muvaffaqiyatli javob
     res.json({
       message: "Login muvaffaqiyatli",
       user: {

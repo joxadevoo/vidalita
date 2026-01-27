@@ -4,7 +4,7 @@ import cors from "cors";
 import path from "path";
 import fs from "fs"; // fs modulini import qilish
 import { fileURLToPath } from "url";
-import db from "./db/database.js";
+import supabase from "./db/supabase.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,8 +14,7 @@ import membersRouter from "./routes/members.js";
 import checkinsRouter from "./routes/checkins.js";
 import beautyRouter from "./routes/beauty.js";
 import authRouter from "./routes/auth.js";
-// Sync router - Firebase Firestore
-import syncRouter from "./routes/sync-firebase.js";
+// Sync router - (Removed, now using Supabase cloud)
 import statsRouter from "./routes/stats.js";
 import gymMembershipsRouter from "./routes/gym-memberships.js";
 
@@ -45,17 +44,18 @@ app.get("/", (req, res) => {
       members: "/api/members",
       checkins: "/api/checkins",
       beauty: "/api/beauty",
-      sync: "POST /api/sync (SQLite -> Firebase Firestore)",
+      sync: "(Deprecated - Cloud Database active)",
       stats: "/api/stats (Statistics & Reports)"
     }
   });
 });
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("/health", async (req, res) => {
   try {
     // Test database connection
-    db.prepare("SELECT 1").get();
+    const { error } = await supabase.from('members').select('id').limit(1);
+    if (error) throw error;
     res.json({ status: "healthy", database: "connected" });
   } catch (err) {
     res.status(500).json({ status: "unhealthy", database: "disconnected", error: err.message });
@@ -67,7 +67,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/members", membersRouter);
 app.use("/api/checkins", checkinsRouter);
 app.use("/api/beauty", beautyRouter);
-app.use("/api/sync", syncRouter);
+// app.use("/api/sync", syncRouter); // No longer needed
 app.use("/api/stats", statsRouter);
 app.use("/api/gym-memberships", gymMembershipsRouter);
 

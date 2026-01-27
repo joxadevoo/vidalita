@@ -11,10 +11,10 @@ yarn-error.log*
 config/firebase-service-account.json
 
 # SQLite database files
-db/*.db
-db/*.db-journal
-db/*.sqlite
-db/*.sqlite-journal
+db/**/*.db
+db/**/*.db-journal
+db/**/*.sqlite
+db/**/*.sqlite-journal
 
 # OS-specific files
 .DS_Store

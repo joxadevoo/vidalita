@@ -14,15 +14,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "better-sqlite3": "^12.4.1",
+    "@supabase/supabase-js": "^2.93.1",
     "body-parser": "^2.2.0",
     "canvas": "^3.2.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "firebase-admin": "^13.6.0",
     "jsbarcode": "^3.12.1",
     "pdfkit": "^0.17.2"
-  },
-  "devDependencies": {}
+  }
 }

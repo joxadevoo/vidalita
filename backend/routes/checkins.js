@@ -1,11 +1,26 @@
 import express from "express";
-import db from "../db/database.js";
+import supabase from "../db/supabase.js";
 import { getCurrentDateTimeSQLite } from "../utils/dateUtils.js";
 
 const router = express.Router();
 
+// Helper to map Supabase checkin to CamelCase
+const mapCheckinToCamelCase = (item) => {
+  if (!item) return null;
+  return {
+    id: item.id,
+    memberId: item.memberid,
+    qrCodeId: item.qrcodeid,
+    date: item.date,
+    verifiedBy: item.verifiedby,
+    synced: item.synced,
+    fullName: item.members?.fullname || null,
+    phone: item.members?.phone || null
+  };
+};
+
 // Check-in işlemi
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const { qrCodeId, verifiedBy } = req.body;
 
   if (!qrCodeId) {
@@ -13,61 +28,67 @@ router.post("/", (req, res) => {
   }
 
   try {
-    const member = db.prepare("SELECT * FROM members WHERE qrCodeId = ?").get(qrCodeId);
+    const { data: member, error: memberError } = await supabase.from('members').select('*').eq('qrcodeid', qrCodeId).maybeSingle();
+    if (memberError) throw memberError;
 
     if (!member) {
       return res.status(404).json({ error: "A'zo topilmadi. ID noto'g'ri." });
     }
 
-    if (member.gymActive !== 1) {
+    if (member.gymactive !== 1) {
       return res.status(400).json({ error: "A'zolik faol emas" });
     }
 
     // Obuna muddatini tekshirish
-    if (member.gymEnd) {
-      const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD formatida
-      const endDate = member.gymEnd.slice(0, 10); // YYYY-MM-DD formatida
-      
+    if (member.gymend) {
+      const today = new Date().toISOString().slice(0, 10);
+      const endDate = member.gymend.slice(0, 10);
+
       if (endDate < today) {
-        const formattedDate = new Date(member.gymEnd).toLocaleDateString('uz-UZ', {
+        const formattedDate = new Date(member.gymend).toLocaleDateString('uz-UZ', {
           year: 'numeric',
           month: 'long',
           day: 'numeric'
         });
-        return res.status(400).json({ 
-          error: `Obuna muddati tugagan. Tugash sanasi: ${formattedDate}` 
+        return res.status(400).json({
+          error: `Obuna muddati tugagan. Tugash sanasi: ${formattedDate}`
         });
       }
     }
 
-    // Bugungi kirishni tekshirish (bir kunda bir marta kirish)
-    const todayCheckin = db.prepare(`
-      SELECT * FROM checkins 
-      WHERE memberId = ? AND date(checkins.date) = date('now')
-      LIMIT 1
-    `).get(member.id);
+    // Bugungi kirishni tekshirish
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: todayCheckin, error: checkinErr } = await supabase.from('checkins')
+      .select('*')
+      .eq('memberid', member.id)
+      .gte('date', today)
+      .lt('date', new Date(new Date(today).getTime() + 86400000).toISOString())
+      .maybeSingle();
 
+    if (checkinErr) throw checkinErr;
     if (todayCheckin) {
-      return res.status(400).json({ 
-        error: "Bugun allaqachon kirish qayd etilgan" 
+      return res.status(400).json({
+        error: "Bugun allaqachon kirish qayd etilgan"
       });
     }
 
-    // Tashkent timezone'da hozirgi vaqtni olish
     const currentDateTime = getCurrentDateTimeSQLite();
+    const { error: insertErr } = await supabase.from('checkins').insert({
+      memberid: member.id,
+      qrcodeid: qrCodeId,
+      date: currentDateTime,
+      verifiedby: verifiedBy || "system",
+      synced: 0
+    });
+    if (insertErr) throw insertErr;
 
-    db.prepare(`
-      INSERT INTO checkins (memberId, qrCodeId, date, verifiedBy, synced)
-      VALUES (?, ?, ?, ?, 0)
-    `).run(member.id, qrCodeId, currentDateTime, verifiedBy || "system");
-
-    res.json({ 
-      message: "Kirish muvaffaqiyatli ✅", 
+    res.json({
+      message: "Kirish muvaffaqiyatli ✅",
       member: {
         id: member.id,
-        fullName: member.fullName,
+        fullName: member.fullname,
         phone: member.phone,
-        qrCodeId: member.qrCodeId
+        qrCodeId: member.qrcodeid
       }
     });
   } catch (err) {
@@ -77,15 +98,11 @@ router.post("/", (req, res) => {
 });
 
 // Barcha kirish-chiqishlarni olish
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const checkins = db.prepare(`
-      SELECT c.*, m.fullName, m.phone 
-      FROM checkins c
-      LEFT JOIN members m ON c.memberId = m.id
-      ORDER BY c.date DESC
-    `).all();
-    res.json(checkins);
+    const { data, error } = await supabase.from('checkins').select('*, members(fullname, phone)').order('date', { ascending: false });
+    if (error) throw error;
+    res.json(data.map(mapCheckinToCamelCase));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Kirish-chiqishlarni olishda xatolik yuz berdi" });
@@ -93,16 +110,11 @@ router.get("/", (req, res) => {
 });
 
 // Muayyan a'zoning kirish-chiqishlarini olish
-router.get("/member/:memberId", (req, res) => {
+router.get("/member/:memberId", async (req, res) => {
   try {
-    const checkins = db.prepare(`
-      SELECT c.*, m.fullName, m.phone 
-      FROM checkins c
-      LEFT JOIN members m ON c.memberId = m.id
-      WHERE c.memberId = ?
-      ORDER BY c.date DESC
-    `).all(req.params.memberId);
-    res.json(checkins);
+    const { data, error } = await supabase.from('checkins').select('*, members(fullname, phone)').eq('memberid', req.params.memberId).order('date', { ascending: false });
+    if (error) throw error;
+    res.json(data.map(mapCheckinToCamelCase));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Kirish-chiqishlarni olishda xatolik yuz berdi" });
@@ -110,16 +122,15 @@ router.get("/member/:memberId", (req, res) => {
 });
 
 // Muayyan sana oralig'idagi kirish-chiqishlarni olish
-router.get("/date/:startDate/:endDate", (req, res) => {
+router.get("/date/:startDate/:endDate", async (req, res) => {
   try {
-    const checkins = db.prepare(`
-      SELECT c.*, m.fullName, m.phone 
-      FROM checkins c
-      LEFT JOIN members m ON c.memberId = m.id
-      WHERE date(c.date) BETWEEN date(?) AND date(?)
-      ORDER BY c.date DESC
-    `).all(req.params.startDate, req.params.endDate);
-    res.json(checkins);
+    const { data, error } = await supabase.from('checkins')
+      .select('*, members(fullname, phone)')
+      .gte('date', req.params.startDate)
+      .lte('date', req.params.endDate)
+      .order('date', { ascending: false });
+    if (error) throw error;
+    res.json(data.map(mapCheckinToCamelCase));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Kirish-chiqishlarni olishda xatolik yuz berdi" });
@@ -127,16 +138,14 @@ router.get("/date/:startDate/:endDate", (req, res) => {
 });
 
 // Kirish-chiqishni o'chirish
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
-    const stmt = db.prepare("DELETE FROM checkins WHERE id = ?");
-    stmt.run(req.params.id);
+    const { error } = await supabase.from('checkins').delete().eq('id', req.params.id);
+    if (error) throw error;
     res.json({ message: "Kirish-chiqish muvaffaqiyatli o'chirildi ✅" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "O'chirishda xatolik" });
   }
 });
-
-export default router;
 

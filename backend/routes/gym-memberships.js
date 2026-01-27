@@ -1,23 +1,32 @@
 import express from "express";
-import db from "../db/database.js";
+import supabase from "../db/supabase.js";
 
 const router = express.Router();
 
-// GET /api/gym-memberships - Barcha gym obunalarini olish
-router.get("/", (req, res) => {
-    try {
-        const memberships = db.prepare(`
-      SELECT 
-        gm.*,
-        m.fullName,
-        m.phone,
-        m.qrCodeId
-      FROM gym_memberships gm
-      LEFT JOIN members m ON gm.memberId = m.id
-      ORDER BY gm.createdAt DESC
-    `).all();
+// Helper to map Supabase gym membership to CamelCase
+const mapMembershipToCamelCase = (item) => {
+    if (!item) return null;
+    return {
+        id: item.id,
+        memberId: item.memberid,
+        startDate: item.startdate,
+        endDate: item.enddate,
+        membershipType: item.membershiptype,
+        active: item.active,
+        createdAt: item.createdat,
+        updatedAt: item.updatedat,
+        fullName: item.members?.fullname || null,
+        phone: item.members?.phone || null,
+        qrCodeId: item.members?.qrcodeid || null
+    };
+};
 
-        res.json(memberships);
+// GET /api/gym-memberships - Barcha gym obunalarini olish
+router.get("/", async (req, res) => {
+    try {
+        const { data, error } = await supabase.from('gym_memberships').select('*, members(fullname, phone, qrcodeid)').order('createdat', { ascending: false });
+        if (error) throw error;
+        res.json(data.map(mapMembershipToCamelCase));
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Gym obunalarini olishda xatolik" });
@@ -25,15 +34,11 @@ router.get("/", (req, res) => {
 });
 
 // GET /api/gym-memberships/member/:memberId - A'zo uchun gym obunalarini olish
-router.get("/member/:memberId", (req, res) => {
+router.get("/member/:memberId", async (req, res) => {
     try {
-        const memberships = db.prepare(`
-      SELECT * FROM gym_memberships
-      WHERE memberId = ?
-      ORDER BY createdAt DESC
-    `).all(req.params.memberId);
-
-        res.json(memberships);
+        const { data, error } = await supabase.from('gym_memberships').select('*').eq('memberid', req.params.memberId).order('createdat', { ascending: false });
+        if (error) throw error;
+        res.json(data.map(mapMembershipToCamelCase));
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Gym obunalarini olishda xatolik" });
@@ -41,20 +46,21 @@ router.get("/member/:memberId", (req, res) => {
 });
 
 // GET /api/gym-memberships/active/:memberId - A'zoning faol gym obunasini olish
-router.get("/active/:memberId", (req, res) => {
+router.get("/active/:memberId", async (req, res) => {
     try {
-        const membership = db.prepare(`
-      SELECT * FROM gym_memberships
-      WHERE memberId = ? AND active = 1
-      ORDER BY createdAt DESC
-      LIMIT 1
-    `).get(req.params.memberId);
+        const { data, error } = await supabase.from('gym_memberships')
+            .select('*')
+            .eq('memberid', req.params.memberId)
+            .eq('active', 1)
+            .order('createdat', { ascending: false })
+            .maybeSingle();
 
-        if (!membership) {
+        if (error) throw error;
+        if (!data) {
             return res.status(404).json({ error: "Faol gym obunasi topilmadi" });
         }
 
-        res.json(membership);
+        res.json(mapMembershipToCamelCase(data));
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Gym obunasini olishda xatolik" });
@@ -62,7 +68,7 @@ router.get("/active/:memberId", (req, res) => {
 });
 
 // POST /api/gym-memberships - Yangi gym obunasini yaratish
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
     const { memberId, startDate, endDate, membershipType } = req.body;
 
     if (!memberId || !startDate) {
@@ -70,16 +76,19 @@ router.post("/", (req, res) => {
     }
 
     try {
-        const stmt = db.prepare(`
-      INSERT INTO gym_memberships (memberId, startDate, endDate, membershipType, active)
-      VALUES (?, ?, ?, ?, 1)
-    `);
+        const { data, error } = await supabase.from('gym_memberships').insert({
+            memberid: memberId,
+            startdate: startDate,
+            enddate: endDate || null,
+            membershiptype: membershipType || 'monthly',
+            active: 1
+        }).select().single();
 
-        const result = stmt.run(memberId, startDate, endDate || null, membershipType || 'monthly');
+        if (error) throw error;
 
         res.json({
             message: "Gym obunasi muvaffaqiyatli yaratildi ✅",
-            id: result.lastInsertRowid
+            id: data.id
         });
     } catch (err) {
         console.error(err);
@@ -88,23 +97,19 @@ router.post("/", (req, res) => {
 });
 
 // PUT /api/gym-memberships/:id - Gym obunasini yangilash
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
     const { startDate, endDate, membershipType, active } = req.body;
 
     try {
-        const stmt = db.prepare(`
-      UPDATE gym_memberships
-      SET startDate = ?, endDate = ?, membershipType = ?, active = ?, updatedAt = datetime('now')
-      WHERE id = ?
-    `);
+        const { error } = await supabase.from('gym_memberships').update({
+            startdate: startDate,
+            enddate: endDate || null,
+            membershiptype: membershipType || 'monthly',
+            active: active !== undefined ? (active ? 1 : 0) : 1,
+            updatedat: new Date().toISOString()
+        }).eq('id', req.params.id);
 
-        stmt.run(
-            startDate,
-            endDate || null,
-            membershipType || 'monthly',
-            active !== undefined ? (active ? 1 : 0) : 1,
-            req.params.id
-        );
+        if (error) throw error;
 
         res.json({ message: "Gym obunasi muvaffaqiyatli yangilandi ✅" });
     } catch (err) {
@@ -114,11 +119,10 @@ router.put("/:id", (req, res) => {
 });
 
 // DELETE /api/gym-memberships/:id - Gym obunasini o'chirish
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
     try {
-        const stmt = db.prepare("DELETE FROM gym_memberships WHERE id = ?");
-        stmt.run(req.params.id);
-
+        const { error } = await supabase.from('gym_memberships').delete().eq('id', req.params.id);
+        if (error) throw error;
         res.json({ message: "Gym obunasi muvaffaqiyatli o'chirildi ✅" });
     } catch (err) {
         console.error(err);
@@ -127,15 +131,14 @@ router.delete("/:id", (req, res) => {
 });
 
 // PATCH /api/gym-memberships/:id/deactivate - Gym obunasini faolsizlantirish
-router.patch("/:id/deactivate", (req, res) => {
+router.patch("/:id/deactivate", async (req, res) => {
     try {
-        const stmt = db.prepare(`
-      UPDATE gym_memberships
-      SET active = 0, updatedAt = datetime('now')
-      WHERE id = ?
-    `);
+        const { error } = await supabase.from('gym_memberships').update({
+            active: 0,
+            updatedat: new Date().toISOString()
+        }).eq('id', req.params.id);
 
-        stmt.run(req.params.id);
+        if (error) throw error;
 
         res.json({ message: "Gym obunasi faolsizlantirildi ✅" });
     } catch (err) {

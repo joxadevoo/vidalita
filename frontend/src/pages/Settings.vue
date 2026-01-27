@@ -112,7 +112,8 @@
                 : 'bg-gray-600 text-white hover:bg-gray-700'
             ]"
           >
-            <svg class="h-4 w-4" :class="{ 'animate-spin': testingConnection }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <LoadingSpinner v-if="testingConnection" class="!py-0 h-4 w-4" />
+            <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
             <span>{{ $t('settings.sync.testConnection') }}</span>
@@ -258,7 +259,8 @@
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { GlobeAltIcon, ArrowPathIcon } from '@heroicons/vue/24/outline'
-import api from '../lib/api'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
+import { supabase } from '../lib/supabase'
 
 const { locale, t } = useI18n()
 const currentLocale = computed(() => locale.value)
@@ -289,13 +291,14 @@ const testConnection = async () => {
   syncError.value = null
   
   try {
-    const response = await api.get('/sync/test')
+    const { data, error } = await supabase.from('members').select('count', { count: 'exact', head: true })
+    if (error) throw error
+    
     syncStatus.value = 'success'
-    syncError.value = null
     syncStats.value = {
-      message: response.data.message,
-      time: response.data.time,
-      version: response.data.version
+      message: 'Supabase bilan ulanish muvaffaqiyatli',
+      time: new Date().toISOString(),
+      version: '1.0.0 (Serverless)'
     }
     
     setTimeout(() => {
@@ -305,109 +308,20 @@ const testConnection = async () => {
   } catch (error: any) {
     console.error('Connection test error:', error)
     syncStatus.value = 'error'
-    syncError.value = error?.response?.data?.error || error?.response?.data?.suggestion || error.message || t('settings.sync.error')
-    
-    setTimeout(() => {
-      syncStatus.value = 'idle'
-      syncError.value = null
-    }, 10000)
+    syncError.value = error.message || t('settings.sync.error')
   } finally {
     testingConnection.value = false
   }
 }
 
-const handleSync = async () => {
-  syncStatus.value = 'syncing'
-  syncError.value = null
-  syncStats.value = null
-  syncProgress.value = []
-
-  try {
-    syncProgress.value.push(t('settings.sync.progress.connecting'))
-    
-    // Sync uchun alohida timeout - 60 soniya (ko'p ma'lumotlar uchun)
-    const response = await api.post('/sync', {}, {
-      timeout: 60000 // 60 soniya
-    })
-    
-    syncProgress.value.push(t('settings.sync.progress.syncing'))
-    syncStatus.value = 'success'
-    syncStats.value = response.data.stats
-    
-    // 5 soniyadan keyin statusni tozalash
-    setTimeout(() => {
-      syncStatus.value = 'idle'
-      syncStats.value = null
-      syncProgress.value = []
-    }, 5000)
-  } catch (error: any) {
-    console.error('Sync error:', error)
-    syncStatus.value = 'error'
-    
-    // Batafsil xatolik xabari
-    let errorMessage = t('settings.sync.error')
-    let suggestion = ''
-    
-    if (error?.response?.data) {
-      const data = error.response.data
-      
-      if (data.error) {
-        errorMessage = data.error
-      } else if (data.message) {
-        errorMessage = data.message
-      }
-      
-      if (data.suggestion) {
-        suggestion = data.suggestion
-      }
-      
-      if (data.errorCode === 'ETIMEDOUT' || data.errorCode === 'ENETUNREACH') {
-        errorMessage = 'Internet ulanishi muammosi yoki Firebase serverga ulanish imkonsiz'
-        suggestion = suggestion || 'Internet ulanishingizni tekshiring, firewall sozlamalarini ko\'rib chiqing va keyinroq qayta urinib ko\'ring. Ma\'lumotlar mahalliy saqlanadi va ulanish mavjud bo\'lganda sinxronizatsiya qilinadi.'
-      }
-    } else if (error?.message) {
-      errorMessage = error.message
-      
-      // Timeout xatoliklarini aniqlash
-      if (error.message.includes('timeout') || error.code === 'ECONNABORTED') {
-        errorMessage = 'Sinxronizatsiya juda uzoq davom etdi va timeout bo\'ldi'
-        suggestion = 'Ma\'lumotlar juda ko\'p bo\'lishi mumkin. Iltimos, keyinroq qayta urinib ko\'ring yoki backend loglarini tekshiring.'
-      }
-    }
-    
-    syncError.value = suggestion ? `${errorMessage}\n\n💡 ${suggestion}` : errorMessage
-    
-    // 10 soniyadan keyin statusni tozalash (xatolik uchun ko'proq vaqt)
-    setTimeout(() => {
-      syncStatus.value = 'idle'
-      syncError.value = null
-      syncProgress.value = []
-    }, 10000)
-  }
+const handleSync = () => {
+   // Manual sync is no longer needed as we use direct Supabase access
+   window.alert('Manual sync is no longer needed. Data is directly persisted to Supabase.')
 }
 
 const toggleAutoSync = () => {
   localStorage.setItem('autoSyncEnabled', autoSyncEnabled.value.toString())
-  
-  if (autoSyncEnabled.value) {
-    // Avtomatik sync yoqilganda - har 30 minutda bir sync qilish
-    autoSyncInterval = window.setInterval(() => {
-      if (syncStatus.value === 'idle') {
-        handleSync()
-      }
-    }, 30 * 60 * 1000) // 30 minut
-    
-    // Dastlabki sync
-    if (syncStatus.value === 'idle') {
-      handleSync()
-    }
-  } else {
-    // Avtomatik sync o'chirilganda
-    if (autoSyncInterval) {
-      clearInterval(autoSyncInterval)
-      autoSyncInterval = null
-    }
-  }
+  // Auto sync is no longer needed
 }
 
 // Component mount bo'lganda avtomatik sync'ni tekshirish

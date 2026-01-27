@@ -8,7 +8,9 @@
       </div>
     </div>
 
-    <form class="space-y-8" @submit.prevent="handleSubmit">
+    <LoadingSpinner v-if="pageLoading" />
+
+    <form v-else class="space-y-8" @submit.prevent="handleSubmit">
       <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
         <div class="border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4">
           <h2 class="text-base sm:text-lg font-semibold text-gray-900">{{ $t('memberCreate.basicInfo') }}</h2>
@@ -96,6 +98,7 @@
                 />
             </div>
             <p class="mt-1 text-xs text-gray-500">{{ $t('memberCreate.photoFormat') }}</p>
+            <p v-if="!isEditMode && !photoPreview" class="mt-1 text-xs text-amber-600 font-medium">⚠️ Surat yuklash shart</p>
           </div>
         </div>
       </section>
@@ -338,7 +341,8 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink, useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import api from '../lib/api'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
+import { membersService, gymMembershipsService, generateQrCodeId, storageService } from '../services/supabaseService'
 import { getCurrentDateInput } from '../lib/dateUtils'
 
 const { t } = useI18n()
@@ -356,7 +360,7 @@ const form = reactive({
   phoneCountry: 'uz',
   phone: '',
   email: '',
-  registrationDate: getCurrentDateInput(), // Hozirgi sana
+  registrationDate: getCurrentDateInput(),
   region: '',
   district: '',
   serviceType: 'gym',
@@ -364,6 +368,8 @@ const form = reactive({
 })
 
 const photoPreview = ref<string | null>(null)
+const selectedPhotoFile = ref<File | null>(null)
+const existingPhoto = ref<string | null>(null)
 
 const gymInfo = reactive({
   emergencyName: '',
@@ -419,13 +425,13 @@ const beautyQuestions = [
 ]
 
 const submitting = ref(false)
+const pageLoading = ref(false)
 const submitError = ref<string | null>(null)
 const submitSuccess = ref<string | null>(null)
 const generatedQrCode = ref<string>('')
-const saveStatus = ref<string>('') // Yuklash holati: 'saving', 'saved', 'error'
-const saveProgress = ref<string>('') // Progress xabari
+const saveStatus = ref<string>('')
+const saveProgress = ref<string>('')
 
-// Beauty health bo'limi - serviceType "beauty" yoki "both" bo'lsa
 const showsBeautySection = computed(() => form.serviceType === 'beauty' || form.serviceType === 'both')
 
 const formatPhoneByCountry = (value: string, country: string) => {
@@ -473,84 +479,36 @@ watch(() => form.phoneCountry, () => {
   form.phone = formatPhoneByCountry(form.phone, form.phoneCountry)
 })
 
-// To'lov turiga qarab tugash sanasini hisoblash
 const calculateEndDate = (startDate: string, membershipType: string): string | null => {
-  if (!startDate || !membershipType || membershipType === 'other') {
-    return null
-  }
-  
+  if (!startDate || !membershipType || membershipType === 'other') return null
   const start = new Date(startDate)
-  if (Number.isNaN(start.getTime())) {
-    return null
-  }
-  
+  if (Number.isNaN(start.getTime())) return null
   const end = new Date(start)
-  
   switch (membershipType) {
-    case 'monthly':
-      end.setMonth(end.getMonth() + 1)
-      break
-    case 'quarterly':
-      end.setMonth(end.getMonth() + 3)
-      break
-    case 'yearly':
-      end.setFullYear(end.getFullYear() + 1)
-      break
-    default:
-      return null
+    case 'monthly': end.setMonth(end.getMonth() + 1); break
+    case 'quarterly': end.setMonth(end.getMonth() + 3); break
+    case 'yearly': end.setFullYear(end.getFullYear() + 1); break
+    default: return null
   }
-  
   return end.toISOString().slice(0, 10)
 }
 
-// To'lov turi yoki boshlanish sanasi o'zgarganda tugash sanasini yangilash
-watch([() => gymInfo.membershipType, () => form.registrationDate], ([membershipType, startDate]) => {
-  if (membershipType && startDate && (form.serviceType === 'gym' || form.serviceType === 'both')) {
-    const calculatedEndDate = calculateEndDate(startDate, membershipType)
-    if (calculatedEndDate) {
-      // gymEnd maydonini yangilash (agar mavjud bo'lsa)
-      // Bu form.registrationDate ga asoslanadi
-    }
-  }
-}, { immediate: false })
-
-// Sahifaga kirganda avtomatik ID generatsiya qilish
 const generatePreviewId = async () => {
-  if (isEditMode.value) return // Edit rejimida ID generatsiya qilmaymiz
-  
-  try {
-    // Backend'dan preview ID olish
-    const { data } = await api.post('/members/preview-id')
-    if (data.qrCodeId) {
-      form.qrCodeId = data.qrCodeId
-    }
-  } catch (err) {
-    console.error('Preview ID generatsiya qilishda xatolik:', err)
-    // Agar xatolik bo'lsa, client-side generatsiya qilish (TGC + 6 ta belgi)
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    let uniquePart = ''
-    for (let i = 0; i < 6; i++) {
-      uniquePart += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
-    form.qrCodeId = `TGC${uniquePart}` // TGC har doim qo'shiladi
-  }
+  if (isEditMode.value) return
+  form.qrCodeId = generateQrCodeId()
 }
 
-// Edit rejimida a'zo ma'lumotlarini yuklash
-const existingPhoto = ref<string | null>(null) // Edit mode'da mavjud photo'ni saqlash
 const loadMemberData = async () => {
   if (!isEditMode.value || !memberId.value) return
-  
+  pageLoading.value = true
   try {
-    const [memberRes, gymRes, healthRes] = await Promise.all([
-      api.get(`/members/${memberId.value}`),
-      api.get(`/members/${memberId.value}/gym-info`).catch(() => ({ data: null })),
-      api.get(`/members/${memberId.value}/beauty-health`).catch(() => ({ data: null }))
+    const [member, gym, health] = await Promise.all([
+      membersService.getById(memberId.value),
+      membersService.getGymInfo(memberId.value).catch(() => null),
+      membersService.getBeautyHealth(memberId.value).catch(() => null)
     ])
+    if (!member) throw new Error(t('memberCreate.errorLoading'))
     
-    const member = memberRes.data
-    
-    // Form ma'lumotlarini to'ldirish
     form.fullName = member.fullName || ''
     form.birthDate = member.birthDate ? new Date(member.birthDate).toISOString().slice(0, 10) : ''
     form.qrCodeId = member.qrCodeId || ''
@@ -558,35 +516,21 @@ const loadMemberData = async () => {
     form.email = member.email || ''
     form.region = member.region || ''
     form.district = member.district || ''
-    
-    if (member.joinDate) {
-      form.registrationDate = new Date(member.joinDate).toISOString().slice(0, 10)
-    }
-    
+    if (member.joinDate) form.registrationDate = new Date(member.joinDate).toISOString().slice(0, 10)
     if (member.photo) {
-      photoPreview.value = member.photo
-      existingPhoto.value = member.photo // Mavjud photo'ni saqlash
+      existingPhoto.value = member.photo
+      photoPreview.value = storageService.getMemberPhotoUrl(member.photo)
     }
-    
-    // Telefon kodini aniqlash
     if (member.phone) {
       if (member.phone.startsWith('+998')) form.phoneCountry = 'uz'
       else if (member.phone.startsWith('+7')) form.phoneCountry = 'ru'
       else if (member.phone.startsWith('+90')) form.phoneCountry = 'tr'
     }
+    if (member.gymActive === 1 && member.beautyHasRecord === 1) form.serviceType = 'both'
+    else if (member.beautyHasRecord === 1) form.serviceType = 'beauty'
+    else form.serviceType = 'gym'
     
-    // Service type ni aniqlash
-    if (member.gymActive === 1 && member.beautyHasRecord === 1) {
-      form.serviceType = 'both'
-    } else if (member.beautyHasRecord === 1) {
-      form.serviceType = 'beauty'
-    } else {
-      form.serviceType = 'gym'
-    }
-    
-    // Gym ma'lumotlarini to'ldirish
-    if (gymRes.data) {
-      const gym = gymRes.data
+    if (gym) {
       gymInfo.emergencyName = gym.emergencyName || ''
       gymInfo.emergencyPhone = gym.emergencyPhone || ''
       gymInfo.emergencyRelation = gym.emergencyRelation || ''
@@ -598,308 +542,142 @@ const loadMemberData = async () => {
       gymInfo.paymentMethod = gym.paymentMethod || 'cash'
       gymInfo.paymentMethodOther = gym.paymentMethodOther || ''
     }
-    
-    // Beauty health ma'lumotlarini to'ldirish
-    if (healthRes.data) {
-      const health = healthRes.data
-      beautyHealth.bloodPressure = health.bloodPressure || null
-      beautyHealth.diabetes = health.diabetes || null
-      beautyHealth.cancer = health.cancer || null
-      beautyHealth.cancerDetails = health.cancerDetails || ''
-      beautyHealth.cancerTreatment = health.cancerTreatment || null
-      beautyHealth.cancerTreatmentDetails = health.cancerTreatmentDetails || ''
-      beautyHealth.hormonal = health.hormonal || null
-      beautyHealth.thyroid = health.thyroid || null
-      beautyHealth.skin = health.skin || null
-      beautyHealth.skinDetails = health.skinDetails || ''
-      beautyHealth.alcohol = health.alcohol || null
-      beautyHealth.prosthesis = health.prosthesis || null
-      beautyHealth.platinum = health.platinum || null
-      beautyHealth.implants = health.implants || null
-      beautyHealth.crowns = health.crowns || null
-      beautyHealth.surgery = health.surgery || null
-      beautyHealth.surgeryDetails = health.surgeryDetails || ''
-      beautyHealth.surgeryDate = health.surgeryDate ? new Date(health.surgeryDate).toISOString().slice(0, 10) : ''
-      beautyHealth.smoking = health.smoking || null
-      beautyHealth.medications = health.medications || ''
+    if (health) {
+      Object.keys(beautyHealth).forEach(key => {
+        beautyHealth[key] = health[key.toLowerCase()] || null
+      })
+      if (health.surgerydate) beautyHealth.surgeryDate = new Date(health.surgerydate).toISOString().slice(0, 10)
     }
   } catch (err: any) {
     console.error('A\'zo ma\'lumotlarini yuklashda xatolik:', err)
-    submitError.value = err?.response?.data?.error || t('memberCreate.errorLoading')
+    submitError.value = err.message || t('memberCreate.errorLoading')
+  } finally {
+    pageLoading.value = false
   }
 }
 
 const handlePhotoUpload = (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
+  if (!file) return
+  if (file.size > 5 * 1024 * 1024) { submitError.value = t('memberCreate.photoSizeError'); return }
+  if (!file.type.startsWith('image/')) { submitError.value = t('memberCreate.photoFormatError'); return }
   
-  if (!file) {
-    photoPreview.value = null
-    form.photo = null
-    return
-  }
-
-  // Fayl hajmini tekshirish (5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    submitError.value = t('memberCreate.photoSizeError')
-    target.value = ''
-    return
-  }
-
-  // Fayl formatini tekshirish
-  if (!file.type.startsWith('image/')) {
-    submitError.value = t('memberCreate.photoFormatError')
-    target.value = ''
-    return
-  }
-
-  // Base64 formatiga o'tkazish
+  selectedPhotoFile.value = file
   const reader = new FileReader()
   reader.onload = (e) => {
-    const result = e.target?.result as string
-    photoPreview.value = result
-    form.photo = file
-  }
-  reader.onerror = () => {
-    submitError.value = t('memberCreate.photoReadError')
-    target.value = ''
+    photoPreview.value = e.target?.result as string
   }
   reader.readAsDataURL(file)
 }
 
 const removePhoto = () => {
   photoPreview.value = null
+  selectedPhotoFile.value = null
   form.photo = null
-  existingPhoto.value = null // Edit mode'da ham o'chirilganda existingPhoto'ni ham tozalash
-  const fileInput = document.getElementById('photo') as HTMLInputElement
-  if (fileInput) {
-    fileInput.value = ''
-  }
+  existingPhoto.value = null
 }
 
-
 onMounted(async () => {
-  if (isEditMode.value) {
-    await loadMemberData()
-  } else {
-  generatePreviewId()
-  }
+  if (isEditMode.value) await loadMemberData()
+  else generatePreviewId()
 })
 
 const handleSubmit = async () => {
   submitError.value = null
   submitSuccess.value = null
-
-  if (!form.fullName || !form.phone) {
-    submitError.value = t('common.error')
-    return
-  }
-
-  // Photo majburiy tekshiruvi
-  // Edit mode'da agar mavjud photo bo'lsa, yangi photo majburiy emas
-  // Lekin agar mavjud photo bo'lmasa yoki yangi photo yuklanmagan bo'lsa, xato
-  if (!isEditMode.value) {
-    // Create mode: photo majburiy
-    if (!photoPreview.value && !form.photo) {
-      submitError.value = t('memberCreate.photoRequired')
-      return
-    }
-  } else {
-    // Edit mode: agar mavjud photo bo'lmasa va yangi photo yuklanmagan bo'lsa, xato
-    if (!existingPhoto.value && !photoPreview.value && !form.photo) {
-      submitError.value = t('memberCreate.photoRequired')
-      return
-    }
-  }
-
+  if (!form.fullName || !form.phone) { submitError.value = t('common.error'); return }
+  if (!isEditMode.value && !photoPreview.value) { submitError.value = t('memberCreate.photoRequired'); return }
+  
   submitting.value = true
   saveStatus.value = 'saving'
   saveProgress.value = t('memberCreate.preparingData')
   
   try {
-    // Agar form.qrCodeId bo'sh bo'lsa, yangi generatsiya qilish
-    saveProgress.value = t('memberCreate.generatingId')
     let finalQrCodeId = form.qrCodeId.trim()
-    if (!finalQrCodeId) {
-      // Preview ID'ni ishlatish yoki yangi generatsiya qilish
-      const previewRes = await api.post('/members/preview-id')
-      finalQrCodeId = previewRes.data.qrCodeId
-      form.qrCodeId = finalQrCodeId
-    }
+    if (!finalQrCodeId) finalQrCodeId = generateQrCodeId()
 
-    // Sana va hozirgi vaqtni birga yuborish (O'zbekiston vaqt mintaqasida)
-    // Hozirgi vaqtni O'zbekiston vaqt mintaqasida olish (UTC+5)
     const now = new Date()
-    // O'zbekiston vaqt mintaqasida hozirgi vaqtni olish
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Asia/Tashkent',
-      hour12: false,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    })
+    const formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Tashkent', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
     const timeParts = formatter.formatToParts(now)
     const hours = timeParts.find(p => p.type === 'hour')?.value || '00'
     const minutes = timeParts.find(p => p.type === 'minute')?.value || '00'
     const seconds = timeParts.find(p => p.type === 'second')?.value || '00'
     
-    // Tanlangan sanani O'zbekiston vaqt mintaqasidagi hozirgi vaqt bilan birlashtirish
-    const dateWithTime = form.registrationDate 
-      ? new Date(`${form.registrationDate}T${hours}:${minutes}:${seconds}+05:00`).toISOString()
-      : null
-
-    // To'lov turiga qarab tugash sanasini hisoblash
+    const dateWithTime = form.registrationDate ? new Date(`${form.registrationDate}T${hours}:${minutes}:${seconds}+05:00`).toISOString() : null
     let gymEndDate = dateWithTime
     if (dateWithTime && (form.serviceType === 'gym' || form.serviceType === 'both') && gymInfo.membershipType && gymInfo.membershipType !== 'other') {
       const calculatedEndDate = calculateEndDate(form.registrationDate, gymInfo.membershipType)
       if (calculatedEndDate) {
-        // Tugash sanasini ham hozirgi vaqt bilan birlashtirish
-        const endDateWithTime = new Date(`${calculatedEndDate}T${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}+05:00`).toISOString()
-        gymEndDate = endDateWithTime
+        gymEndDate = new Date(`${calculatedEndDate}T${hours}:${minutes}:${seconds}+05:00`).toISOString()
       }
     }
 
-    // Photo'ni to'g'ri yuborish: yangi photo bo'lsa uni, aks holda existingPhoto'ni yuborish
-    const photoToSend = photoPreview.value || (isEditMode.value && existingPhoto.value) || null
+    // Step 1: Upload photo if new one selected
+    let photoPath = existingPhoto.value
+    if (selectedPhotoFile.value) {
+      saveProgress.value = "Surat yuklanmoqda..."
+      try {
+        photoPath = await storageService.uploadMemberPhoto(selectedPhotoFile.value, finalQrCodeId)
+      } catch (uploadErr: any) {
+        console.warn("Storage error, falling back to base64 if possible:", uploadErr)
+        // If storage fails (e.g. bucket not created), fallback to base64 if it's small enough
+        if (photoPreview.value?.length && photoPreview.value.length < 500000) {
+           photoPath = photoPreview.value
+        } else {
+           throw new Error("Suratni yuklab bo'lmadi. Iltimos keyinroq urinib ko'ring yoki kichikroq surat tanlang.")
+        }
+      }
+    }
 
     const payload = {
       fullName: form.fullName,
       phone: form.phone,
       qrCodeId: finalQrCodeId,
       joinDate: dateWithTime,
-      // Backwards compatibility - gym sanalarini members jadvaliga ham yozish
       gymStart: (form.serviceType === 'gym' || form.serviceType === 'both') ? dateWithTime : null,
       gymEnd: (form.serviceType === 'gym' || form.serviceType === 'both') ? gymEndDate : null,
       gymActive: form.serviceType === 'beauty' ? 0 : 1,
-      photo: photoToSend,
+      photo: photoPath,
       birthDate: form.birthDate || null,
       email: form.email || null,
       region: form.region || null,
-      district: form.district || null
+      district: form.district || null,
+      beautyHasRecord: showsBeautySection.value ? 1 : 0
     }
 
     if (isEditMode.value && memberId.value) {
-      // Edit rejimi - PUT so'rovi
-      await api.put(`/members/${memberId.value}`, payload)
+      await membersService.update(memberId.value, payload)
+      if (form.serviceType !== 'beauty') await membersService.upsertGymInfo(memberId.value, gymInfo)
+      if (showsBeautySection.value) await membersService.upsertBeautyHealth(memberId.value, beautyHealth)
       
-      // Agar gym yoki both tanlangan bo'lsa, gym ma'lumotlarini yangilash
-      if (form.serviceType === 'gym' || form.serviceType === 'both') {
-        const gymPayload = {
-          memberId: memberId.value,
-          ...gymInfo
-        }
-        await api.post('/members/gym-info', gymPayload)
-      }
-
-      // Agar beauty yoki both tanlangan bo'lsa, sog'liq ma'lumotlarini yangilash
-      if (showsBeautySection.value) {
-        const healthPayload = {
-          memberId: memberId.value,
-          ...beautyHealth
-        }
-        await api.post('/members/beauty-health', healthPayload)
-      }
-      
-      saveProgress.value = t('memberCreate.completed')
-      saveStatus.value = 'saved'
       submitSuccess.value = t('memberCreate.updateSuccess')
-      
-      setTimeout(() => {
-        router.push(`/members/${memberId.value}`)
-      }, 1500)
+      setTimeout(() => router.push(`/members/${memberId.value}`), 1500)
     } else {
-      // Yangi a'zo qo'shish - POST so'rovi
-      saveProgress.value = t('memberCreate.savingMember')
-    const memberRes = await api.post('/members', payload)
-      const newMemberId = memberRes.data.id
-    const qrCode = memberRes.data.qrCodeId
-    
-    // Generatsiya qilingan ID'ni ko'rsatish
-    if (qrCode) {
-      generatedQrCode.value = qrCode
-      form.qrCodeId = qrCode
-    }
-
-    // Agar gym yoki both tanlangan bo'lsa, gym membership yaratish
-      if ((form.serviceType === 'gym' || form.serviceType === 'both') && newMemberId) {
-        saveProgress.value = t('memberCreate.savingGymInfo')
-        
-        // Gym membership yaratish
-        const gymMembershipPayload = {
-          memberId: newMemberId,
-          startDate: dateWithTime,
-          endDate: gymEndDate,
-          membershipType: gymInfo.membershipType
-        }
-        await api.post('/gym-memberships', gymMembershipPayload)
-        
-        // Gym info saqlash
-      const gymPayload = {
-          memberId: newMemberId,
-        ...gymInfo
+      const member = await membersService.create(payload)
+      const newId = member.id
+      if (form.serviceType !== 'beauty') {
+        await gymMembershipsService.create({ memberId: newId, startDate: dateWithTime, endDate: gymEndDate, membershipType: gymInfo.membershipType })
+        await membersService.upsertGymInfo(newId, gymInfo)
       }
-      await api.post('/members/gym-info', gymPayload)
+      if (showsBeautySection.value) await membersService.upsertBeautyHealth(newId, beautyHealth)
+      
+      submitSuccess.value = t('memberCreate.success') + '. ID: ' + member.qrCodeId
+      setTimeout(() => router.push('/members'), 2000)
     }
-
-    // Agar beauty yoki both tanlangan bo'lsa, sog'liq ma'lumotlarini saqlash
-      if (showsBeautySection.value && newMemberId) {
-        saveProgress.value = t('memberCreate.savingHealthInfo')
-      const healthPayload = {
-          memberId: newMemberId,
-        ...beautyHealth
-      }
-      await api.post('/members/beauty-health', healthPayload)
-    }
-
-      saveProgress.value = t('memberCreate.completed')
-      saveStatus.value = 'saved'
-      submitSuccess.value = t('memberCreate.success') + (qrCode ? '. ID: ' + qrCode : '')
-    
-    setTimeout(() => {
-      router.push('/members')
-    }, 2000)
-    }
+    saveStatus.value = 'saved'
   } catch (err: any) {
     console.error(err)
     saveStatus.value = 'error'
-    saveProgress.value = ''
-    submitError.value = err?.response?.data?.error || t('memberCreate.error')
+    submitError.value = err.message || t('memberCreate.error')
   } finally {
     submitting.value = false
-    if (saveStatus.value !== 'error') {
-      // Muvaffaqiyatli bo'lsa, progress'ni tozalash
-      setTimeout(() => {
-        saveProgress.value = ''
-      }, 1000)
-    }
   }
 }
 </script>
 
 <style scoped>
-.input-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 0.25rem;
-}
-.input {
-  width: 100%;
-  border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-}
-.input:focus {
-  border-color: #0ea5e9;
-  outline: none;
-  box-shadow: 0 0 0 1px #0ea5e9;
-}
-:global(.dark) .input-label {
-  color: var(--app-text-muted);
-}
-:global(.dark) .input {
-  border-color: var(--app-input-border);
-}
+.input-label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem; }
+.input { width: 100%; border-radius: 0.5rem; border: 1px solid #e5e7eb; padding: 0.5rem 0.75rem; font-size: 0.875rem; }
+.input:focus { border-color: #0ea5e9; outline: none; box-shadow: 0 0 0 1px #0ea5e9; }
 </style>

@@ -27,7 +27,7 @@
             </svg>
           </button>
         </div>
-        <div v-if="memberModalLoading" class="px-4 sm:px-6 py-12 text-center text-gray-500">{{ $t('common.loading') }}</div>
+        <LoadingSpinner v-if="memberModalLoading" />
         <div v-else-if="memberModalError" class="px-4 sm:px-6 py-12 text-center text-red-600">{{ memberModalError }}</div>
         <div v-else-if="scannedMember" class="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
           <!-- Asosiy ma'lumotlar -->
@@ -40,7 +40,7 @@
                 <!-- Surat -->
                 <div class="flex justify-center">
                   <div v-if="scannedMember.photo" class="relative">
-                    <img :src="scannedMember.photo" :alt="scannedMember.fullName" class="h-48 w-48 sm:h-64 sm:w-64 rounded-lg object-cover border-2 border-gray-200" />
+                    <img :src="storageService.getMemberPhotoUrl(scannedMember.photo) || ''" :alt="scannedMember.fullName" class="h-48 w-48 sm:h-64 sm:w-64 rounded-lg object-cover border-2 border-gray-200" />
                   </div>
                   <div v-else class="flex h-48 w-48 sm:h-64 sm:w-64 items-center justify-center rounded-lg bg-gray-100 border-2 border-gray-200">
                     <svg class="h-24 w-24 sm:h-32 sm:w-32 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,7 +342,7 @@
 
     <!-- Table section (scrollable) -->
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm" style="max-height: calc(100vh - 420px);">
-      <div v-if="loading" class="px-4 py-6 text-center text-sm text-gray-500">{{ $t('common.loading') }}</div>
+    <LoadingSpinner v-if="loading" />
       <div v-else class="overflow-x-auto" style="max-height: calc(100vh - 420px);">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="sticky top-0 z-10 bg-gray-50">
@@ -392,7 +392,10 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import api from '../lib/api'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
+import { membersService, checkinsService, beautyService, storageService } from '../services/supabaseService'
+import { supabase } from '../lib/supabase'
+import * as mappings from '../lib/mappings'
 import * as XLSX from 'xlsx'
 import { TableCellsIcon, DocumentTextIcon } from '@heroicons/vue/24/outline'
 import { formatDate, formatDateTime, getCurrentDateTime } from '../lib/dateUtils'
@@ -461,11 +464,11 @@ const fetchCheckins = async () => {
   loading.value = true
   error.value = null
   try {
-    const { data } = await api.get<Checkin[]>('/checkins')
+    const data = await checkinsService.getAll()
     checkins.value = data
-  } catch (err) {
+  } catch (err: any) {
     console.error(err)
-    error.value = t('checkins.errorLoading')
+    error.value = err.message || t('checkins.errorLoading')
   } finally {
     loading.value = false
   }
@@ -690,11 +693,11 @@ const onDeleteCheckin = async (id: number) => {
   const ok = window.confirm(t('checkins.deleteCheckinConfirm'))
   if (!ok) return
   try {
-    await api.delete(`/checkins/${id}`)
+    await checkinsService.delete(id)
     checkins.value = checkins.value.filter(c => c.id !== id)
-  } catch (err) {
+  } catch (err: any) {
     console.error(err)
-    window.alert(t('checkins.deleteCheckinError'))
+    window.alert(err.message || t('checkins.deleteCheckinError'))
   }
 }
 
@@ -702,12 +705,12 @@ const onDeleteMember = async (memberId: number) => {
   const ok = window.confirm(t('checkins.deleteMemberConfirm'))
   if (!ok) return
   try {
-    await api.delete(`/members/${memberId}`)
+    await membersService.delete(memberId)
     // A'zosi o'chirilgan yozuvlarni ham ro'yxatdan olib tashlaymiz
     checkins.value = checkins.value.filter(c => c.memberId !== memberId)
   } catch (err: any) {
     console.error(err)
-    window.alert((err?.response?.data?.error) || t('checkins.deleteMemberError'))
+    window.alert(err.message || t('checkins.deleteMemberError'))
   }
 }
 
@@ -792,36 +795,31 @@ const fetchMemberByQrCode = async (qrCode: string) => {
   
   try {
     // Avval member ma'lumotlarini olish
-    const memberRes = await api.get(`/members/qr/${qrCode}`)
-    scannedMember.value = memberRes.data
-    
-    // Agar member topilsa, qolgan ma'lumotlarni parallel olish
-    if (scannedMember.value && scannedMember.value.id) {
-      const memberId = scannedMember.value.id
-      
-      // Qolgan ma'lumotlarni member ID orqali parallel olish
-      const [gymInfoRes, healthInfoRes, checkinsInfoRes, beautyInfoRes] = await Promise.all([
-        api.get(`/members/${memberId}/gym-info`).catch(() => ({ data: null })),
-        api.get(`/members/${memberId}/beauty-health`).catch(() => ({ data: null })),
-        api.get(`/checkins/member/${memberId}`).catch(() => ({ data: [] })),
-        api.get(`/beauty/member/${memberId}`).catch(() => ({ data: [] }))
-      ])
-      
-      scannedGymInfo.value = gymInfoRes.data
-      scannedBeautyHealth.value = healthInfoRes.data
-      scannedCheckins.value = checkinsInfoRes.data || []
-      scannedBeautyServices.value = beautyInfoRes.data || []
+    const member = await membersService.getByQrCode(qrCode)
+    if (!member || !member.id) {
+        throw new Error(t('checkins.memberNotFound'))
     }
+    scannedMember.value = member
+    
+    const memberId = member.id
+    
+    // Qolgan ma'lumotlarni member ID orqali parallel olish
+    const [gymInfo, healthInfo, checkinsInfo, beautyInfo] = await Promise.all([
+      membersService.getGymInfo(memberId).catch(() => null),
+      membersService.getBeautyHealth(memberId).catch(() => null),
+      checkinsService.getByMemberId(memberId).catch(() => []),
+      beautyService.getByMemberId(memberId).catch(() => [])
+    ])
+    
+    scannedGymInfo.value = gymInfo
+    scannedBeautyHealth.value = healthInfo
+    scannedCheckins.value = checkinsInfo || []
+    scannedBeautyServices.value = beautyInfo || []
     
     showMemberModal.value = true
   } catch (err: any) {
     console.error('Error fetching member:', err)
-    // Agar member topilmasa, xatolik ko'rsatish
-    if (err?.response?.status === 404) {
-      memberModalError.value = t('checkins.memberNotFound')
-    } else {
-      memberModalError.value = err?.response?.data?.error || t('checkins.memberNotFound')
-    }
+    memberModalError.value = err.message || t('checkins.memberNotFound')
   } finally {
     memberModalLoading.value = false
   }
@@ -862,12 +860,9 @@ const handleBarcodeScan = async () => {
     await fetchMemberByQrCode(qrCode)
     
     // Keyin checkin yaratish
-    const { data } = await api.post('/checkins', {
-      qrCodeId: qrCode,
-      verifiedBy: 'System'
-    })
+    const data = await checkinsService.add(qrCode, 'System')
 
-    successMessage.value = t('checkins.successCheckin', { name: data.member?.fullName || scannedMember.value?.fullName || t('checkins.noName') })
+    successMessage.value = t('checkins.successCheckin', { name: data.fullName || scannedMember.value?.fullName || t('checkins.noName') })
     barcodeInput.value = ''
     
     // Ro'yxatni yangilash

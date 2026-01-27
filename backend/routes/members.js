@@ -1,5 +1,5 @@
 import express from "express";
-import db from "../db/database.js";
+import supabase from "../db/supabase.js";
 import PDFDocument from "pdfkit";
 import { createCanvas } from "canvas";
 import JsBarcode from "jsbarcode";
@@ -78,87 +78,80 @@ async function initializeFirebase() {
   return firestore;
 }
 
-// Firebase'dan member va bog'liq yozuvlarni o'chirish
-async function deleteMemberFromFirebase(memberId) {
-  try {
-    const db = await initializeFirebase();
-    if (!db) {
-      console.warn('⚠️  Firebase not initialized. Skipping Firebase deletion.');
-      return false;
-    }
+// Helper to map Supabase row (lowercase) to Frontend (CamelCase)
+const mapMemberToCamelCase = (member) => {
+  if (!member) return null;
+  return {
+    id: member.id,
+    fullName: member.fullname,
+    phone: member.phone,
+    gender: member.gender,
+    qrCodeId: member.qrcodeid,
+    joinDate: member.joindate,
+    gymStart: member.gymstart,
+    gymEnd: member.gymend,
+    gymActive: member.gymactive,
+    beautyHasRecord: member.beautyhasrecord,
+    lastUpdated: member.lastupdated,
+    synced: member.synced,
+    photo: member.photo,
+    birthDate: member.birthdate,
+    email: member.email,
+    region: member.region,
+    district: member.district
+  };
+};
 
-    const memberIdStr = memberId.toString();
-    let deletedCount = 0;
+const mapGymInfoToCamelCase = (info) => {
+  if (!info) return null;
+  return {
+    id: info.id,
+    memberId: info.memberid,
+    emergencyName: info.emergencyname,
+    emergencyPhone: info.emergencyphone,
+    emergencyRelation: info.emergencyrelation,
+    medicalConditions: info.medicalconditions,
+    medications: info.medications,
+    fitnessGoals: info.fitnessgoals,
+    membershipType: info.membershiptype,
+    membershipTypeOther: info.membershiptypeother,
+    paymentMethod: info.paymentmethod,
+    paymentMethodOther: info.paymentmethodother
+  };
+};
 
-    // Member'ni o'chirish
-    try {
-      const memberRef = db.collection('members').doc(memberIdStr);
-      const memberDoc = await memberRef.get();
-
-      if (memberDoc.exists) {
-        await memberRef.delete();
-        deletedCount++;
-        console.log(`✅ Deleted member ${memberIdStr} from Firebase`);
-      } else {
-        console.warn(`⚠️  Member ${memberIdStr} not found in Firebase (may already be deleted)`);
-      }
-    } catch (err) {
-      console.error(`❌ Error deleting member ${memberIdStr} from Firebase:`, err.message);
-      if (err.stack) {
-        console.error('   Stack:', err.stack);
-      }
-    }
-
-    // Bog'liq yozuvlarni o'chirish
-    const collections = ['checkins', 'beauty_services', 'beauty_health_info', 'gym_info', 'gym_payments'];
-
-    for (const collectionName of collections) {
-      try {
-        // memberId ni ham number ham string sifatida tekshirish
-        const snapshotNumber = await db.collection(collectionName)
-          .where('memberId', '==', parseInt(memberId))
-          .get();
-
-        const snapshotString = await db.collection(collectionName)
-          .where('memberId', '==', memberIdStr)
-          .get();
-
-        // Ikkala natijani birlashtirish
-        const allDocs = new Map();
-        snapshotNumber.docs.forEach(doc => allDocs.set(doc.id, doc));
-        snapshotString.docs.forEach(doc => allDocs.set(doc.id, doc));
-
-        if (allDocs.size > 0) {
-          const batch = db.batch();
-          allDocs.forEach(doc => {
-            batch.delete(doc.ref);
-          });
-          await batch.commit();
-          deletedCount += allDocs.size;
-          console.log(`✅ Deleted ${allDocs.size} ${collectionName} records from Firebase for member ${memberIdStr}`);
-        }
-      } catch (err) {
-        console.error(`❌ Error deleting ${collectionName} from Firebase:`, err.message);
-        if (err.stack) {
-          console.error('   Stack:', err.stack);
-        }
-      }
-    }
-
-    return deletedCount > 0;
-  } catch (error) {
-    console.error('❌ Error deleting from Firebase:', error.message);
-    if (error.stack) {
-      console.error('   Stack:', error.stack);
-    }
-    return false;
-  }
-}
+const mapHealthInfoToCamelCase = (info) => {
+  if (!info) return null;
+  return {
+    id: info.id,
+    memberId: info.memberid,
+    bloodPressure: info.bloodpressure,
+    diabetes: info.diabetes,
+    cancer: info.cancer,
+    cancerDetails: info.cancerdetails,
+    cancerTreatment: info.cancertreatment,
+    cancerTreatmentDetails: info.cancertreatmentdetails,
+    hormonal: info.hormonal,
+    thyroid: info.thyroid,
+    skin: info.skin,
+    skinDetails: info.skindetails,
+    alcohol: info.alcohol,
+    prosthesis: info.prosthesis,
+    platinum: info.platinum,
+    implants: info.implants,
+    crowns: info.crowns,
+    surgery: info.surgery,
+    surgeryDetails: info.surgerydetails,
+    surgeryDate: info.surgerydate,
+    smoking: info.smoking,
+    medications: info.medications
+  };
+};
 
 const router = express.Router();
 
 // Unique ID generatsiya qilish funksiyasi (TGC + 6 ta belgi)
-const generateUniqueId = () => {
+const generateUniqueId = async () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let uniquePart = '';
 
@@ -171,7 +164,7 @@ const generateUniqueId = () => {
   const uniqueId = `TGC${uniquePart}`;
 
   // Tekshirish - agar bunday ID mavjud bo'lsa, yangi generatsiya qilish
-  const existing = db.prepare("SELECT id FROM members WHERE qrCodeId = ?").get(uniqueId);
+  const { data: existing } = await supabase.from('members').select('id').eq('qrcodeid', uniqueId).single();
   if (existing) {
     return generateUniqueId(); // Rekursiya orqali yangi ID generatsiya qilish
   }
@@ -180,9 +173,9 @@ const generateUniqueId = () => {
 };
 
 // Preview ID generatsiya qilish (sahifaga kirganda ko'rsatish uchun)
-router.post("/preview-id", (req, res) => {
+router.post("/preview-id", async (req, res) => {
   try {
-    const previewId = generateUniqueId();
+    const previewId = await generateUniqueId();
     res.json({ qrCodeId: previewId });
   } catch (err) {
     console.error(err);
@@ -191,15 +184,13 @@ router.post("/preview-id", (req, res) => {
 });
 
 // Yangi a'zo qo'shish
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   console.log('[POST /members] Request body:', JSON.stringify(req.body, null, 2));
-  console.log('[POST /members] Request headers:', req.headers);
 
   const { fullName, phone, qrCodeId, joinDate, gymStart, gymEnd, gymActive, photo, birthDate, email, region, district } = req.body;
 
-  // Validasyon
+  // Validaxon
   if (!fullName) {
-    console.error('[POST /members] Validation error: fullName is missing');
     return res.status(400).json({ error: "Ism majburiy" });
   }
 
@@ -207,52 +198,43 @@ router.post("/", (req, res) => {
     // Agar qrCodeId berilmagan bo'lsa, avtomatik generatsiya qilish
     let finalQrCodeId = qrCodeId;
     if (!finalQrCodeId || finalQrCodeId.trim() === '') {
-      finalQrCodeId = generateUniqueId();
+      finalQrCodeId = await generateUniqueId();
     } else {
       // Agar qrCodeId berilgan bo'lsa, unikalini tekshirish
-      const existing = db.prepare("SELECT id FROM members WHERE qrCodeId = ?").get(finalQrCodeId);
+      const { data: existing } = await supabase.from('members').select('id').eq('qrcodeid', finalQrCodeId).single();
       if (existing) {
         return res.status(400).json({ error: "Bu ID allaqachon mavjud. Avtomatik generatsiya qilish uchun ID maydonini bo'sh qoldiring." });
       }
     }
 
-    const stmt = db.prepare(`
-      INSERT INTO members 
-      (fullName, phone, gender, qrCodeId, joinDate, gymStart, gymEnd, gymActive, beautyHasRecord, lastUpdated, photo, birthDate, email, region, district)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?, ?)
-    `);
-    const params = [
-      fullName || null,
-      phone || null,
-      null, // gender - olib tashlandi
-      finalQrCodeId,
-      joinDate || null,
-      gymStart || null,
-      gymEnd || null,
-      gymActive !== undefined ? (gymActive ? 1 : 0) : 1, // gymActive - request'dan olingan yoki default 1
-      0, // beautyHasRecord - har doim 0, chunki yangi a'zoda xizmat yo'q
-      photo || null,
-      birthDate || null,
-      email || null,
-      region || null,
-      district || null
-    ];
+    const memberData = {
+      fullname: fullName || null,
+      phone: phone || null,
+      qrcodeid: finalQrCodeId,
+      joindate: joinDate || null,
+      gymstart: gymStart || null,
+      gymend: gymEnd || null,
+      gymactive: gymActive !== undefined ? (gymActive ? 1 : 0) : 1,
+      beautyhasrecord: 0,
+      lastupdated: new Date().toISOString(),
+      photo: photo || null,
+      birthdate: birthDate || null,
+      email: email || null,
+      region: region || null,
+      district: district || null
+    };
 
-    console.log('[POST /members] SQL parameters count:', params.length);
-    console.log('[POST /members] SQL parameters:', params.map((p, i) => `${i + 1}. ${p === null ? 'NULL' : (typeof p === 'string' && p.length > 50 ? p.substring(0, 50) + '...' : p)}`));
+    const { data, error } = await supabase.from('members').insert(memberData).select().single();
 
-    const result = stmt.run(...params);
-    console.log('[POST /members] Success! Inserted ID:', result.lastInsertRowid);
+    if (error) throw error;
 
     res.json({
       message: "A'zo muvaffaqiyatli qo'shildi ✅",
-      id: result.lastInsertRowid,
+      id: data.id,
       qrCodeId: finalQrCodeId
     });
   } catch (err) {
     console.error('[POST /members] Xatolik:', err);
-    console.error('[POST /members] Error stack:', err.stack);
-    console.error('[POST /members] Request body:', JSON.stringify(req.body, null, 2));
     res.status(500).json({
       error: "Ro'yxatga olishda xatolik yoki ID allaqachon mavjud.",
       details: err.message
@@ -261,10 +243,11 @@ router.post("/", (req, res) => {
 });
 
 // Barcha a'zolarni olish
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const members = db.prepare("SELECT * FROM members ORDER BY lastUpdated DESC").all();
-    res.json(members);
+    const { data, error } = await supabase.from('members').select('*').order('lastupdated', { ascending: false });
+    if (error) throw error;
+    res.json(data.map(mapMemberToCamelCase));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "A'zolarni olishda xatolik yuz berdi" });
@@ -272,13 +255,14 @@ router.get("/", (req, res) => {
 });
 
 // ID orqali a'zo topish
-router.get("/qr/:code", (req, res) => {
+router.get("/qr/:code", async (req, res) => {
   try {
-    const member = db.prepare("SELECT * FROM members WHERE qrCodeId = ?").get(req.params.code);
-    if (!member) {
+    const { data, error } = await supabase.from('members').select('*').eq('qrcodeid', req.params.code).maybeSingle();
+    if (error) throw error;
+    if (!data) {
       return res.status(404).json({ error: "A'zo topilmadi" });
     }
-    res.json(member);
+    res.json(mapMemberToCamelCase(data));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "A'zo qidirishda xatolik yuz berdi" });
@@ -286,13 +270,14 @@ router.get("/qr/:code", (req, res) => {
 });
 
 // A'zoning gym ma'lumotlarini olish (/:id dan oldin bo'lishi kerak)
-router.get("/:id/gym-info", (req, res) => {
+router.get("/:id/gym-info", async (req, res) => {
   try {
-    const gymInfo = db.prepare("SELECT * FROM gym_info WHERE memberId = ?").get(req.params.id);
-    if (!gymInfo) {
+    const { data, error } = await supabase.from('gym_info').select('*').eq('memberid', req.params.id).maybeSingle();
+    if (error) throw error;
+    if (!data) {
       return res.status(404).json({ error: "Gym ma'lumotlari topilmadi" });
     }
-    res.json(gymInfo);
+    res.json(mapGymInfoToCamelCase(data));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Gym ma'lumotlarini olishda xatolik yuz berdi" });
@@ -300,13 +285,14 @@ router.get("/:id/gym-info", (req, res) => {
 });
 
 // A'zoning beauty sog'liq ma'lumotlarini olish (/:id dan oldin bo'lishi kerak)
-router.get("/:id/beauty-health", (req, res) => {
+router.get("/:id/beauty-health", async (req, res) => {
   try {
-    const health = db.prepare("SELECT * FROM beauty_health_info WHERE memberId = ?").get(req.params.id);
-    if (!health) {
+    const { data, error } = await supabase.from('beauty_health_info').select('*').eq('memberid', req.params.id).maybeSingle();
+    if (error) throw error;
+    if (!data) {
       return res.status(404).json({ error: "Sog'liq ma'lumotlari topilmadi" });
     }
-    res.json(health);
+    res.json(mapHealthInfoToCamelCase(data));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Sog'liq ma'lumotlarini olishda xatolik yuz berdi" });
@@ -314,13 +300,14 @@ router.get("/:id/beauty-health", (req, res) => {
 });
 
 // ID orqali a'zo olish
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    const member = db.prepare("SELECT * FROM members WHERE id = ?").get(req.params.id);
-    if (!member) {
+    const { data, error } = await supabase.from('members').select('*').eq('id', req.params.id).maybeSingle();
+    if (error) throw error;
+    if (!data) {
       return res.status(404).json({ error: "A'zo topilmadi" });
     }
-    res.json(member);
+    res.json(mapMemberToCamelCase(data));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "A'zoni olishda xatolik yuz berdi" });
@@ -328,14 +315,14 @@ router.get("/:id", (req, res) => {
 });
 
 // Barcha a'zolarni va ularning ma'lumotlarini o'chirish (/:id dan oldin bo'lishi kerak)
-router.delete("/all", (req, res) => {
+router.delete("/all", async (req, res) => {
   try {
-    // CASCADE DELETE tufayli members jadvalini tozalash barcha bog'liq yozuvlarni ham o'chiradi
-    const result = db.prepare("DELETE FROM members").run();
+    const { count, error } = await supabase.from('members').delete({ count: 'exact' }).gt('id', 0);
+    if (error) throw error;
 
     res.json({
       message: "Barcha a'zolar va ularning ma'lumotlari muvaffaqiyatli o'chirildi ✅",
-      deletedCount: result.changes
+      deletedCount: count
     });
   } catch (err) {
     console.error('[DELETE /members/all] Xatolik:', err);
@@ -344,33 +331,28 @@ router.delete("/all", (req, res) => {
 });
 
 // A'zoni yangilash
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   const { fullName, phone, qrCodeId, joinDate, gymStart, gymEnd, gymActive, photo, birthDate, email, region, district } = req.body;
 
   try {
-    const stmt = db.prepare(`
-      UPDATE members 
-      SET fullName = ?, phone = ?, gender = ?, qrCodeId = ?, joinDate = ?, 
-          gymStart = ?, gymEnd = ?, gymActive = ?, photo = ?, birthDate = ?, 
-          email = ?, region = ?, district = ?, lastUpdated = datetime('now')
-      WHERE id = ?
-    `);
-    stmt.run(
-      fullName,
-      phone,
-      null, // gender - olib tashlandi
-      qrCodeId,
-      joinDate,
-      gymStart,
-      gymEnd,
-      gymActive ? 1 : 0,
-      photo || null,
-      birthDate || null,
-      email || null,
-      region || null,
-      district || null,
-      req.params.id
-    );
+    const updateData = {
+      fullname: fullName,
+      phone: phone,
+      qrcodeid: qrCodeId,
+      joindate: joinDate,
+      gymstart: gymStart,
+      gymend: gymEnd,
+      gymactive: gymActive ? 1 : 0,
+      photo: photo || null,
+      birthdate: birthDate || null,
+      email: email || null,
+      region: region || null,
+      district: district || null,
+      lastupdated: new Date().toISOString()
+    };
+
+    const { error } = await supabase.from('members').update(updateData).eq('id', req.params.id);
+    if (error) throw error;
 
     res.json({ message: "A'zo muvaffaqiyatli yangilandi ✅" });
   } catch (err) {
@@ -380,7 +362,7 @@ router.put("/:id", (req, res) => {
 });
 
 // Gym ma'lumotlarini saqlash
-router.post("/gym-info", (req, res) => {
+router.post("/gym-info", async (req, res) => {
   const {
     memberId,
     emergencyName,
@@ -400,41 +382,28 @@ router.post("/gym-info", (req, res) => {
   }
 
   try {
-    // Avval mavjud yozuvni tekshirish
-    const existing = db.prepare("SELECT id FROM gym_info WHERE memberId = ?").get(memberId);
+    const gymData = {
+      memberid: memberId,
+      emergencyname: emergencyName,
+      emergencyphone: emergencyPhone,
+      emergencyrelation: emergencyRelation,
+      medicalconditions: medicalConditions,
+      medications: medications,
+      fitnessgoals: fitnessGoals,
+      membershiptype: membershipType,
+      membershiptypeother: membershipTypeOther,
+      paymentmethod: paymentMethod,
+      paymentmethodother: paymentMethodOther
+    };
+
+    const { data: existing } = await supabase.from('gym_info').select('id').eq('memberid', memberId).maybeSingle();
 
     if (existing) {
-      // Yangilash
-      const stmt = db.prepare(`
-        UPDATE gym_info SET
-          emergencyName = ?, emergencyPhone = ?, emergencyRelation = ?,
-          medicalConditions = ?, medications = ?, fitnessGoals = ?,
-          membershipType = ?, membershipTypeOther = ?,
-          paymentMethod = ?, paymentMethodOther = ?
-        WHERE memberId = ?
-      `);
-      stmt.run(
-        emergencyName, emergencyPhone, emergencyRelation,
-        medicalConditions, medications, fitnessGoals,
-        membershipType, membershipTypeOther,
-        paymentMethod, paymentMethodOther, memberId
-      );
+      const { error } = await supabase.from('gym_info').update(gymData).eq('memberid', memberId);
+      if (error) throw error;
     } else {
-      // Yangi yozuv
-      const stmt = db.prepare(`
-        INSERT INTO gym_info (
-          memberId, emergencyName, emergencyPhone, emergencyRelation,
-          medicalConditions, medications, fitnessGoals,
-          membershipType, membershipTypeOther,
-          paymentMethod, paymentMethodOther
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `);
-      stmt.run(
-        memberId, emergencyName, emergencyPhone, emergencyRelation,
-        medicalConditions, medications, fitnessGoals,
-        membershipType, membershipTypeOther,
-        paymentMethod, paymentMethodOther
-      );
+      const { error } = await supabase.from('gym_info').insert(gymData);
+      if (error) throw error;
     }
 
     res.json({ message: "Gym ma'lumotlari muvaffaqiyatli saqlandi ✅" });
@@ -445,7 +414,7 @@ router.post("/gym-info", (req, res) => {
 });
 
 // Beauty sog'liq ma'lumotlarini saqlash
-router.post("/beauty-health", (req, res) => {
+router.post("/beauty-health", async (req, res) => {
   const {
     memberId,
     bloodPressure,
@@ -475,49 +444,38 @@ router.post("/beauty-health", (req, res) => {
   }
 
   try {
-    // Avval mavjud yozuvni tekshirish
-    const existing = db.prepare("SELECT id FROM beauty_health_info WHERE memberId = ?").get(memberId);
+    const healthData = {
+      memberid: memberId,
+      bloodpressure: bloodPressure,
+      diabetes: diabetes,
+      cancer: cancer,
+      cancerdetails: cancerDetails,
+      cancertreatment: cancerTreatment,
+      cancertreatmentdetails: cancerTreatmentDetails,
+      hormonal: hormonal,
+      thyroid: thyroid,
+      skin: skin,
+      skindetails: skinDetails,
+      alcohol: alcohol,
+      prosthesis: prosthesis,
+      platinum: platinum,
+      implants: implants,
+      crowns: crowns,
+      surgery: surgery,
+      surgerydetails: surgeryDetails,
+      surgerydate: surgeryDate,
+      smoking: smoking,
+      medications: medications
+    };
+
+    const { data: existing } = await supabase.from('beauty_health_info').select('id').eq('memberid', memberId).maybeSingle();
 
     if (existing) {
-      // Yangilash
-      const stmt = db.prepare(`
-        UPDATE beauty_health_info SET
-          bloodPressure = ?, diabetes = ?, cancer = ?, cancerDetails = ?,
-          cancerTreatment = ?, cancerTreatmentDetails = ?, hormonal = ?,
-          thyroid = ?, skin = ?, skinDetails = ?, alcohol = ?,
-          prosthesis = ?, platinum = ?, implants = ?, crowns = ?,
-          surgery = ?, surgeryDetails = ?, surgeryDate = ?,
-          smoking = ?, medications = ?
-        WHERE memberId = ?
-      `);
-      stmt.run(
-        bloodPressure, diabetes, cancer, cancerDetails,
-        cancerTreatment, cancerTreatmentDetails, hormonal,
-        thyroid, skin, skinDetails, alcohol,
-        prosthesis, platinum, implants, crowns,
-        surgery, surgeryDetails, surgeryDate,
-        smoking, medications, memberId
-      );
+      const { error } = await supabase.from('beauty_health_info').update(healthData).eq('memberid', memberId);
+      if (error) throw error;
     } else {
-      // Yangi yozuv
-      const stmt = db.prepare(`
-        INSERT INTO beauty_health_info (
-          memberId, bloodPressure, diabetes, cancer, cancerDetails,
-          cancerTreatment, cancerTreatmentDetails, hormonal,
-          thyroid, skin, skinDetails, alcohol,
-          prosthesis, platinum, implants, crowns,
-          surgery, surgeryDetails, surgeryDate,
-          smoking, medications
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `);
-      stmt.run(
-        memberId, bloodPressure, diabetes, cancer, cancerDetails,
-        cancerTreatment, cancerTreatmentDetails, hormonal,
-        thyroid, skin, skinDetails, alcohol,
-        prosthesis, platinum, implants, crowns,
-        surgery, surgeryDetails, surgeryDate,
-        smoking, medications
-      );
+      const { error } = await supabase.from('beauty_health_info').insert(healthData);
+      if (error) throw error;
     }
 
     res.json({ message: "Sog'liq ma'lumotlari muvaffaqiyatli saqlandi ✅" });
@@ -528,7 +486,7 @@ router.post("/beauty-health", (req, res) => {
 });
 
 // A'zo rasmini yangilash
-router.put("/:id/photo", (req, res) => {
+router.put("/:id/photo", async (req, res) => {
   const { photo } = req.body;
 
   if (!photo) {
@@ -536,8 +494,8 @@ router.put("/:id/photo", (req, res) => {
   }
 
   try {
-    const stmt = db.prepare("UPDATE members SET photo = ?, lastUpdated = datetime('now') WHERE id = ?");
-    stmt.run(photo, req.params.id);
+    const { error } = await supabase.from('members').update({ photo, lastupdated: new Date().toISOString() }).eq('id', req.params.id);
+    if (error) throw error;
     res.json({ message: "Rasm muvaffaqiyatli yangilandi ✅" });
   } catch (err) {
     console.error(err);
@@ -766,98 +724,30 @@ router.delete("/:id", async (req, res) => {
     const memberId = req.params.id;
 
     // Avval a'zo mavjudligini tekshirish
-    const member = db.prepare("SELECT * FROM members WHERE id = ?").get(memberId);
+    const { data: member, error: memberError } = await supabase.from('members').select('*').eq('id', memberId).maybeSingle();
+    if (memberError) throw memberError;
     if (!member) {
       return res.status(404).json({ error: "A'zo topilmadi" });
     }
 
-    // Barcha bog'liq yozuvlarni tekshirish
-    const checkinsCount = db.prepare("SELECT COUNT(*) as count FROM checkins WHERE memberId = ?").get(memberId);
-    const servicesCount = db.prepare("SELECT COUNT(*) as count FROM beauty_services WHERE memberId = ?").get(memberId);
-    const healthCount = db.prepare("SELECT COUNT(*) as count FROM beauty_health_info WHERE memberId = ?").get(memberId);
-    const gymInfoCount = db.prepare("SELECT COUNT(*) as count FROM gym_info WHERE memberId = ?").get(memberId);
-    const paymentsCount = db.prepare("SELECT COUNT(*) as count FROM gym_payments WHERE memberId = ?").get(memberId);
-
-    const totalRecords = checkinsCount.count + servicesCount.count + healthCount.count + gymInfoCount.count + paymentsCount.count;
-
-    console.log(`[DELETE /members/${memberId}] Bog'liq yozuvlar:`, {
-      checkins: checkinsCount.count,
-      services: servicesCount.count,
-      health: healthCount.count,
-      gymInfo: gymInfoCount.count,
-      payments: paymentsCount.count,
-      total: totalRecords
-    });
+    // Barcha bog'liq yozuvlarni tekshirish (faqat xizmatlar uchun bloklash mantiqi saqlanadi)
+    const { count: servicesCount } = await supabase.from('beauty_services').select('*', { count: 'exact', head: true }).eq('memberid', memberId);
 
     // Faqat xizmatlar mavjud bo'lsa o'chirishni bloklash
-    if (servicesCount.count > 0) {
+    if (servicesCount > 0) {
       return res.status(400).json({
         error: "A'zoni o'chirib bo'lmaydi",
-        message: "Bu a'zoda xizmatlar mavjud. Avval xizmatlarni o'chiring yoki boshqa amal bajaring.",
-        records: {
-          checkins: checkinsCount.count,
-          services: servicesCount.count,
-          payments: paymentsCount.count,
-          health: healthCount.count,
-          gymInfo: gymInfoCount.count
-        }
+        message: "Bu a'zoda xizmatlar mavjud. Avval xizmatlarni o'chiring yoki boshqa amal bajaring."
       });
     }
 
-    // Barcha bog'liq yozuvlarni avtomatik o'chirish
-    // 1. Kirish tarixi
-    const deletedCheckins = db.prepare("DELETE FROM checkins WHERE memberId = ?").run(memberId);
-
-    // 2. Gym to'lovlar
-    const deletedPayments = db.prepare("DELETE FROM gym_payments WHERE memberId = ?").run(memberId);
-
-    // 3. Beauty health info
-    const deletedHealth = db.prepare("DELETE FROM beauty_health_info WHERE memberId = ?").run(memberId);
-
-    // 4. Gym info
-    const deletedGymInfo = db.prepare("DELETE FROM gym_info WHERE memberId = ?").run(memberId);
-
-    console.log(`[DELETE /members/${memberId}] O'chirilgan yozuvlar:`, {
-      checkins: deletedCheckins.changes,
-      payments: deletedPayments.changes,
-      health: deletedHealth.changes,
-      gymInfo: deletedGymInfo.changes
-    });
-
-    // 3. A'zoni o'chirish
-    const deletedMember = db.prepare("DELETE FROM members WHERE id = ?").run(memberId);
-
-    if (deletedMember.changes === 0) {
-      return res.status(500).json({ error: "A'zo o'chirilmadi" });
-    }
-
-    // Firebase'dan ham o'chirish
-    let firebaseDeleted = false;
-    try {
-      console.log(`[DELETE /members/${memberId}] Firebase'dan o'chirilmoqda...`);
-      firebaseDeleted = await deleteMemberFromFirebase(memberId);
-      if (firebaseDeleted) {
-        console.log(`[DELETE /members/${memberId}] Firebase'dan muvaffaqiyatli o'chirildi`);
-      } else {
-        console.warn(`[DELETE /members/${memberId}] Firebase'dan o'chirilmadi (non-critical)`);
-      }
-    } catch (firebaseError) {
-      console.error(`[DELETE /members/${memberId}] Firebase deletion error (non-critical):`, firebaseError.message);
-      if (firebaseError.stack) {
-        console.error('   Stack:', firebaseError.stack);
-      }
-      // Firebase xatosi kritik emas, SQLite'dan o'chirilgan
-    }
+    // Barcha bog'liq yozuvlarni avtomatik o'chirish (CASCADE orqali)
+    // 1. A'zoni o'chirish
+    const { error: deleteError } = await supabase.from('members').delete().eq('id', memberId);
+    if (deleteError) throw deleteError;
 
     res.json({
-      message: "A'zo va bog'liq yozuvlar (kirish tarixi, to'lovlar, sog'liq/gym ma'lumotlari) o'chirildi ✅",
-      deleted: {
-        checkins: deletedCheckins.changes,
-        payments: deletedPayments.changes,
-        health: deletedHealth.changes,
-        gymInfo: deletedGymInfo.changes
-      },
-      firebaseDeleted: firebaseDeleted
+      message: "A'zo va bog'liq yozuvlar o'chirildi ✅"
     });
   } catch (err) {
     console.error('[DELETE /members/:id] Xatolik:', err);

@@ -41,7 +41,7 @@
 
     <!-- Table section (scrollable) -->
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm" style="max-height: calc(100vh - 280px);">
-      <div v-if="loading" class="px-4 py-6 text-center text-sm text-gray-500">{{ $t('common.loading') }}</div>
+    <LoadingSpinner v-if="loading" />
       <div v-else class="overflow-x-auto" style="max-height: calc(100vh - 280px);">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="sticky top-0 z-10 bg-gray-50">
@@ -94,7 +94,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import api from '../lib/api'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
+import { membersService } from '../services/supabaseService'
 import { formatDate } from '../lib/dateUtils'
 
 const { t } = useI18n()
@@ -123,7 +124,7 @@ const fetchMembers = async () => {
   loading.value = true
   error.value = null
   try {
-    const { data } = await api.get<Member[]>('/members')
+    const data = await membersService.getAll()
     members.value = data
   } catch (err) {
     console.error(err)
@@ -164,11 +165,11 @@ const onDeleteMember = async (id: number) => {
   const ok = window.confirm(t('members.deleteConfirm'))
   if (!ok) return
   try {
-    await api.delete(`/members/${id}`)
+    await membersService.delete(id)
     members.value = members.value.filter((m) => m.id !== id)
   } catch (err: any) {
     console.error(err)
-    window.alert(err?.response?.data?.error || t('members.deleteError'))
+    window.alert(err.message || t('members.deleteError'))
   }
 }
 </script>

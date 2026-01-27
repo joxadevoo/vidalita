@@ -55,9 +55,7 @@
 
     <!-- Scrollable barcode cards section -->
     <div class="flex-1 overflow-y-auto pt-6">
-    <div v-if="loading" class="rounded-lg border border-gray-200 bg-white px-6 py-12 text-center text-sm text-gray-500">
-      {{ $t('common.loading') }}
-    </div>
+    <LoadingSpinner v-if="loading" />
 
     <div v-else class="grid gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       <div
@@ -96,7 +94,8 @@
 import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { PrinterIcon } from '@heroicons/vue/24/outline'
-import api from '../lib/api'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
+import { membersService } from '../services/supabaseService'
 
 const { t } = useI18n()
 
@@ -142,14 +141,14 @@ const fetchMembers = async () => {
   loading.value = true
   error.value = null
   try {
-    const { data } = await api.get<Member[]>('/members')
+    const data = await membersService.getAll()
     members.value = data
     // Barcode'larni generatsiya qilish - DOM'ga qo'shilishini kutish
     await nextTick()
     setTimeout(() => {
       generateBarcodes()
     }, 200)
-  } catch (err) {
+  } catch (err: any) {
     console.error(err)
     error.value = t('barcode.errorLoading')
   } finally {

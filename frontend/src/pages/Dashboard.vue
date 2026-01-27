@@ -18,14 +18,7 @@
       <button @click="fetchAll" class="mt-2 text-sm text-red-600 hover:text-red-700 underline">Qayta urinib ko'ring</button>
     </div>
 
-    <div v-if="loading" class="flex items-center justify-center py-12">
-      <div class="flex flex-col items-center gap-3">
-        <svg class="h-8 w-8 animate-spin text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2a9 9 0 01-12.552-12.552L20.582 9.582" />
-        </svg>
-        <p class="text-sm text-gray-500">{{ $t('common.loading') || 'Yuklanmoqda...' }}</p>
-      </div>
-    </div>
+    <LoadingSpinner v-if="loading" />
 
     <div v-else class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       <div v-for="card in statCards" :key="card.name" class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -144,7 +137,10 @@
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import api from '../lib/api'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
+import { statsService, membersService, checkinsService } from '../services/supabaseService'
+import { supabase } from '../lib/supabase'
+import * as mappings from '../lib/mappings'
 import { formatDate } from '../lib/dateUtils'
 
 const { t } = useI18n()
@@ -186,44 +182,59 @@ const fetchAll = async () => {
   loading.value = true
   error.value = null
   try {
-    const [membersRes, checkinsRes, beautyRes, statsRes, membershipsRes] = await Promise.all([
-      api.get<Member[]>('/members'),
-      api.get<Checkin[]>('/checkins'),
-      api.get<Beauty[]>('/beauty'),
-      api.get('/stats'),
-      api.get('/stats/active-memberships')
+    const todayNum = new Date()
+    const nextWeek = new Date(todayNum.getTime() + 7 * 86400000)
+
+    const [statsData, membersData, checkinsData, beautyRes, membershipRes] = await Promise.all([
+      statsService.getDashboardStats(),
+      membersService.getAll(),
+      checkinsService.getAll(),
+      supabase
+        .from('beauty_services')
+        .select('*, members(fullname, phone, qrcodeid)')
+        .order('servicedate', { ascending: false })
+        .limit(50),
+      supabase
+        .from('gym_memberships')
+        .select('*, members(fullname, phone, qrcodeid)')
+        .eq('active', 1)
     ])
-    console.log('API Responses:', {
-      members: membersRes.data,
-      checkins: checkinsRes.data,
-      beauty: beautyRes.data,
-      stats: statsRes.data,
-      memberships: membershipsRes.data
-    })
+
+    // Update stats
+    stats.value = statsData
     
-    members.value = Array.isArray(membersRes.data) ? membersRes.data : []
-    checkins.value = Array.isArray(checkinsRes.data) ? checkinsRes.data : []
-    beauty.value = Array.isArray(beautyRes.data) ? beautyRes.data : []
-    stats.value = statsRes.data || {}
-    expiringMemberships.value = Array.isArray(membershipsRes.data) 
-      ? membershipsRes.data.filter((m: any) => m.status === 'expiring_soon' || m.status === 'expired')
-      : []
+    // Update members
+    members.value = membersData.slice(0, 100)
     
-    console.log('Data loaded:', {
-      membersCount: members.value.length,
-      checkinsCount: checkins.value.length,
-      beautyCount: beauty.value.length,
-      stats: stats.value
-    })
+    // Update checkins
+    checkins.value = checkinsData
+    
+    // Update beauty
+    if (beautyRes.error) throw beautyRes.error
+    beauty.value = (beautyRes.data || []).map(mappings.mapBeautyServiceToCamelCase)
+    
+    // Update expiring memberships
+    if (membershipRes.error) throw membershipRes.error
+    const now = new Date()
+    expiringMemberships.value = (membershipRes.data || [])
+      .map(mappings.mapMembershipToCamelCase)
+      .filter((m: any) => {
+        if (!m.endDate) return false
+        const end = new Date(m.endDate)
+        return end < nextWeek
+      })
+      .map((m: any) => {
+        const end = new Date(m.endDate)
+        const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        return {
+          ...m,
+          status: end < now ? 'expired' : 'expiring_soon',
+          daysRemaining: diff
+        }
+      })
   } catch (err: any) {
     console.error('Dashboard data loading error:', err)
-    if (err.code === 'ECONNREFUSED' || err.message?.includes('Network Error')) {
-      error.value = 'Backend serverga ulanib bo\'lmadi. Iltimos, server ishga tushirilganligini tekshiring.'
-    } else if (err.response?.status === 404) {
-      error.value = 'API endpoint topilmadi. Iltimos, API URL\'ni tekshiring.'
-    } else {
-      error.value = err.response?.data?.error || err.message || t('dashboard.errorLoading')
-    }
+    error.value = err.message || t('dashboard.errorLoading')
   } finally {
     loading.value = false
   }
