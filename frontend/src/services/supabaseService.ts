@@ -774,7 +774,7 @@ export const inventoryService = {
         if (salesError) throw salesError;
 
         const saleNameById = new Map(
-            (sales || []).map(s => [String(s.id), s.members?.fullname || s.notes || null])
+            (sales || []).map(s => [String(s.id), s.members?.[0]?.fullname || s.notes || null])
         );
 
         return movements.map(m => ({
