@@ -58,6 +58,31 @@ router.get("/", async (req, res) => {
       .gte('servicedate', today)
       .lt('servicedate', tomorrow);
 
+    // --- NEW METRICS ---
+    // 1. Product Sales Revenue (Today)
+    const { data: todaySalesData } = await supabase.from('sales')
+      .select('total_amount')
+      .gte('created_at', today)
+      .lt('created_at', tomorrow);
+    const todaySalesTotal = todaySalesData?.reduce((sum, s) => sum + parseFloat(s.total_amount), 0) || 0;
+
+    // 2. Product Sales Revenue (Total)
+    const { data: totalSalesData } = await supabase.from('sales')
+      .select('total_amount');
+    const totalSalesSum = totalSalesData?.reduce((sum, s) => sum + parseFloat(s.total_amount), 0) || 0;
+
+    // 3. Low stock count
+    const { count: lowStockCount } = await supabase.from('inventory_stock')
+      .select('*', { count: 'exact', head: true })
+      .filter('quantity_on_hand', 'lte', 5); // Simple threshold or join with reorder_level
+
+    // 4. Today's Appointments
+    const { count: todayAppointments } = await supabase.from('appointments')
+      .select('*', { count: 'exact', head: true })
+      .gte('start_time', today)
+      .lt('start_time', tomorrow)
+      .not('status', 'eq', 'CANCELLED');
+
     res.json({
       checkins: {
         today: todayCheckins || 0,
@@ -73,6 +98,14 @@ router.get("/", async (req, res) => {
       beautyServices: {
         total: totalBeautyServices || 0,
         today: todayBeautyServices || 0
+      },
+      pos: {
+        todayRevenue: todaySalesTotal,
+        totalRevenue: totalSalesSum,
+        lowStockCount: lowStockCount || 0
+      },
+      appointments: {
+        today: todayAppointments || 0
       }
     });
   } catch (err) {

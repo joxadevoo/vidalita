@@ -17,6 +17,10 @@ import authRouter from "./routes/auth.js";
 // Sync router - (Removed, now using Supabase cloud)
 import statsRouter from "./routes/stats.js";
 import gymMembershipsRouter from "./routes/gym-memberships.js";
+import productsRouter from "./routes/products.js";
+import inventoryRouter from "./routes/inventory.js";
+import salesRouter from "./routes/sales.js";
+import appointmentsRouter from "./routes/appointments.js";
 
 const app = express();
 
@@ -70,6 +74,10 @@ app.use("/api/beauty", beautyRouter);
 // app.use("/api/sync", syncRouter); // No longer needed
 app.use("/api/stats", statsRouter);
 app.use("/api/gym-memberships", gymMembershipsRouter);
+app.use("/api/products", productsRouter);
+app.use("/api/inventory", inventoryRouter);
+app.use("/api/sales", salesRouter);
+app.use("/api/appointments", appointmentsRouter);
 
 // Serve static files from frontend build (production)
 if (process.env.NODE_ENV === 'production') {

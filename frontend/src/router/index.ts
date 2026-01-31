@@ -10,6 +10,10 @@ const BeautyServices = () => import('../pages/BeautyServices.vue')
 const Barcode = () => import('../pages/Barcode.vue')
 const Settings = () => import('../pages/Settings.vue')
 const Login = () => import('../pages/Login.vue')
+const Products = () => import('../pages/Products.vue')
+const Inventory = () => import('../pages/Inventory.vue')
+const POS = () => import('../pages/POS.vue')
+const Appointments = () => import('../pages/Appointments.vue')
 
 const routes: RouteRecordRaw[] = [
   { path: '/login', component: Login, meta: { requiresAuth: false } },
@@ -22,6 +26,10 @@ const routes: RouteRecordRaw[] = [
   { path: '/beauty', component: BeautyServices, meta: { requiresAuth: true } },
   { path: '/barcode', component: Barcode, meta: { requiresAuth: true } },
   { path: '/settings', component: Settings, meta: { requiresAuth: true } },
+  { path: '/products', component: Products, meta: { requiresAuth: true } },
+  { path: '/inventory', component: Inventory, meta: { requiresAuth: true } },
+  { path: '/pos', component: POS, meta: { requiresAuth: true } },
+  { path: '/appointments', component: Appointments, meta: { requiresAuth: true } },
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ]
 

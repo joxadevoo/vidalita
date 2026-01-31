@@ -253,8 +253,15 @@ const statCards = computed(() => [
   { name: t('dashboard.totalMembers'), value: loading.value ? '...' : members.value.length },
   { name: t('dashboard.todayCheckins'), value: loading.value ? '...' : checkinsToday.value.length },
   { name: t('dashboard.beautyServices'), value: loading.value ? '...' : beauty.value.length },
-  { name: t('dashboard.activeMembers'), value: loading.value ? '...' : (stats.value.members?.active || 0), subtext: t('dashboard.lastUpdated') + ': ' + new Date().toLocaleTimeString('uz-UZ') }
+  { name: t('dashboard.activeMembers'), value: loading.value ? '...' : (stats.value.members?.active || 0) },
+  { name: 'Bugungi savdo', value: loading.value ? '...' : formatCurrency(stats.value.pos?.todayRevenue || 0) },
+  { name: 'Bugungi uchrashuvlar', value: loading.value ? '...' : (stats.value.appointments?.today || 0) },
+  { name: 'Kam qolgan mahsulotlar', value: loading.value ? '...' : (stats.value.pos?.lowStockCount || 0), subtext: 'Qoldiq 5 tadan kam' }
 ])
+
+const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('uz-UZ').format(val) + " so'm";
+};
 
 const recentCheckins = computed(() =>
   [...checkins.value]

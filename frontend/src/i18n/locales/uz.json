@@ -38,6 +38,10 @@
     "beautyServices": "Go'zallik xizmatlari",
     "barcode": "Barcode",
     "settings": "Sozlamalar",
+    "appointments": "Uchrashuvlar",
+    "pos": "Sotuv (POS)",
+    "products": "Mahsulotlar",
+    "inventory": "Ombor",
     "expand": "Sidebar'ni kengaytirish",
     "collapse": "Sidebar'ni kichiklashtirish",
     "copyright": "© {year} Vidalita"
@@ -341,52 +345,7 @@
   },
   "settings": {
     "title": "Sozlamalar",
-    "apiUrl": "API",
-    "sync": {
-      "title": "Ma'lumotlarni sinxronlashtirish",
-      "description": "Barcha ma'lumotlarni local SQLite database'dan Firebase Firestore'ga ko'chirish",
-      "button": "Firebase'ga ko'chirish",
-      "syncing": "Sinxronlashtirilmoqda...",
-      "success": "Muvaffaqiyatli ko'chirildi!",
-      "error": "Xatolik yuz berdi",
-      "stats": "A'zolar: {members}, Foydalanuvchilar: {users}, Kirishlar: {checkins}, Xizmatlar: {beautyServices}, Gym info: {gymInfo}, Sog'liq: {healthInfo}, To'lovlar: {payments}",
-      "autoSync": "Avtomatik sinxronlashtirish",
-      "autoSyncDesc": "Har 30 minutda bir avtomatik ravishda ko'chirish",
-      "members": "A'zolar",
-      "users": "Foydalanuvchilar",
-      "checkins": "Kirishlar",
-      "beautyServices": "Go'zallik xizmatlari",
-      "gymInfo": "Gym ma'lumotlari",
-      "healthInfo": "Sog'liq ma'lumotlari",
-      "payments": "To'lovlar",
-      "progress": {
-        "connecting": "Firebase'ga ulanilmoqda...",
-        "syncing": "Ma'lumotlar ko'chirilmoqda..."
-      },
-      "errorSuggestion": "Internet ulanishini tekshiring yoki keyinroq qayta urinib ko'ring. Ma'lumotlar local database'da saqlanadi va keyin ko'chiriladi.",
-      "testConnection": "Ulanishni tekshirish"
-    },
-    "developer": {
-      "title": "Dasturchi ma'lumotlari",
-      "info": "Dasturchi haqida",
-      "name": "Ism",
-      "developerName": "Jaxon Girtoshpolatov",
-      "phone": "Telefon",
-      "telegram": "Telegram",
-      "instagram": "Instagram",
-      "github": "GitHub",
-      "portfolio": "Portfolio",
-      "appInfo": "Ilova ma'lumotlari",
-      "version": "Versiya",
-      "releaseDate": "Chiqarilgan sana",
-      "license": "Litsenziya",
-      "tech": "Texnologiyalar",
-      "support": "Yordam va qo'llab-quvvatlash",
-      "supportDesc": "Savollar yoki muammolar bo'lsa, biz bilan bog'laning",
-      "contactTelegram": "Telegram orqali bog'lanish",
-      "call": "Qo'ng'iroq qilish",
-      "viewGitHub": "GitHub'ni ko'rish"
-    }
+    "apiUrl": "API"
   },
   "login": {
     "title": "Tizimga kirish",
@@ -408,6 +367,56 @@
     "justNow": "hozir",
     "oneMinuteAgo": "1 daqiqa oldin",
     "minutesAgo": "{minutes} daqiqa oldin"
+  },
+  "products": {
+    "title": "Mahsulotlar",
+    "subtitle": "Kosmetik mahsulotlar katalogi va ombor qoldiqlari",
+    "newProduct": "Yangi mahsulot",
+    "categories": "Kategoriyalar",
+    "allCategories": "Barcha kategoriyalar",
+    "searchPlaceholder": "Nomi, SKU yoki Barcode bo'yicha qidirish...",
+    "columns": {
+      "name": "Nomi",
+      "sku": "SKU / Barcode",
+      "category": "Kategoriya",
+      "price": "Narxi",
+      "stock": "Qoldiq"
+    }
+  },
+  "inventory": {
+    "title": "Ombor Nazorati",
+    "subtitle": "Mahsulotlar kirimi va harakatlari tarixi",
+    "stockIn": "Kirim qilish",
+    "stockLevels": "Qoldiqlar",
+    "movements": "Harakatlar tarixi",
+    "columns": {
+      "product": "Mahsulot",
+      "sku": "SKU",
+      "qty": "Miqdor",
+      "type": "Turi",
+      "reason": "Sabab",
+      "date": "Sana"
+    }
+  },
+  "pos": {
+    "title": "Savdo (POS)",
+    "subtitle": "Mijozlarga mahsulotlar sotish",
+    "searchProduct": "Mahsulot qidirish...",
+    "cart": "Savat",
+    "total": "Jami",
+    "checkout": "To'lov",
+    "paymentMethod": "To'lov usuli",
+    "customer": "Mijoz (ixtiyoriy)",
+    "noItems": "Savat bo'sh",
+    "success": "Savdo muvaffaqiyatli yakunlandi"
+  },
+  "appointments": {
+    "title": "Uchrashuvlar",
+    "subtitle": "Xizmatlar uchun navbatlarni boshqarish",
+    "newAppointment": "Yangi band qilish",
+    "calendar": "Kalendar",
+    "list": "Ro'yxat",
+    "staff": "Xodimlar",
+    "rooms": "Xonalar"
   }
 }
-

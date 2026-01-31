@@ -318,52 +318,7 @@
   },
   "settings": {
     "title": "Settings",
-    "apiUrl": "API",
-    "sync": {
-      "title": "Sync Data to Firebase",
-      "description": "Transfer all data from local SQLite database to Firebase Firestore",
-      "button": "Sync to Firebase",
-      "syncing": "Syncing...",
-      "success": "Successfully synced!",
-      "error": "An error occurred",
-      "stats": "Members: {members}, Users: {users}, Checkins: {checkins}, Services: {beautyServices}, Gym info: {gymInfo}, Health: {healthInfo}, Payments: {payments}",
-      "autoSync": "Auto Sync",
-      "autoSyncDesc": "Automatically sync every 30 minutes",
-      "members": "Members",
-      "users": "Users",
-      "checkins": "Checkins",
-      "beautyServices": "Beauty Services",
-      "gymInfo": "Gym Info",
-      "healthInfo": "Health Info",
-      "payments": "Payments",
-      "progress": {
-        "connecting": "Connecting to Firebase...",
-        "syncing": "Syncing data..."
-      },
-      "errorSuggestion": "Please check your internet connection or try again later. Data is stored locally and will be synced when connection is available.",
-      "testConnection": "Test Connection"
-    },
-    "developer": {
-      "title": "Developer Information",
-      "info": "About Developer",
-      "name": "Name",
-      "developerName": "Jaxon Girtoshpolatov",
-      "phone": "Phone",
-      "telegram": "Telegram",
-      "instagram": "Instagram",
-      "github": "GitHub",
-      "portfolio": "Portfolio",
-      "appInfo": "Application Information",
-      "version": "Version",
-      "releaseDate": "Release Date",
-      "license": "License",
-      "tech": "Technologies",
-      "support": "Support",
-      "supportDesc": "If you have any questions or issues, please contact us",
-      "contactTelegram": "Contact via Telegram",
-      "call": "Call",
-      "viewGitHub": "View GitHub"
-    }
+    "apiUrl": "API"
   },
   "login": {
     "title": "Login",
@@ -387,4 +342,3 @@
     "minutesAgo": "{minutes} minutes ago"
   }
 }
-

@@ -310,52 +310,7 @@
   },
   "settings": {
     "title": "Настройки",
-    "apiUrl": "API",
-    "sync": {
-      "title": "Синхронизация данных",
-      "description": "Перенос всех данных из локальной базы данных SQLite в Firebase Firestore",
-      "button": "Синхронизировать с Firebase",
-      "syncing": "Синхронизация...",
-      "success": "Успешно синхронизировано!",
-      "error": "Произошла ошибка",
-      "stats": "Участники: {members}, Пользователи: {users}, Входы: {checkins}, Услуги: {beautyServices}, Gym info: {gymInfo}, Здоровье: {healthInfo}, Платежи: {payments}",
-      "autoSync": "Автосинхронизация",
-      "autoSyncDesc": "Автоматическая синхронизация каждые 30 минут",
-      "members": "Участники",
-      "users": "Пользователи",
-      "checkins": "Входы",
-      "beautyServices": "Услуги красоты",
-      "gymInfo": "Информация о спортзале",
-      "healthInfo": "Информация о здоровье",
-      "payments": "Платежи",
-      "progress": {
-        "connecting": "Подключение к Firebase...",
-        "syncing": "Синхронизация данных..."
-      },
-      "errorSuggestion": "Проверьте подключение к интернету или попробуйте позже. Данные хранятся локально и будут синхронизированы при наличии соединения.",
-      "testConnection": "Проверить подключение"
-    },
-    "developer": {
-      "title": "Информация о разработчике",
-      "info": "О разработчике",
-      "name": "Имя",
-      "developerName": "Джахон Гиртошполатов",
-      "phone": "Телефон",
-      "telegram": "Telegram",
-      "instagram": "Instagram",
-      "github": "GitHub",
-      "portfolio": "Портфолио",
-      "appInfo": "Информация о приложении",
-      "version": "Версия",
-      "releaseDate": "Дата выпуска",
-      "license": "Лицензия",
-      "tech": "Технологии",
-      "support": "Поддержка",
-      "supportDesc": "Если у вас есть вопросы или проблемы, свяжитесь с нами",
-      "contactTelegram": "Связаться через Telegram",
-      "call": "Позвонить",
-      "viewGitHub": "Посмотреть GitHub"
-    }
+    "apiUrl": "API"
   },
   "login": {
     "title": "Вход в систему",
@@ -379,4 +334,3 @@
     "minutesAgo": "{minutes} минут назад"
   }
 }
-

@@ -311,52 +311,7 @@
   },
   "settings": {
     "title": "Ayarlar",
-    "apiUrl": "API",
-    "sync": {
-      "title": "Verileri Firebase'e Senkronize Et",
-      "description": "Tüm verileri yerel SQLite veritabanından Firebase Firestore'a aktar",
-      "button": "Firebase'e Senkronize Et",
-      "syncing": "Senkronize ediliyor...",
-      "success": "Başarıyla senkronize edildi!",
-      "error": "Bir hata oluştu",
-      "stats": "Üyeler: {members}, Kullanıcılar: {users}, Girişler: {checkins}, Hizmetler: {beautyServices}, Gym bilgisi: {gymInfo}, Sağlık: {healthInfo}, Ödemeler: {payments}",
-      "autoSync": "Otomatik Senkronizasyon",
-      "autoSyncDesc": "Her 30 dakikada bir otomatik senkronizasyon",
-      "members": "Üyeler",
-      "users": "Kullanıcılar",
-      "checkins": "Girişler",
-      "beautyServices": "Güzellik Hizmetleri",
-      "gymInfo": "Spor Salonu Bilgisi",
-      "healthInfo": "Sağlık Bilgisi",
-      "payments": "Ödemeler",
-      "progress": {
-        "connecting": "Firebase'e bağlanılıyor...",
-        "syncing": "Veriler senkronize ediliyor..."
-      },
-      "errorSuggestion": "İnternet bağlantınızı kontrol edin veya daha sonra tekrar deneyin. Veriler yerel olarak saklanır ve bağlantı olduğunda senkronize edilir.",
-      "testConnection": "Bağlantıyı Test Et"
-    },
-    "developer": {
-      "title": "Geliştirici Bilgileri",
-      "info": "Geliştirici Hakkında",
-      "name": "İsim",
-      "developerName": "Jaxon Girtoshpolatov",
-      "phone": "Telefon",
-      "telegram": "Telegram",
-      "instagram": "Instagram",
-      "github": "GitHub",
-      "portfolio": "Portfolyo",
-      "appInfo": "Uygulama Bilgileri",
-      "version": "Sürüm",
-      "releaseDate": "Yayın Tarihi",
-      "license": "Lisans",
-      "tech": "Teknolojiler",
-      "support": "Destek",
-      "supportDesc": "Sorularınız veya sorunlarınız varsa, lütfen bizimle iletişime geçin",
-      "contactTelegram": "Telegram ile İletişime Geç",
-      "call": "Ara",
-      "viewGitHub": "GitHub'ı Görüntüle"
-    }
+    "apiUrl": "API"
   },
   "login": {
     "title": "Giriş",
@@ -380,4 +335,3 @@
     "minutesAgo": "{minutes} dakika önce"
   }
 }
-

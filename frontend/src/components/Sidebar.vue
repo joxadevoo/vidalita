@@ -124,7 +124,11 @@ import {
   ClockIcon,
   ScissorsIcon,
   QrCodeIcon,
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  ShoppingBagIcon,
+  ArchiveBoxIcon,
+  CreditCardIcon,
+  CalendarDaysIcon
 } from '@heroicons/vue/24/outline'
 
 defineProps<{ isOpen: boolean; collapsed?: boolean }>()
@@ -140,6 +144,10 @@ const navItems = computed(() => [
   { name: t('sidebar.members'), href: '/members', icon: UsersIcon },
   { name: t('sidebar.checkins'), href: '/checkins', icon: ClockIcon },
   { name: t('sidebar.beautyServices'), href: '/beauty', icon: ScissorsIcon },
+  { name: t('sidebar.appointments'), href: '/appointments', icon: CalendarDaysIcon },
+  { name: t('sidebar.pos'), href: '/pos', icon: CreditCardIcon },
+  { name: t('sidebar.products'), href: '/products', icon: ShoppingBagIcon },
+  { name: t('sidebar.inventory'), href: '/inventory', icon: ArchiveBoxIcon },
   { name: t('sidebar.barcode'), href: '/barcode', icon: QrCodeIcon },
   { name: t('sidebar.settings'), href: '/settings', icon: Cog6ToothIcon }
 ])

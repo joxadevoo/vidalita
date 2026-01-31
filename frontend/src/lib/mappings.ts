@@ -59,6 +59,83 @@ export const mapBeautyServiceToCamelCase = (item: any): any => {
     };
 };
 
+export const mapProductToCamelCase = (p: any) => {
+    if (!p) return null;
+    return {
+        id: p.id,
+        name: p.name,
+        brand: p.brand,
+        categoryId: p.category_id,
+        category: p.product_categories ? { id: p.product_categories.id, name: p.product_categories.name } : null,
+        sku: p.sku,
+        barcode: p.barcode,
+        unit: p.unit,
+        salePrice: p.sale_price,
+        costPriceDefault: p.cost_price_default,
+        isActive: p.is_active,
+        reorderLevel: p.reorder_level,
+        imageUrl: p.image_url,
+        createdAt: p.created_at,
+        updatedAt: p.updated_at,
+        currentStock: p.inventory_stock ? p.inventory_stock.quantity_on_hand : 0
+    };
+};
+
+export const mapSaleToCamelCase = (s: any) => {
+    if (!s) return null;
+    return {
+        id: s.id,
+        memberId: s.member_id,
+        member: s.members ? { fullName: s.members.fullname, phone: s.members.phone } : null,
+        totalAmount: s.total_amount,
+        discountAmount: s.discount_amount,
+        paymentStatus: s.payment_status,
+        paymentMethod: s.payment_method,
+        notes: s.notes,
+        createdAt: s.created_at,
+        items: s.sale_items ? s.sale_items.map(mapSaleItemToCamelCase) : []
+    };
+};
+
+export const mapSaleItemToCamelCase = (si: any) => {
+    if (!si) return null;
+    return {
+        id: si.id,
+        saleId: si.sale_id,
+        productId: si.product_id,
+        product: si.products ? { name: si.products.name, sku: si.products.sku } : null,
+        qty: si.qty,
+        unitPrice: si.unit_price,
+        unitCostSnapshot: si.unit_cost_snapshot,
+        lineTotal: si.line_total
+    };
+};
+
+export const mapAppointmentToCamelCase = (a: any) => {
+    if (!a) return null;
+    return {
+        id: a.id,
+        memberId: a.member_id,
+        member: a.members ? { fullName: a.members.fullname, phone: a.members.phone } : null,
+        guestName: a.guest_name,
+        guestPhone: a.guest_phone,
+        serviceId: a.service_id,
+        serviceName: a.service_name,
+        staffId: a.staff_id,
+        staff: a.staff ? { fullName: a.staff.full_name } : null,
+        roomId: a.room_id,
+        room: a.rooms ? { name: a.rooms.name } : null,
+        startTime: a.start_time,
+        endTime: a.end_time,
+        status: a.status,
+        price: a.price,
+        discount: a.discount,
+        depositAmount: a.deposit_amount,
+        notes: a.notes,
+        createdAt: a.created_at
+    };
+};
+
 export const mapCheckinToCamelCase = (item: any): any => {
     if (!item) return {};
     return {

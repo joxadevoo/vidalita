@@ -504,18 +504,37 @@ export const statsService = {
             { count: todayCheckins },
             { count: activeMembers },
             { count: totalMembers },
-            { count: totalBeauty }
+            { count: totalBeauty },
+            { data: todaySales },
+            { data: totalSales },
+            { count: lowStockCount },
+            { count: todayAppointments }
         ] = await Promise.all([
             supabase.from('checkins').select('*', { count: 'exact', head: true }).gte('date', today).lt('date', tomorrow),
             supabase.from('gym_memberships').select('*', { count: 'exact', head: true }).eq('active', 1).or(`enddate.is.null,enddate.gte.${today}`),
             supabase.from('members').select('*', { count: 'exact', head: true }),
-            supabase.from('beauty_services').select('*', { count: 'exact', head: true })
+            supabase.from('beauty_services').select('*', { count: 'exact', head: true }),
+            supabase.from('sales').select('total_amount').gte('created_at', today).lt('created_at', tomorrow),
+            supabase.from('sales').select('total_amount'),
+            supabase.from('inventory_stock').select('*', { count: 'exact', head: true }).lte('quantity_on_hand', 5),
+            supabase.from('appointments').select('*', { count: 'exact', head: true }).gte('start_time', today).lt('start_time', tomorrow).not('status', 'eq', 'CANCELLED')
         ]);
+
+        const todaySalesTotal = todaySales?.reduce((sum, s) => sum + parseFloat(s.total_amount), 0) || 0;
+        const totalSalesSum = totalSales?.reduce((sum, s) => sum + parseFloat(s.total_amount), 0) || 0;
 
         return {
             checkins: { today: todayCheckins || 0 },
             members: { active: activeMembers || 0, total: totalMembers || 0 },
-            beautyServices: { total: totalBeauty || 0 }
+            beautyServices: { total: totalBeauty || 0 },
+            pos: {
+                todayRevenue: todaySalesTotal,
+                totalRevenue: totalSalesSum,
+                lowStockCount: lowStockCount || 0
+            },
+            appointments: {
+                today: todayAppointments || 0
+            }
         };
     }
 };
@@ -598,5 +617,248 @@ export const storageService = {
             .getPublicUrl(path);
 
         return data.publicUrl;
+    }
+};
+
+export const productsService = {
+    async getAll() {
+        const { data, error } = await supabase
+            .from('products')
+            .select('*, product_categories(id, name), inventory_stock(quantity_on_hand)')
+            .order('name');
+        if (error) throw error;
+        return (data || []).map(mappings.mapProductToCamelCase);
+    },
+
+    async getCategories() {
+        const { data, error } = await supabase.from('product_categories').select('*').order('name');
+        if (error) throw error;
+        return data;
+    },
+
+    async createCategory(name: string) {
+        const { data, error } = await supabase.from('product_categories').insert({ name }).select().single();
+        if (error) throw error;
+        return data;
+    },
+
+    async create(productData: any) {
+        const { data, error } = await supabase
+            .from('products')
+            .insert({
+                name: productData.name,
+                brand: productData.brand,
+                category_id: productData.categoryId,
+                sku: productData.sku,
+                barcode: productData.barcode,
+                unit: productData.unit,
+                sale_price: productData.salePrice,
+                cost_price_default: productData.costPriceDefault,
+                reorder_level: productData.reorderLevel,
+                image_url: productData.imageUrl
+            })
+            .select()
+            .single();
+        if (error) throw error;
+
+        await supabase.from('inventory_stock').insert({ product_id: data.id, quantity_on_hand: 0 });
+        return mappings.mapProductToCamelCase(data);
+    },
+
+    async update(id: number | string, productData: any) {
+        const { data, error } = await supabase
+            .from('products')
+            .update({
+                name: productData.name,
+                brand: productData.brand,
+                category_id: productData.categoryId,
+                sku: productData.sku,
+                barcode: productData.barcode,
+                unit: productData.unit,
+                sale_price: productData.salePrice,
+                cost_price_default: productData.costPriceDefault,
+                reorder_level: productData.reorderLevel,
+                image_url: productData.imageUrl,
+                is_active: productData.isActive,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', id)
+            .select()
+            .single();
+        if (error) throw error;
+        return mappings.mapProductToCamelCase(data);
+    },
+
+    async delete(id: number | string) {
+        const { error } = await supabase.from('products').delete().eq('id', id);
+        if (error) throw error;
+        return true;
+    }
+};
+
+export const inventoryService = {
+    async getStockLevels() {
+        const { data, error } = await supabase
+            .from('inventory_stock')
+            .select('*, products(name, brand, sku, barcode)');
+        if (error) throw error;
+        return data;
+    },
+
+    async stockIn(payload: { productId: number | string, qty: number, unitCost: number, reason?: string }) {
+        // We'll call our backend API for this to ensure stock updates are handled
+        // For simplicity here, we'll just do a direct update if possible, 
+        // but better to use the backend route we created.
+        // However, this service usually talks to Supabase directly.
+        // Let's implement it directly in Supabase for consistency with other services.
+
+        const { error: moveError } = await supabase
+            .from('inventory_movements')
+            .insert({
+                product_id: payload.productId,
+                type: 'IN',
+                qty: payload.qty,
+                unit_cost: payload.unitCost,
+                reason: payload.reason || 'purchase',
+                reference_type: 'purchase'
+            });
+        if (moveError) throw moveError;
+
+        const { data: current } = await supabase.from('inventory_stock').select('quantity_on_hand').eq('product_id', payload.productId).single();
+        const newTotal = (current?.quantity_on_hand || 0) + payload.qty;
+
+        const { error: stockError } = await supabase
+            .from('inventory_stock')
+            .upsert({ product_id: payload.productId, quantity_on_hand: newTotal, updated_at: new Date().toISOString() });
+        if (stockError) throw stockError;
+        return newTotal;
+    },
+
+    async getMovements(productId?: number | string) {
+        let query = supabase
+            .from('inventory_movements')
+            .select('*, products(name, sku)')
+            .order('created_at', { ascending: false });
+        if (productId) query = query.eq('product_id', productId);
+        const { data, error } = await query;
+        if (error) throw error;
+        return data;
+    }
+};
+
+export const salesService = {
+    async createSale(saleData: any) {
+        const { data: sale, error: saleError } = await supabase
+            .from('sales')
+            .insert({
+                member_id: saleData.memberId || null,
+                total_amount: saleData.totalAmount,
+                discount_amount: saleData.discountAmount || 0,
+                payment_method: saleData.paymentMethod,
+                payment_status: saleData.paymentStatus || 'PAID',
+                notes: saleData.notes
+            })
+            .select()
+            .single();
+        if (saleError) throw saleError;
+
+        for (const item of saleData.items) {
+            await supabase.from('sale_items').insert({
+                sale_id: sale.id,
+                product_id: item.productId,
+                qty: item.qty,
+                unit_price: item.price,
+                unit_cost_snapshot: item.costPrice,
+                line_total: item.price * item.qty
+            });
+
+            const { data: current } = await supabase.from('inventory_stock').select('quantity_on_hand').eq('product_id', item.productId).single();
+            const newTotal = (current?.quantity_on_hand || 0) - item.qty;
+            await supabase.from('inventory_stock').upsert({ product_id: item.productId, quantity_on_hand: newTotal });
+
+            await supabase.from('inventory_movements').insert({
+                product_id: item.productId,
+                type: 'OUT',
+                qty: -item.qty,
+                reason: 'sale',
+                reference_type: 'sale',
+                reference_id: sale.id
+            });
+        }
+        return sale;
+    },
+
+    async getAllSales() {
+        const { data, error } = await supabase
+            .from('sales')
+            .select('*, members(fullname, phone)')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        return data.map(mappings.mapSaleToCamelCase);
+    }
+};
+
+export const appointmentsService = {
+    async getAll(filters: any = {}) {
+        let query = supabase
+            .from('appointments')
+            .select('*, members(fullname, phone), staff(full_name), rooms(name)')
+            .order('start_time', { ascending: true });
+
+        if (filters.staffId) query = query.eq('staff_id', filters.staffId);
+        if (filters.status) query = query.eq('status', filters.status);
+        if (filters.from) query = query.gte('start_time', filters.from);
+        if (filters.to) query = query.lte('start_time', filters.to);
+
+        const { data, error } = await query;
+        if (error) throw error;
+        return (data || []).map(mappings.mapAppointmentToCamelCase);
+    },
+
+    async create(data: any) {
+        const { data: created, error } = await supabase
+            .from('appointments')
+            .insert({
+                member_id: data.memberId || null,
+                guest_name: data.guestName,
+                guest_phone: data.guestPhone,
+                service_id: data.serviceId || null,
+                service_name: data.serviceName || null,
+                staff_id: data.staffId,
+                room_id: data.roomId || null,
+                start_time: data.startTime,
+                end_time: data.endTime,
+                price: data.price,
+                discount: data.discount || 0,
+                deposit_amount: data.depositAmount || 0,
+                notes: data.notes
+            })
+            .select()
+            .single();
+        if (error) throw error;
+        return mappings.mapAppointmentToCamelCase(created);
+    },
+
+    async updateStatus(id: string, status: string) {
+        const { data, error } = await supabase
+            .from('appointments')
+            .update({ status, updated_at: new Date().toISOString() })
+            .eq('id', id)
+            .select()
+            .single();
+        if (error) throw error;
+        return mappings.mapAppointmentToCamelCase(data);
+    },
+
+    async getStaff() {
+        const { data, error } = await supabase.from('staff').select('*').order('full_name');
+        if (error) throw error;
+        return data;
+    },
+
+    async getRooms() {
+        const { data, error } = await supabase.from('rooms').select('*').order('name');
+        if (error) throw error;
+        return data;
     }
 };
