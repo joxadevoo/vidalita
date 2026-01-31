@@ -30,7 +30,9 @@
                 <div v-if="product.imageUrl" class="aspect-square mb-2 overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
                     <img :src="product.imageUrl" class="h-full w-full object-cover group-hover:scale-105 transition-transform" />
                 </div>
-                <div v-else class="aspect-square mb-2 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400 text-xs">{{ $t('pos.noImage') }}</div>
+                <div v-else class="aspect-square mb-2 flex items-center justify-center rounded-lg bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-200 text-lg font-semibold tracking-[0.2em] uppercase">
+                    Vidalita
+                </div>
                 
                 <h4 class="text-sm font-semibold text-gray-900 line-clamp-2">{{ product.name }}</h4>
                 <div class="text-[10px] text-gray-500">{{ product.brand }}</div>
