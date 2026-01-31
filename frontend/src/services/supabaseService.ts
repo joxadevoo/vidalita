@@ -621,10 +621,21 @@ export const storageService = {
 };
 
 export const productsService = {
+    normalizeSku(value: any) {
+        const sku = value === null || value === undefined ? '' : String(value).trim();
+        return sku && sku !== '0' ? sku : null;
+    },
+
+    normalizeBarcode(value: any) {
+        const barcode = value === null || value === undefined ? '' : String(value).trim();
+        return barcode && barcode !== '0' ? barcode : null;
+    },
+
     async getAll() {
         const { data, error } = await supabase
             .from('products')
             .select('*, product_categories(id, name), inventory_stock(quantity_on_hand)')
+            .neq('is_active', false)
             .order('name');
         if (error) throw error;
         return (data || []).map(mappings.mapProductToCamelCase);
@@ -643,19 +654,23 @@ export const productsService = {
     },
 
     async create(productData: any) {
+        const sku = this.normalizeSku(productData.sku);
+        const barcode = this.normalizeBarcode(productData.barcode);
         const { data, error } = await supabase
             .from('products')
             .insert({
                 name: productData.name,
                 brand: productData.brand,
-                category_id: productData.categoryId,
-                sku: productData.sku,
-                barcode: productData.barcode,
-                unit: productData.unit,
-                sale_price: productData.salePrice,
-                cost_price_default: productData.costPriceDefault,
-                reorder_level: productData.reorderLevel,
-                image_url: productData.imageUrl
+                category_id: productData.categoryId ?? null,
+                sku,
+                barcode,
+                unit: productData.unit || 'pcs',
+                sale_price: productData.salePrice ?? 0,
+                cost_price_default: productData.costPriceDefault ?? 0,
+                reorder_level: productData.reorderLevel ?? 0,
+
+                image_url: productData.imageUrl,
+                is_active: true
             })
             .select()
             .single();
@@ -666,18 +681,20 @@ export const productsService = {
     },
 
     async update(id: number | string, productData: any) {
+        const sku = this.normalizeSku(productData.sku);
+        const barcode = this.normalizeBarcode(productData.barcode);
         const { data, error } = await supabase
             .from('products')
             .update({
                 name: productData.name,
                 brand: productData.brand,
-                category_id: productData.categoryId,
-                sku: productData.sku,
-                barcode: productData.barcode,
-                unit: productData.unit,
-                sale_price: productData.salePrice,
-                cost_price_default: productData.costPriceDefault,
-                reorder_level: productData.reorderLevel,
+                category_id: productData.categoryId ?? null,
+                sku,
+                barcode,
+                unit: productData.unit || 'pcs',
+                sale_price: productData.salePrice ?? 0,
+                cost_price_default: productData.costPriceDefault ?? 0,
+                reorder_level: productData.reorderLevel ?? 0,
                 image_url: productData.imageUrl,
                 is_active: productData.isActive,
                 updated_at: new Date().toISOString()
@@ -690,7 +707,7 @@ export const productsService = {
     },
 
     async delete(id: number | string) {
-        const { error } = await supabase.from('products').delete().eq('id', id);
+        const { error } = await supabase.from('products').update({ is_active: false }).eq('id', id);
         if (error) throw error;
         return true;
     }
@@ -742,12 +759,34 @@ export const inventoryService = {
         if (productId) query = query.eq('product_id', productId);
         const { data, error } = await query;
         if (error) throw error;
-        return data;
+        const movements = data || [];
+
+        const saleIds = movements
+            .filter(m => String(m.reference_type || '').toLowerCase() === 'sale' && m.reference_id)
+            .map(m => m.reference_id);
+
+        if (saleIds.length === 0) return movements;
+
+        const { data: sales, error: salesError } = await supabase
+            .from('sales')
+            .select('id, notes, members(fullname)')
+            .in('id', saleIds);
+        if (salesError) throw salesError;
+
+        const saleNameById = new Map(
+            (sales || []).map(s => [String(s.id), s.members?.fullname || s.notes || null])
+        );
+
+        return movements.map(m => ({
+            ...m,
+            customerName: saleNameById.get(String(m.reference_id)) || null
+        }));
     }
 };
 
 export const salesService = {
     async createSale(saleData: any) {
+        const customerName = saleData.customerName ? String(saleData.customerName).trim() : '';
         const { data: sale, error: saleError } = await supabase
             .from('sales')
             .insert({
@@ -756,7 +795,7 @@ export const salesService = {
                 discount_amount: saleData.discountAmount || 0,
                 payment_method: saleData.paymentMethod,
                 payment_status: saleData.paymentStatus || 'PAID',
-                notes: saleData.notes
+                notes: customerName || null
             })
             .select()
             .single();

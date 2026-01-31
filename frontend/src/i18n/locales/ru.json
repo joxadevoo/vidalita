@@ -29,7 +29,10 @@
     "error": "Ошибка",
     "success": "Успех",
     "notFound": "Не найдено",
-    "noData": "Нет данных"
+    "noData": "Нет данных",
+    "exportExcel": "Excel",
+    "import": "Импорт",
+    "total": "Всего"
   },
   "sidebar": {
     "home": "Главная",
@@ -37,6 +40,10 @@
     "checkins": "Входы",
     "beautyServices": "Услуги красоты",
     "barcode": "Штрих-код",
+    "appointments": "Записи",
+    "pos": "Продажи (POS)",
+    "products": "Товары",
+    "inventory": "Склад",
     "settings": "Настройки",
     "expand": "Развернуть боковую панель",
     "collapse": "Свернуть боковую панель",
@@ -72,7 +79,11 @@
     "days": "дней",
     "view": "Просмотр",
     "noData": "Пока нет данных",
-    "errorLoading": "Ошибка при загрузке данных"
+    "errorLoading": "Ошибка при загрузке данных",
+    "todaySales": "Продажи сегодня",
+    "todayAppointments": "Записи сегодня",
+    "lowStock": "Мало на складе",
+    "lowStockSubtext": "Меньше 5 единиц"
   },
   "members": {
     "title": "Участники",
@@ -332,5 +343,124 @@
     "justNow": "только что",
     "oneMinuteAgo": "1 минуту назад",
     "minutesAgo": "{minutes} минут назад"
+  },
+  "products": {
+    "title": "Товары",
+    "subtitle": "Каталог продукции и остатки на складе",
+    "newProduct": "Новый товар",
+    "categories": "Категории",
+    "allCategories": "Все категории",
+    "searchPlaceholder": "Поиск по названию, артикулу или штрих-коду...",
+    "columns": {
+      "name": "Название",
+      "sku": "Артикул / Штрих-код",
+      "category": "Категория",
+      "price": "Цена",
+      "stock": "Остаток",
+      "actions": "Действия"
+    },
+    "brand": "Бренд",
+    "sku": "Артикул",
+    "barcode": "Штрих-код",
+    "noSku": "Нет артикула",
+    "noBarcode": "Нет штрих-кода",
+    "salePrice": "Цена продажи",
+    "costPrice": "Себестоимость",
+    "reorderLevel": "Мин. остаток",
+    "lowStock": "Мало на складе!",
+    "addProduct": "Добавить товар",
+    "editProduct": "Редактировать товар",
+    "saveError": "Ошибка при сохранении",
+    "deleteError": "Ошибка при удалении",
+    "deleteConfirm": "Вы уверены, что хотите удалить?",
+    "saving": "Сохранение...",
+    "errorLoading": "Ошибка при загрузке",
+    "unit": "Ед. изм."
+  },
+  "inventory": {
+    "title": "Складской учет",
+    "subtitle": "Приход товаров и история движения",
+    "stockIn": "Приход товара",
+    "stockLevels": "Остатки",
+    "movements": "История движения",
+    "columns": {
+      "product": "Товар",
+      "customer": "Клиент",
+      "sku": "Артикул",
+      "qty": "Кол-во",
+      "type": "Тип",
+      "reason": "Причина",
+      "date": "Дата",
+      "currentStock": "Текущий остаток",
+      "lastUpdated": "Последнее обновление"
+    },
+    "stockInTitle": "Приход на склад",
+    "quantityLabel": "Количество (шт)",
+    "costPriceLabel": "Стоимость за единицу",
+    "reasonLabel": "Примечание / Причина",
+    "reasonPlaceholder": "Например: Новая партия"
+  },
+  "pos": {
+    "title": "Продажи (POS)",
+    "subtitle": "Продажа товаров клиентам",
+    "searchProduct": "Поиск товара...",
+    "cart": "Корзина",
+    "total": "Итого",
+    "checkout": "Оформить",
+    "paymentMethod": "Способ оплаты",
+    "customer": "Клиент",
+    "customerSelectPlaceholder": "Выберите клиента",
+    "customerNamePlaceholder": "Введите имя клиента",
+    "customerRequired": "Выберите клиента или введите имя",
+    "noItems": "Корзина пуста",
+    "success": "Продажа успешно завершена",
+    "noImage": "Нет фото",
+    "outOfStock": "Нет в наличии",
+    "guest": "Гость",
+    "cash": "Наличные",
+    "card": "Карта",
+    "processing": "Обработка...",
+    "errorOutOfStock": "Товара нет в наличии!",
+    "errorNoMoreStock": "Больше нет на складе!",
+    "errorNotEnoughStock": "Недостаточно на складе!"
+  },
+  "appointments": {
+    "title": "Записи",
+    "subtitle": "Управление очередью на услуги",
+    "newAppointment": "Новая запись",
+    "stats": {
+      "today": "Сегодняшняя запись",
+      "pending": "Ожидание"
+    },
+    "columns": {
+      "customer": "Клиент / Гость",
+      "staffRoom": "Сотрудник / Кабинет",
+      "service": "Услуга"
+    },
+    "member": "Участник",
+    "guest": "Гость",
+    "noRoom": "Без кабинета",
+    "status": {
+      "booked": "Записан",
+      "confirmed": "Подтверждено",
+      "inProgress": "В процессе",
+      "completed": "Завершено",
+      "cancelled": "Отменено",
+      "noShow": "Не пришел"
+    },
+    "noAppointments": "Записей не найдено",
+    "form": {
+      "memberOptional": "Участник (необязательно)",
+      "guestOption": "Гость (без регистрации)",
+      "guestName": "Имя гостя",
+      "guestPhone": "Телефон гостя",
+      "startTime": "Время начала",
+      "endTime": "Время окончания",
+      "staff": "Сотрудник",
+      "room": "Кабинет",
+      "serviceName": "Название услуги"
+    },
+    "book": "Записаться",
+    "booking": "Запись..."
   }
 }

@@ -29,7 +29,10 @@
     "error": "Xatolik",
     "success": "Muvaffaqiyat",
     "notFound": "Topilmadi",
-    "noData": "Ma'lumot yo'q"
+    "noData": "Ma'lumot yo'q",
+    "exportExcel": "Excel",
+    "import": "Import",
+    "total": "Jami"
   },
   "sidebar": {
     "home": "Bosh sahifa",
@@ -76,7 +79,11 @@
     "days": "kun",
     "view": "Ko'rish",
     "noData": "Hozircha ma'lumot yo'q",
-    "errorLoading": "Ma'lumotlarni yuklashda xatolik yuz berdi"
+    "errorLoading": "Ma'lumotlarni yuklashda xatolik yuz berdi",
+    "todaySales": "Bugungi savdo",
+    "todayAppointments": "Bugungi uchrashuvlar",
+    "lowStock": "Kam qolgan mahsulotlar",
+    "lowStockSubtext": "Qoldiq 5 tadan kam"
   },
   "members": {
     "title": "A'zolar",
@@ -380,8 +387,25 @@
       "sku": "SKU / Barcode",
       "category": "Kategoriya",
       "price": "Narxi",
-      "stock": "Qoldiq"
-    }
+      "stock": "Qoldiq",
+      "actions": "Amallar"
+    },
+    "brand": "Brend",
+    "sku": "SKU",
+    "barcode": "Barcode",
+    "noSku": "SKU yo'q",
+    "noBarcode": "Barcode yo'q",
+    "salePrice": "Sotuv narxi",
+    "costPrice": "Tannarx",
+    "reorderLevel": "Minimal qoldiq",
+    "lowStock": "Kam qoldi!",
+    "addProduct": "Yangi mahsulot qo'shish",
+    "editProduct": "Mahsulotni tahrirlash",
+    "saveError": "Saqlashda xatolik",
+    "deleteError": "O'chirishda xatolik",
+    "deleteConfirm": "Haqiqatan ham o'chirmoqchimisiz?",
+    "saving": "Saqlanmoqda...",
+    "unit": "Birlik"
   },
   "inventory": {
     "title": "Ombor Nazorati",
@@ -391,12 +415,20 @@
     "movements": "Harakatlar tarixi",
     "columns": {
       "product": "Mahsulot",
+      "customer": "Mijoz",
       "sku": "SKU",
       "qty": "Miqdor",
       "type": "Turi",
       "reason": "Sabab",
-      "date": "Sana"
-    }
+      "date": "Sana",
+      "currentStock": "Joriy qoldiq",
+      "lastUpdated": "Oxirgi yangilanish"
+    },
+    "stockInTitle": "Omborga kirim qilish",
+    "quantityLabel": "Miqdor (dona)",
+    "costPriceLabel": "Kirim narxi (tannarx)",
+    "reasonLabel": "Eslatma / Sabab",
+    "reasonPlaceholder": "Masalan: Yangi partiya"
   },
   "pos": {
     "title": "Savdo (POS)",
@@ -406,17 +438,58 @@
     "total": "Jami",
     "checkout": "To'lov",
     "paymentMethod": "To'lov usuli",
-    "customer": "Mijoz (ixtiyoriy)",
+    "customer": "Mijoz",
+    "customerSelectPlaceholder": "Mijozni tanlang",
+    "customerNamePlaceholder": "Mijoz ismini yozing",
+    "customerRequired": "Mijozni tanlang yoki ismini kiriting",
     "noItems": "Savat bo'sh",
-    "success": "Savdo muvaffaqiyatli yakunlandi"
+    "success": "Savdo muvaffaqiyatli yakunlandi",
+    "noImage": "Rasm yo'q",
+    "outOfStock": "Qolmadi",
+    "cash": "Naqd",
+    "card": "Karta",
+    "processing": "Bajarilmoqda...",
+    "errorOutOfStock": "Mahsulot qoldig'i yo'q!",
+    "errorNoMoreStock": "Omborda boshqa qolmagan!",
+    "errorNotEnoughStock": "Omborda yetarli emas!"
   },
   "appointments": {
     "title": "Uchrashuvlar",
     "subtitle": "Xizmatlar uchun navbatlarni boshqarish",
     "newAppointment": "Yangi band qilish",
-    "calendar": "Kalendar",
-    "list": "Ro'yxat",
-    "staff": "Xodimlar",
-    "rooms": "Xonalar"
+    "stats": {
+      "today": "Bugungi navbatlar",
+      "pending": "Kutilmoqda"
+    },
+    "columns": {
+      "customer": "Mijoz / Mehmon",
+      "staffRoom": "Xodim / Xona",
+      "service": "Xizmat"
+    },
+    "member": "A'zo",
+    "guest": "Mehmon",
+    "noRoom": "Xona belgilanmagan",
+    "status": {
+      "booked": "Yozildi",
+      "confirmed": "Tasdiqlandi",
+      "inProgress": "Jarayonda",
+      "completed": "Tugadi",
+      "cancelled": "Bekor qilindi",
+      "noShow": "Kelmagan"
+    },
+    "noAppointments": "Hech qanday bandlik topilmadi",
+    "form": {
+      "memberOptional": "A'zo (ixtiyoriy)",
+      "guestOption": "Mehmon (ro'yxatdan o'tmagan)",
+      "guestName": "Mehmon ismi",
+      "guestPhone": "Mehmon telefoni",
+      "startTime": "Boshlanish vaqti",
+      "endTime": "Tugash vaqti",
+      "staff": "Xodim",
+      "room": "Xona",
+      "serviceName": "Xizmat nomi"
+    },
+    "book": "Band qilish",
+    "booking": "Yozilmoqda..."
   }
 }

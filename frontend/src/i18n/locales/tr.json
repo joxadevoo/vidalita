@@ -29,7 +29,10 @@
     "error": "Hata",
     "success": "Başarılı",
     "notFound": "Bulunamadı",
-    "noData": "Veri yok"
+    "noData": "Veri yok",
+    "exportExcel": "Excel",
+    "import": "İçe Aktar",
+    "total": "Toplam"
   },
   "sidebar": {
     "home": "Ana Sayfa",
@@ -37,6 +40,10 @@
     "checkins": "Girişler",
     "beautyServices": "Güzellik Hizmetleri",
     "barcode": "Barkod",
+    "appointments": "Randevular",
+    "pos": "Satış (POS)",
+    "products": "Ürünler",
+    "inventory": "Stok",
     "settings": "Ayarlar",
     "expand": "Kenar çubuğunu genişlet",
     "collapse": "Kenar çubuğunu küçült",
@@ -72,7 +79,11 @@
     "days": "gün",
     "view": "Görüntüle",
     "noData": "Henüz veri yok",
-    "errorLoading": "Veriler yüklenirken hata oluştu"
+    "errorLoading": "Veriler yüklenirken hata oluştu",
+    "todaySales": "Bugünkü Satışlar",
+    "todayAppointments": "Bugünkü Randevular",
+    "lowStock": "Azalan Stoklar",
+    "lowStockSubtext": "5'ten az kaldı"
   },
   "members": {
     "title": "Üyeler",
@@ -333,5 +344,124 @@
     "justNow": "şimdi",
     "oneMinuteAgo": "1 dakika önce",
     "minutesAgo": "{minutes} dakika önce"
+  },
+  "products": {
+    "title": "Ürünler",
+    "subtitle": "Kozmetik ürün kataloğu ve stok durumu",
+    "newProduct": "Yeni Ürün",
+    "categories": "Kategoriler",
+    "allCategories": "Tüm Kategoriler",
+    "searchPlaceholder": "İsim, SKU veya Barkod ile ara...",
+    "columns": {
+      "name": "İsim",
+      "sku": "SKU / Barkod",
+      "category": "Kategori",
+      "price": "Fiyat",
+      "stock": "Stok",
+      "actions": "İşlemler"
+    },
+    "brand": "Marka",
+    "sku": "SKU",
+    "barcode": "Barkod",
+    "noSku": "SKU Yok",
+    "noBarcode": "Barkod Yok",
+    "salePrice": "Satış Fiyatı",
+    "costPrice": "Maliyet",
+    "reorderLevel": "Min. Stok",
+    "lowStock": "Stok Az!",
+    "addProduct": "Ürün Ekle",
+    "editProduct": "Ürünü Düzenle",
+    "saveError": "Kaydetme Hatası",
+    "deleteError": "Silme Hatası",
+    "deleteConfirm": "Silmek istediğinizden emin misiniz?",
+    "saving": "Kaydediliyor...",
+    "errorLoading": "Yükleme Hatası",
+    "unit": "Birim"
+  },
+  "inventory": {
+    "title": "Stok Kontrolü",
+    "subtitle": "Ürün girişi ve hareket geçmişi",
+    "stockIn": "Stok Girişi",
+    "stockLevels": "Stok Seviyeleri",
+    "movements": "Hareket Geçmişi",
+    "columns": {
+      "product": "Ürün",
+      "customer": "Müşteri",
+      "sku": "SKU",
+      "qty": "Miktar",
+      "type": "Tür",
+      "reason": "Sebep",
+      "date": "Tarih",
+      "currentStock": "Mevcut Stok",
+      "lastUpdated": "Son Güncelleme"
+    },
+    "stockInTitle": "Stok Girişi Yap",
+    "quantityLabel": "Miktar (adet)",
+    "costPriceLabel": "Birim Maliyet",
+    "reasonLabel": "Not / Sebep",
+    "reasonPlaceholder": "Örn: Yeni Parti"
+  },
+  "pos": {
+    "title": "Satış (POS)",
+    "subtitle": "Müşterilere ürün satışı",
+    "searchProduct": "Ürün ara...",
+    "cart": "Sepet",
+    "total": "Toplam",
+    "checkout": "Ödeme",
+    "paymentMethod": "Ödeme Yöntemi",
+    "customer": "Müşteri",
+    "customerSelectPlaceholder": "Müşteri seçin",
+    "customerNamePlaceholder": "Müşteri adını yazın",
+    "customerRequired": "Müşteri seçin veya adını girin",
+    "noItems": "Sepet boş",
+    "success": "Satış başarıyla tamamlandı",
+    "noImage": "Resim Yok",
+    "outOfStock": "Stokta Yok",
+    "guest": "Misafir",
+    "cash": "Nakit",
+    "card": "Kart",
+    "processing": "İşleniyor...",
+    "errorOutOfStock": "Ürün stokta yok!",
+    "errorNoMoreStock": "Stokta bitti!",
+    "errorNotEnoughStock": "Yetersiz stok!"
+  },
+  "appointments": {
+    "title": "Randevular",
+    "subtitle": "Hizmet sıralarını yönet",
+    "newAppointment": "Yeni Randevu",
+    "stats": {
+      "today": "Bugünkü Sıra",
+      "pending": "Bekleyen"
+    },
+    "columns": {
+      "customer": "Müşteri / Misafir",
+      "staffRoom": "Personel / Oda",
+      "service": "Hizmet"
+    },
+    "member": "Üye",
+    "guest": "Misafir",
+    "noRoom": "Oda Atanmadı",
+    "status": {
+      "booked": "Rezerve",
+      "confirmed": "Onaylandı",
+      "inProgress": "Devam Ediyor",
+      "completed": "Tamamlandı",
+      "cancelled": "İptal Edildi",
+      "noShow": "Gelmedi"
+    },
+    "noAppointments": "Randevu bulunamadı",
+    "form": {
+      "memberOptional": "Üye (isteğe bağlı)",
+      "guestOption": "Misafir (kayıtsız)",
+      "guestName": "Misafir Adı",
+      "guestPhone": "Misafir Telefonu",
+      "startTime": "Başlangıç Saati",
+      "endTime": "Bitiş Saati",
+      "staff": "Personel",
+      "room": "Oda",
+      "serviceName": "Hizmet Adı"
+    },
+    "book": "Rezerve Et",
+    "booking": "Rezerve Ediliyor..."
   }
 }

@@ -29,7 +29,10 @@
     "error": "Error",
     "success": "Success",
     "notFound": "Not Found",
-    "noData": "No Data"
+    "noData": "No Data",
+    "exportExcel": "Excel",
+    "import": "Import",
+    "total": "Total"
   },
   "sidebar": {
     "home": "Home",
@@ -37,6 +40,10 @@
     "checkins": "Check-ins",
     "beautyServices": "Beauty Services",
     "barcode": "Barcode",
+    "appointments": "Appointments",
+    "pos": "Sales (POS)",
+    "products": "Products",
+    "inventory": "Inventory",
     "settings": "Settings",
     "expand": "Expand sidebar",
     "collapse": "Collapse sidebar",
@@ -72,7 +79,11 @@
     "days": "days",
     "view": "View",
     "noData": "No data yet",
-    "errorLoading": "Error loading data"
+    "errorLoading": "Error loading data",
+    "todaySales": "Today's Sales",
+    "todayAppointments": "Today's Appointments",
+    "lowStock": "Low Stock Items",
+    "lowStockSubtext": "Less than 5 remaining"
   },
   "members": {
     "title": "Members",
@@ -340,5 +351,124 @@
     "justNow": "just now",
     "oneMinuteAgo": "1 minute ago",
     "minutesAgo": "{minutes} minutes ago"
+  },
+  "products": {
+    "title": "Products",
+    "subtitle": "Cosmetic products catalog and inventory stock",
+    "newProduct": "New Product",
+    "categories": "Categories",
+    "allCategories": "All Categories",
+    "searchPlaceholder": "Search by name, SKU or Barcode...",
+    "columns": {
+      "name": "Name",
+      "sku": "SKU / Barcode",
+      "category": "Category",
+      "price": "Price",
+      "stock": "Stock",
+      "actions": "Actions"
+    },
+    "brand": "Brand",
+    "sku": "SKU",
+    "barcode": "Barcode",
+    "noSku": "No SKU",
+    "noBarcode": "No Barcode",
+    "salePrice": "Sale Price",
+    "costPrice": "Cost Price",
+    "reorderLevel": "Reorder Level",
+    "lowStock": "Low Stock!",
+    "addProduct": "Add Product",
+    "editProduct": "Edit Product",
+    "saveError": "Error saving",
+    "deleteError": "Error deleting",
+    "deleteConfirm": "Are you sure you want to delete?",
+    "saving": "Saving...",
+    "errorLoading": "Error loading",
+    "unit": "Unit"
+  },
+  "inventory": {
+    "title": "Inventory Control",
+    "subtitle": "Product entry and movement history",
+    "stockIn": "Stock In",
+    "stockLevels": "Stock Levels",
+    "movements": "Movement History",
+    "columns": {
+      "product": "Product",
+      "customer": "Customer",
+      "sku": "SKU",
+      "qty": "Qty",
+      "type": "Type",
+      "reason": "Reason",
+      "date": "Date",
+      "currentStock": "Current Stock",
+      "lastUpdated": "Last Updated"
+    },
+    "stockInTitle": "Stock In Entry",
+    "quantityLabel": "Quantity (pcs)",
+    "costPriceLabel": "Unit Cost",
+    "reasonLabel": "Note / Reason",
+    "reasonPlaceholder": "e.g., New Batch"
+  },
+  "pos": {
+    "title": "Sales (POS)",
+    "subtitle": "Sell products to customers",
+    "searchProduct": "Search product...",
+    "cart": "Cart",
+    "total": "Total",
+    "checkout": "Checkout",
+    "paymentMethod": "Payment Method",
+    "customer": "Customer",
+    "customerSelectPlaceholder": "Select customer",
+    "customerNamePlaceholder": "Enter customer name",
+    "customerRequired": "Select a customer or enter a name",
+    "noItems": "Cart is empty",
+    "success": "Sale completed successfully",
+    "noImage": "No Image",
+    "outOfStock": "Out of Stock",
+    "guest": "Guest",
+    "cash": "Cash",
+    "card": "Card",
+    "processing": "Processing...",
+    "errorOutOfStock": "Product is out of stock!",
+    "errorNoMoreStock": "No more stock available!",
+    "errorNotEnoughStock": "Not enough stock!"
+  },
+  "appointments": {
+    "title": "Appointments",
+    "subtitle": "Manage service queues",
+    "newAppointment": "New Appointment",
+    "stats": {
+      "today": "Today's Queue",
+      "pending": "Pending"
+    },
+    "columns": {
+      "customer": "Customer / Guest",
+      "staffRoom": "Staff / Room",
+      "service": "Service"
+    },
+    "member": "Member",
+    "guest": "Guest",
+    "noRoom": "No Room",
+    "status": {
+      "booked": "Booked",
+      "confirmed": "Confirmed",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "noShow": "No Show"
+    },
+    "noAppointments": "No appointments found",
+    "form": {
+      "memberOptional": "Member (optional)",
+      "guestOption": "Guest (not registered)",
+      "guestName": "Guest Name",
+      "guestPhone": "Guest Phone",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "staff": "Staff",
+      "room": "Room",
+      "serviceName": "Service Name"
+    },
+    "book": "Book",
+    "booking": "Booking..."
   }
 }
