@@ -19,7 +19,7 @@
         <div class="grid gap-4 px-4 sm:px-6 py-4 sm:py-6 md:grid-cols-2">
           <div class="md:col-span-2">
             <label class="input-label" for="fullName">{{ $t('memberCreate.fullName') }} *</label>
-            <input id="fullName" v-model="form.fullName" type="text" required class="input" placeholder="Masalan: Gofurov Jamshid Akmal o'g'li" />
+            <input id="fullName" v-model="form.fullName" type="text" required class="input" :placeholder="$t('memberCreate.fullNamePlaceholder')" />
           </div>
 
           <div>
@@ -49,13 +49,13 @@
                 <option value="ru">🇷🇺 Rossiya (+7)</option>
                 <option value="tr">🇹🇷 Turkiya (+90)</option>
               </select>
-              <input id="phone" v-model="phoneField" type="tel" required class="flex-1 input" placeholder="+998 90 123 45 67" />
+              <input id="phone" v-model="phoneField" type="tel" required class="flex-1 input" :placeholder="$t('memberCreate.phonePlaceholder')" />
             </div>
           </div>
 
           <div>
             <label class="input-label" for="email">{{ $t('memberCreate.email') }}</label>
-            <input id="email" v-model="form.email" type="email" class="input" placeholder="example@domain.com" />
+            <input id="email" v-model="form.email" type="email" class="input" :placeholder="$t('memberCreate.emailPlaceholder')" />
           </div>
 
           <div>
@@ -66,12 +66,12 @@
 
           <div>
             <label class="input-label" for="region">{{ $t('memberCreate.region') }}</label>
-            <input id="region" v-model="form.region" type="text" class="input" placeholder="Masalan: Toshkent viloyati" />
+            <input id="region" v-model="form.region" type="text" class="input" :placeholder="$t('memberCreate.regionPlaceholder')" />
           </div>
 
           <div>
             <label class="input-label" for="district">{{ $t('memberCreate.district') }}</label>
-            <input id="district" v-model="form.district" type="text" class="input" placeholder="Masalan: Yakkasaroy tumani" />
+            <input id="district" v-model="form.district" type="text" class="input" :placeholder="$t('memberCreate.districtPlaceholder')" />
           </div>
 
           <div class="md:col-span-2">
@@ -98,7 +98,7 @@
                 />
             </div>
             <p class="mt-1 text-xs text-gray-500">{{ $t('memberCreate.photoFormat') }}</p>
-            <p v-if="!isEditMode && !photoPreview" class="mt-1 text-xs text-amber-600 font-medium">⚠️ Surat yuklash shart</p>
+            <p v-if="!isEditMode && !photoPreview" class="mt-1 text-xs text-amber-600 font-medium">⚠️ {{ $t('memberCreate.photoRequired') }}</p>
           </div>
         </div>
       </section>
@@ -131,15 +131,15 @@
               <div class="space-y-4">
                 <div>
                   <label class="input-label" for="emergencyName">{{ $t('memberCreate.emergencyName') }}</label>
-                  <input id="emergencyName" v-model="gymInfo.emergencyName" type="text" class="input" placeholder="Qarindoshining to'liq ismi" />
+                  <input id="emergencyName" v-model="gymInfo.emergencyName" type="text" class="input" :placeholder="$t('memberCreate.emergencyNamePlaceholder')" />
                 </div>
                 <div>
                   <label class="input-label" for="emergencyPhone">{{ $t('memberCreate.emergencyPhone') }}</label>
-                  <input id="emergencyPhone" v-model="gymInfo.emergencyPhone" type="text" class="input" placeholder="+998 XX XXX XX XX" />
+                  <input id="emergencyPhone" v-model="gymInfo.emergencyPhone" type="text" class="input" :placeholder="$t('memberCreate.emergencyPhonePlaceholder')" />
                 </div>
                 <div>
                   <label class="input-label" for="emergencyRelation">{{ $t('memberCreate.emergencyRelation') }}</label>
-                  <input id="emergencyRelation" v-model="gymInfo.emergencyRelation" type="text" class="input" placeholder="Qarindoshlik darajasi" />
+                  <input id="emergencyRelation" v-model="gymInfo.emergencyRelation" type="text" class="input" :placeholder="$t('memberCreate.emergencyRelationPlaceholder')" />
                 </div>
               </div>
             </div>
@@ -150,11 +150,11 @@
               <div class="space-y-4">
                 <div>
                   <label class="input-label" for="medicalConditions">{{ $t('memberCreate.medicalConditions') }}</label>
-                  <textarea id="medicalConditions" v-model="gymInfo.medicalConditions" rows="3" class="input" placeholder="Agar ha bo'lsa, tushuntiring"></textarea>
+                  <textarea id="medicalConditions" v-model="gymInfo.medicalConditions" rows="3" class="input" :placeholder="$t('memberCreate.medicalConditionsPlaceholder')"></textarea>
                 </div>
                 <div>
                   <label class="input-label" for="gymMedications">{{ $t('memberCreate.medications') }}</label>
-                  <textarea id="gymMedications" v-model="gymInfo.medications" rows="2" class="input" placeholder="Dorilar ro'yxatini kiriting"></textarea>
+                  <textarea id="gymMedications" v-model="gymInfo.medications" rows="2" class="input" :placeholder="$t('memberCreate.medicationsPlaceholder')"></textarea>
                 </div>
               </div>
             </div>
@@ -162,7 +162,7 @@
             <!-- Fitnes maqsadlari -->
             <div>
               <label class="input-label" for="fitnessGoals">{{ $t('memberCreate.fitnessGoals') }}</label>
-              <textarea id="fitnessGoals" v-model="gymInfo.fitnessGoals" rows="3" class="input" placeholder="Masalan, vazn kamaytirish, mushak o'stirish, umumiy sog'lomlashtirish"></textarea>
+              <textarea id="fitnessGoals" v-model="gymInfo.fitnessGoals" rows="3" class="input" :placeholder="$t('memberCreate.fitnessGoalsPlaceholder')"></textarea>
             </div>
 
             <!-- A'zolik Turlari -->
@@ -186,7 +186,7 @@
                   <span class="text-sm text-gray-700">{{ $t('memberCreate.membershipOther') }}</span>
                 </label>
                 <div v-if="gymInfo.membershipType === 'other'" class="ml-6 mt-2">
-                  <input v-model="gymInfo.membershipTypeOther" type="text" class="input" placeholder="Aniqlang" />
+                  <input v-model="gymInfo.membershipTypeOther" type="text" class="input" :placeholder="$t('memberCreate.specifyPlaceholder')" />
                 </div>
               </div>
             </div>
@@ -232,7 +232,7 @@
                 <tbody class="divide-y divide-gray-200 bg-white">
                   <tr v-for="question in beautyQuestions" :key="question.key" class="align-top">
                     <td class="px-4 py-3 text-sm text-gray-700">
-                      {{ question.label }}
+                      {{ $t(question.labelKey) }}
                       <div v-if="question.detailKey && beautyHealth[question.key] === 'yes'" class="mt-2">
                         <label :for="question.key + '-detail'" class="text-xs text-gray-500">{{ $t('memberCreate.details') }}</label>
                         <textarea
@@ -240,7 +240,7 @@
                           v-model="beautyHealth[question.detailKey]"
                           rows="2"
                           class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-                          :placeholder="question.detailPlaceholder || 'Ma\'lumot kiriting'"
+                          :placeholder="question.detailPlaceholderKey ? $t(question.detailPlaceholderKey) : $t('memberCreate.detailsPlaceholder')"
                         ></textarea>
                       </div>
                       <div v-if="question.extraDateKey && beautyHealth[question.key] === 'yes'" class="mt-2">
@@ -408,20 +408,20 @@ const beautyHealth = reactive<Record<string, string | null>>({
 })
 
 const beautyQuestions = [
-  { key: 'bloodPressure', label: 'Qon bosimi / Yurak kasalligi' },
-  { key: 'diabetes', label: 'Qandli diabet' },
-  { key: 'cancer', label: 'Saraton yoki onkologik kasallik', detailKey: 'cancerDetails', detailPlaceholder: "Agar mavjud bo'lsa, batafsil yozing" },
-  { key: 'cancerTreatment', label: "Siz saraton kasalligini davolaganmisiz?", detailKey: 'cancerTreatmentDetails', detailPlaceholder: "Qaysi davolash usuli bo'lgani haqida yozing" },
-  { key: 'hormonal', label: 'Gormonal buzilish' },
-  { key: 'thyroid', label: 'Qalqonsimon bez kasalligi' },
-  { key: 'skin', label: 'Teri kasalliklari (ekzema, psoriaz va boshqalar)', detailKey: 'skinDetails', detailPlaceholder: 'Kasallik turi va davolanishi' },
-  { key: 'alcohol', label: "Spirtli ichimlik iste'moli" },
-  { key: 'prosthesis', label: 'Sizning tanangizda protez bormi ?' },
-  { key: 'platinum', label: 'Sizning tanangizda platina bormi ?' },
-  { key: 'implants', label: 'Tishlaringizda implantlar bormi ?' },
-  { key: 'crowns', label: 'Tishlaringizda toj yoki protez bormi ?' },
-  { key: 'surgery', label: "Siz operatsiya amaliyotini o'tkazgansizmi?", detailKey: 'surgeryDetails', detailPlaceholder: 'Operatsiya tafsilotlari', extraDateKey: 'surgeryDate' },
-  { key: 'smoking', label: 'Chekish odati' }
+  { key: 'bloodPressure', labelKey: 'memberCreate.beautyQuestionBloodPressure' },
+  { key: 'diabetes', labelKey: 'memberCreate.beautyQuestionDiabetes' },
+  { key: 'cancer', labelKey: 'memberCreate.beautyQuestionCancer', detailKey: 'cancerDetails', detailPlaceholderKey: 'memberCreate.beautyQuestionCancerDetails' },
+  { key: 'cancerTreatment', labelKey: 'memberCreate.beautyQuestionCancerTreatment', detailKey: 'cancerTreatmentDetails', detailPlaceholderKey: 'memberCreate.beautyQuestionCancerTreatmentDetails' },
+  { key: 'hormonal', labelKey: 'memberCreate.beautyQuestionHormonal' },
+  { key: 'thyroid', labelKey: 'memberCreate.beautyQuestionThyroid' },
+  { key: 'skin', labelKey: 'memberCreate.beautyQuestionSkin', detailKey: 'skinDetails', detailPlaceholderKey: 'memberCreate.beautyQuestionSkinDetails' },
+  { key: 'alcohol', labelKey: 'memberCreate.beautyQuestionAlcohol' },
+  { key: 'prosthesis', labelKey: 'memberCreate.beautyQuestionProsthesis' },
+  { key: 'platinum', labelKey: 'memberCreate.beautyQuestionPlatinum' },
+  { key: 'implants', labelKey: 'memberCreate.beautyQuestionImplants' },
+  { key: 'crowns', labelKey: 'memberCreate.beautyQuestionCrowns' },
+  { key: 'surgery', labelKey: 'memberCreate.beautyQuestionSurgery', detailKey: 'surgeryDetails', detailPlaceholderKey: 'memberCreate.beautyQuestionSurgeryDetails', extraDateKey: 'surgeryDate' },
+  { key: 'smoking', labelKey: 'memberCreate.beautyQuestionSmoking' }
 ]
 
 const submitting = ref(false)

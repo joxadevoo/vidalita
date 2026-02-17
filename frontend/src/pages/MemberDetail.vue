@@ -67,29 +67,29 @@
       <!-- Gym & Health -->
       <div class="grid gap-6 md:grid-cols-2">
         <section v-if="gymInfo" class="rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div class="border-b border-gray-100 px-6 py-4"><h2 class="text-lg font-semibold text-gray-900">Gym Info</h2></div>
+          <div class="border-b border-gray-100 px-6 py-4"><h2 class="text-lg font-semibold text-gray-900">{{ $t('memberDetail.gymInfo') }}</h2></div>
           <div class="px-6 py-6 space-y-4">
              <div v-if="gymInfo.membershipType">
-               <label class="text-xs font-medium text-gray-500">Membership Type</label>
-               <p class="text-sm">{{ gymInfo.membershipType }}</p>
+               <label class="text-xs font-medium text-gray-500">{{ $t('memberDetail.membershipType') }}</label>
+               <p class="text-sm">{{ getMembershipTypeLabel(gymInfo.membershipType, gymInfo.membershipTypeOther) }}</p>
              </div>
              <div v-if="gymInfo.paymentMethod">
-               <label class="text-xs font-medium text-gray-500">Payment Method</label>
-               <p class="text-sm">{{ gymInfo.paymentMethod }}</p>
+               <label class="text-xs font-medium text-gray-500">{{ $t('memberDetail.paymentMethod') }}</label>
+               <p class="text-sm">{{ getPaymentMethodLabel(gymInfo.paymentMethod, gymInfo.paymentMethodOther) }}</p>
              </div>
              <div v-if="gymInfo.emergencyName">
-               <label class="text-xs font-medium text-gray-500">Emergency Contact</label>
+               <label class="text-xs font-medium text-gray-500">{{ $t('memberDetail.emergencyContact') }}</label>
                <p class="text-sm">{{ gymInfo.emergencyName }} ({{ gymInfo.emergencyPhone }})</p>
              </div>
           </div>
         </section>
 
         <section v-if="beautyHealth" class="rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div class="border-b border-gray-100 px-6 py-4"><h2 class="text-lg font-semibold text-gray-900">Health Profile</h2></div>
+          <div class="border-b border-gray-100 px-6 py-4"><h2 class="text-lg font-semibold text-gray-900">{{ $t('memberDetail.healthProfile') }}</h2></div>
           <div class="px-6 py-6 space-y-2">
              <div v-for="q in beautyQuestions" :key="q.key" class="text-sm flex justify-between">
-                <span class="text-gray-500">{{ q.label }}</span>
-                <span :class="beautyHealth[q.key] === 'yes' ? 'text-red-600 font-bold' : 'text-gray-400'">{{ beautyHealth[q.key] || '—' }}</span>
+                <span class="text-gray-500">{{ $t(q.labelKey) }}</span>
+                <span :class="beautyHealth[q.key] === 'yes' ? 'text-red-600 font-bold' : 'text-gray-400'">{{ renderHealthAnswer(beautyHealth[q.key]) }}</span>
              </div>
           </div>
         </section>
@@ -107,6 +107,109 @@
           </table>
         </div>
       </section>
+
+      <!-- Beauty Services -->
+      <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-gray-900">{{ $t('memberDetail.beautyServices') }}</h2>
+          <span class="text-xs text-gray-500">{{ $t('memberDetail.beautyTotal') }}: {{ beautyServices.length }} {{ $t('memberDetail.services') }}</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="py-3 px-6 text-left text-sm font-semibold">{{ $t('memberDetail.serviceName') }}</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">{{ $t('memberDetail.serviceDate') }}</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">{{ $t('memberDetail.note') }}</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">{{ $t('memberDetail.amount') }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr v-for="s in beautyServices" :key="s.id" class="hover:bg-gray-50">
+                <td class="py-4 px-6 text-sm font-medium text-gray-900">{{ s.serviceName }}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">{{ formatDate(s.serviceDate) }}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">{{ s.note || '—' }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ formatCurrency(s.amount || 0) }}</td>
+              </tr>
+              <tr v-if="beautyServices.length === 0">
+                <td colspan="4" class="px-6 py-6 text-center text-sm text-gray-500">{{ $t('memberDetail.noServices') }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Sales History -->
+      <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-gray-900">{{ $t('memberDetail.salesHistory') }}</h2>
+          <span class="text-xs text-gray-500">{{ $t('memberDetail.salesTotal') }}: {{ sales.length }}</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="py-3 px-6 text-left text-sm font-semibold">{{ $t('memberDetail.saleDate') }}</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">{{ $t('memberDetail.saleItems') }}</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">{{ $t('memberDetail.saleTotal') }}</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">{{ $t('memberDetail.paymentMethod') }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr v-for="sale in sales" :key="sale.id" class="hover:bg-gray-50">
+                <td class="py-4 px-6 text-sm text-gray-600">{{ formatDateTime(sale.createdAt) }}</td>
+                <td class="px-6 py-4 text-sm text-gray-700">
+                  <div v-for="item in sale.items" :key="item.id" class="flex justify-between gap-4">
+                    <span>{{ item.product?.name || $t('memberDetail.unknownProduct') }}</span>
+                    <span class="text-gray-500">{{ item.qty }} × {{ formatCurrency(item.unitPrice) }}</span>
+                  </div>
+                  <div v-if="sale.items.length === 0" class="text-gray-400">—</div>
+                </td>
+                <td class="px-6 py-4 text-sm font-semibold text-gray-900">{{ formatCurrency(sale.totalAmount) }}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">{{ sale.paymentMethod || '—' }}</td>
+              </tr>
+              <tr v-if="sales.length === 0">
+                <td colspan="4" class="px-6 py-6 text-center text-sm text-gray-500">{{ $t('memberDetail.noSales') }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Appointments -->
+      <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-gray-900">{{ $t('memberDetail.appointments') }}</h2>
+          <span class="text-xs text-gray-500">{{ $t('memberDetail.appointmentsTotal') }}: {{ appointments.length }}</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="py-3 px-6 text-left text-sm font-semibold">{{ $t('memberDetail.appointmentDate') }}</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">{{ $t('memberDetail.appointmentService') }}</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">{{ $t('memberDetail.appointmentStaff') }}</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">{{ $t('memberDetail.appointmentRoom') }}</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">{{ $t('memberDetail.appointmentStatus') }}</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">{{ $t('memberDetail.appointmentPrice') }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr v-for="app in appointments" :key="app.id" class="hover:bg-gray-50">
+                <td class="py-4 px-6 text-sm text-gray-600">{{ formatDateTime(app.startTime) }}</td>
+                <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ app.serviceName || '—' }}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">{{ app.staff?.fullName || '—' }}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">{{ app.room?.name || '—' }}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">{{ getAppointmentStatusLabel(app.status) }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ formatCurrency(app.price || 0) }}</td>
+              </tr>
+              <tr v-if="appointments.length === 0">
+                <td colspan="6" class="px-6 py-6 text-center text-sm text-gray-500">{{ $t('memberDetail.noAppointments') }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -116,7 +219,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
-import { membersService, checkinsService, beautyService, storageService } from '../services/supabaseService'
+import { membersService, checkinsService, beautyService, storageService, salesService, appointmentsService } from '../services/supabaseService'
 import { formatDate, formatDateTime } from '../lib/dateUtils'
 
 const { t } = useI18n()
@@ -127,37 +230,85 @@ const memberId = computed(() => Number(route.params.id))
 const member = ref<any>(null)
 const checkins = ref<any[]>([])
 const beautyServices = ref<any[]>([])
+const sales = ref<any[]>([])
+const appointments = ref<any[]>([])
 const gymInfo = ref<any>(null)
 const beautyHealth = ref<any>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 
 const beautyQuestions = [
-  { key: 'bloodPressure', label: 'Qon bosimi / Yurak kasalligi' },
-  { key: 'diabetes', label: 'Qandli diabet' },
-  { key: 'cancer', label: 'Saraton', detailKey: 'cancerDetails' },
-  { key: 'hormonal', label: 'Gormonal buzilish' },
-  { key: 'thyroid', label: 'Qalqonsimon bez' },
-  { key: 'skin', label: 'Teri kasalliklari' },
-  { key: 'surgery', label: 'Operatsiya', detailKey: 'surgeryDetails' }
+  { key: 'bloodPressure', labelKey: 'memberCreate.beautyQuestionBloodPressure' },
+  { key: 'diabetes', labelKey: 'memberCreate.beautyQuestionDiabetes' },
+  { key: 'cancer', labelKey: 'memberCreate.beautyQuestionCancer' },
+  { key: 'cancerTreatment', labelKey: 'memberCreate.beautyQuestionCancerTreatment' },
+  { key: 'hormonal', labelKey: 'memberCreate.beautyQuestionHormonal' },
+  { key: 'thyroid', labelKey: 'memberCreate.beautyQuestionThyroid' },
+  { key: 'skin', labelKey: 'memberCreate.beautyQuestionSkin' },
+  { key: 'alcohol', labelKey: 'memberCreate.beautyQuestionAlcohol' },
+  { key: 'prosthesis', labelKey: 'memberCreate.beautyQuestionProsthesis' },
+  { key: 'platinum', labelKey: 'memberCreate.beautyQuestionPlatinum' },
+  { key: 'implants', labelKey: 'memberCreate.beautyQuestionImplants' },
+  { key: 'crowns', labelKey: 'memberCreate.beautyQuestionCrowns' },
+  { key: 'surgery', labelKey: 'memberCreate.beautyQuestionSurgery' },
+  { key: 'smoking', labelKey: 'memberCreate.beautyQuestionSmoking' }
 ]
+
+const renderHealthAnswer = (value: string | null) => {
+  if (value === 'yes') return t('common.yes')
+  if (value === 'no') return t('common.no')
+  return '—'
+}
+
+const getMembershipTypeLabel = (value: string, other?: string) => {
+  switch (value) {
+    case 'monthly': return t('memberCreate.membershipMonthly')
+    case 'quarterly': return t('memberCreate.membershipQuarterly')
+    case 'yearly': return t('memberCreate.membershipYearly')
+    case 'other': return other || t('memberCreate.membershipOther')
+    default: return value || '—'
+  }
+}
+
+const getPaymentMethodLabel = (value: string, other?: string) => {
+  switch (value) {
+    case 'card': return t('memberCreate.paymentCard')
+    case 'cash': return t('memberCreate.paymentCash')
+    case 'other': return other || t('memberCreate.paymentOther')
+    default: return value || '—'
+  }
+}
+
+const getAppointmentStatusLabel = (status: string) => {
+  const key = `appointments.status.${status}`
+  const translated = t(key)
+  return translated !== key ? translated : status
+}
+
+const formatCurrency = (val: number) => {
+  return new Intl.NumberFormat('uz-UZ').format(val) + " so'm"
+}
 
 const fetchMember = async () => {
   loading.value = true
   error.value = null
   try {
-    const [m, c, b, g, h] = await Promise.all([
+    const [m, c, b, g, h, s, a] = await Promise.all([
       membersService.getById(memberId.value),
       checkinsService.getByMemberId(memberId.value).catch(() => []),
       beautyService.getByMemberId(memberId.value).catch(() => []),
       membersService.getGymInfo(memberId.value).catch(() => null),
-      membersService.getBeautyHealth(memberId.value).catch(() => null)
+      membersService.getBeautyHealth(memberId.value).catch(() => null),
+      salesService.getByMemberId(memberId.value).catch(() => []),
+      appointmentsService.getByMemberId(memberId.value).catch(() => [])
     ])
     member.value = m
     checkins.value = c
     beautyServices.value = b
     gymInfo.value = g
     beautyHealth.value = h
+    sales.value = s
+    appointments.value = a
   } catch (err: any) {
     console.error(err)
     error.value = t('memberDetail.errorLoading')

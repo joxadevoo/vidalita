@@ -834,6 +834,16 @@ export const salesService = {
             .order('created_at', { ascending: false });
         if (error) throw error;
         return data.map(mappings.mapSaleToCamelCase);
+    },
+
+    async getByMemberId(memberId: number | string) {
+        const { data, error } = await supabase
+            .from('sales')
+            .select('*, members(fullname, phone), sale_items(*, products(name, sku))')
+            .eq('member_id', memberId)
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        return (data || []).map(mappings.mapSaleToCamelCase);
     }
 };
 
@@ -899,5 +909,15 @@ export const appointmentsService = {
         const { data, error } = await supabase.from('rooms').select('*').order('name');
         if (error) throw error;
         return data;
+    }
+    ,
+    async getByMemberId(memberId: number | string) {
+        const { data, error } = await supabase
+            .from('appointments')
+            .select('*, members(fullname, phone), staff(full_name), rooms(name)')
+            .eq('member_id', memberId)
+            .order('start_time', { ascending: false });
+        if (error) throw error;
+        return (data || []).map(mappings.mapAppointmentToCamelCase);
     }
 };

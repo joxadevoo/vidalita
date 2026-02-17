@@ -174,4 +174,3 @@ const isActive = (path: string) => route.path === path
   transform: translateX(-100%);
 }
 </style>
-
