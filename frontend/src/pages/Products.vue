@@ -110,6 +110,37 @@
                     <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('products.costPrice') }}</label>
                     <input v-model.number="form.costPriceDefault" type="number" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none" />
                 </div>
+                
+                <!-- Discount Percent Field -->
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('products.discountPercent') }}</label>
+                    <div class="flex items-center gap-2">
+                        <input
+                            v-model.number="form.discountPercent"
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            class="mt-1 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none"
+                            :placeholder="$t('products.discountPlaceholder')"
+                        />
+                        <span class="text-sm text-gray-500 mt-1">%</span>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">{{ $t('products.discountHint') }}</p>
+                </div>
+
+                <!-- Discounted Price Display (if discount > 0) -->
+                <div v-if="form.discountPercent > 0" class="sm:col-span-2 rounded-lg bg-green-50 p-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-green-700">{{ $t('products.originalPrice') }}:</span>
+                        <span class="text-sm text-green-600 line-through">{{ formatCurrency(form.salePrice || 0) }}</span>
+                    </div>
+                    <div class="mt-2 flex items-center justify-between">
+                        <span class="text-sm font-semibold text-green-900">{{ $t('products.discountedPrice') }}:</span>
+                        <span class="text-lg font-bold text-green-600">{{ formatCurrency(discountedPrice) }}</span>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('products.reorderLevel') }}</label>
                     <input v-model.number="form.reorderLevel" type="number" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none" />
@@ -153,9 +184,18 @@ const form = ref({
     sku: '',
     barcode: '',
     salePrice: 0,
+    discountPercent: 0,
     costPriceDefault: 0,
     reorderLevel: 5,
     unit: 'pcs'
+});
+
+const discountedPrice = computed(() => {
+  if (!form.value.salePrice || !form.value.discountPercent) {
+    return form.value.salePrice || 0
+  }
+  const discount = (form.value.salePrice * form.value.discountPercent) / 100
+  return form.value.salePrice - discount
 });
 
 const fetchProducts = async () => {
@@ -194,7 +234,7 @@ const editProduct = (p: any) => {
 const closeModal = () => {
     showAddModal.value = false;
     editingProduct.value = null;
-    form.value = { name: '', brand: '', categoryId: null, sku: '', barcode: '', salePrice: 0, costPriceDefault: 0, reorderLevel: 5, unit: 'pcs' };
+    form.value = { name: '', brand: '', categoryId: null, sku: '', barcode: '', salePrice: 0, discountPercent: 0, costPriceDefault: 0, reorderLevel: 5, unit: 'pcs' };
 };
 
 const saveProduct = async () => {

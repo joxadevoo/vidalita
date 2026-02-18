@@ -5,6 +5,17 @@
         <h2 class="text-2xl font-bold text-gray-900">{{ $t('pos.title') }}</h2>
         <p class="text-sm text-gray-500">{{ $t('pos.subtitle') }}</p>
       </div>
+      <!-- Invoice button after successful sale -->
+      <button
+        v-if="lastSaleId"
+        @click="showInvoice = true"
+        class="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg hover:bg-emerald-500 transition-all animate-pulse"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        {{ $t('invoice.viewInvoice') }}
+      </button>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
@@ -60,18 +71,23 @@
             <div v-if="cart.length === 0" class="h-full flex flex-col items-center justify-center text-gray-400 italic">
                 {{ $t('pos.noItems') }}
             </div>
-            <div v-for="item in cart" :key="item.id" class="flex gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
+            <div v-for="item in cart" :key="item.id" class="flex items-center justify-between border border-gray-200 rounded-lg p-3 bg-white shadow-sm">
                 <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-900 line-clamp-1">{{ item.name }}</div>
-                    <div class="text-xs text-gray-500">{{ formatCurrency(item.salePrice) }}</div>
+                    <div class="font-semibold text-sm text-gray-900">{{ item.name }}</div>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs text-gray-500">{{ formatCurrency(item.finalPrice) }} × {{ item.qty }}</span>
+                        <span v-if="item.discountPercent > 0" class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-700">
+                            -{{ item.discountPercent }}%
+                        </span>
+                    </div>
+                    <div v-if="item.discountPercent > 0" class="text-[10px] text-gray-400 line-through">
+                        {{ formatCurrency(item.salePrice) }}
+                    </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button @click="updateQty(item.id, -1)" class="w-6 h-6 rounded-md bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100 text-gray-600">-</button>
-                    <span class="text-sm font-bold w-4 text-center">{{ item.qty }}</span>
-                    <button @click="updateQty(item.id, 1)" class="w-6 h-6 rounded-md bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100 text-gray-600">+</button>
-                </div>
-                <div class="text-right">
-                    <div class="text-sm font-bold text-gray-900">{{ formatCurrency(item.salePrice * item.qty) }}</div>
+                    <button @click="updateQty(item.id, -1)" class="h-7 w-7 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 flex items-center justify-center text-lg font-bold">−</button>
+                    <span class="text-sm font-bold w-8 text-center">{{ item.qty }}</span>
+                    <button @click="updateQty(item.id, +1)" class="h-7 w-7 rounded-full bg-sky-600 text-white hover:bg-sky-500 flex items-center justify-center text-lg font-bold">+</button>
                     <button @click="removeFromCart(item.id)" class="text-[10px] text-red-500 hover:underline">{{ $t('common.delete') }}</button>
                 </div>
             </div>
@@ -93,6 +109,24 @@
                 />
             </div>
             
+            <!-- Manual Discount -->
+            <div>
+                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.additionalDiscount') }}</label>
+                <div class="mt-1 flex items-center gap-2">
+                    <input
+                        v-model.number="manualDiscountPercent"
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        class="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white"
+                        :placeholder="$t('pos.discountPlaceholder')"
+                    />
+                    <span class="text-sm font-semibold text-gray-500">%</span>
+                </div>
+                <p class="mt-1 text-[10px] text-gray-400">{{ $t('pos.discountHint') }}</p>
+            </div>
+            
             <!-- Payment Method -->
             <div>
                 <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.paymentMethod') }}</label>
@@ -110,9 +144,20 @@
                 </div>
             </div>
 
-            <div class="flex justify-between items-center pt-2">
-                <span class="text-lg font-medium text-gray-600">{{ $t('pos.total') }}:</span>
-                <span class="text-2xl font-black text-gray-900">{{ formatCurrency(cartTotal) }}</span>
+            <!-- Total Section -->
+            <div class="space-y-2 pt-2 border-t border-gray-200">
+                <div v-if="manualDiscountPercent > 0" class="flex justify-between items-center text-sm text-gray-600">
+                    <span>{{ $t('pos.subtotal') }}:</span>
+                    <span>{{ formatCurrency(cartSubtotal) }}</span>
+                </div>
+                <div v-if="manualDiscountPercent > 0" class="flex justify-between items-center text-sm text-green-600">
+                    <span>{{ $t('pos.discount') }} (-{{ manualDiscountPercent }}%):</span>
+                    <span>-{{ formatCurrency(cartSubtotal - cartTotal) }}</span>
+                </div>
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-lg font-medium text-gray-600">{{ $t('pos.total') }}:</span>
+                    <span class="text-2xl font-black text-gray-900">{{ formatCurrency(cartTotal) }}</span>
+                </div>
             </div>
 
             <button 
@@ -126,12 +171,20 @@
       </div>
     </div>
   </div>
+
+  <!-- Invoice Modal -->
+  <InvoiceModal
+    :show="showInvoice"
+    :sale-id="lastSaleId"
+    @close="showInvoice = false"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { productsService, membersService, salesService } from '../services/supabaseService';
 import { useI18n } from 'vue-i18n';
+import InvoiceModal from '../components/InvoiceModal.vue';
 
 const { t } = useI18n();
 
@@ -142,7 +195,12 @@ const cart = ref<any[]>([]);
 const selectedMemberId = ref<number | null>(null);
 const customerName = ref('');
 const paymentMethod = ref<'CASH' | 'CARD'>('CASH');
+const manualDiscountPercent = ref(0);  // Manual discount input
 const processing = ref(false);
+
+// Invoice state
+const showInvoice = ref(false);
+const lastSaleId = ref<number | null>(null);
 
 const fetchData = async () => {
     try {
@@ -160,6 +218,13 @@ const filteredProducts = computed(() => {
     return products.value.filter(p => !s || p.name.toLowerCase().includes(s) || (p.barcode && p.barcode.includes(s)));
 });
 
+// Calculate discounted price
+const getDiscountedPrice = (salePrice: number, discountPercent: number) => {
+    if (!discountPercent || discountPercent === 0) return salePrice;
+    const discount = (salePrice * discountPercent) / 100;
+    return salePrice - discount;
+};
+
 const addToCart = (product: any) => {
     if (product.currentStock <= 0) {
         alert(t('pos.errorOutOfStock'));
@@ -173,10 +238,13 @@ const addToCart = (product: any) => {
             alert(t('pos.errorNoMoreStock'));
         }
     } else {
+        const discountedPrice = getDiscountedPrice(product.salePrice, product.discountPercent || 0);
         cart.value.push({
             id: product.id,
             name: product.name,
             salePrice: product.salePrice,
+            discountPercent: product.discountPercent || 0,
+            finalPrice: discountedPrice,
             costPrice: product.costPriceDefault,
             qty: 1
         });
@@ -202,10 +270,19 @@ const removeFromCart = (id: number) => {
     cart.value = cart.value.filter(i => i.id !== id);
 };
 
-const cartTotal = computed(() => cart.value.reduce((sum, i) => sum + (i.salePrice * i.qty), 0));
+
+const cartSubtotal = computed(() => cart.value.reduce((sum, i) => sum + (i.finalPrice * i.qty), 0));
+const cartTotal = computed(() => {
+    const subtotal = cartSubtotal.value;
+    if (manualDiscountPercent.value > 0) {
+        const discount = (subtotal * manualDiscountPercent.value) / 100;
+        return subtotal - discount;
+    }
+    return subtotal;
+});
 
 const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('uz-UZ').format(val) + " so'm";
+    return new Intl.NumberFormat(t('locale') || 'uz-UZ').format(val);
 };
 
 const checkout = async () => {
@@ -216,7 +293,7 @@ const checkout = async () => {
     }
     processing.value = true;
     try {
-        await salesService.createSale({
+        const sale = await salesService.createSale({
             memberId: selectedMemberId.value,
             customerName: customerName.value.trim(),
             totalAmount: cartTotal.value,
@@ -228,11 +305,19 @@ const checkout = async () => {
                 costPrice: i.costPrice
             }))
         });
-        alert(t('pos.success'));
+
+        // Save last sale ID for invoice
+        lastSaleId.value = sale.id;
+
+        // Reset cart
         cart.value = [];
         selectedMemberId.value = null;
         customerName.value = '';
+        manualDiscountPercent.value = 0;
         await fetchData();
+
+        // Auto-show invoice
+        showInvoice.value = true;
     } catch (err: any) {
         alert(t('common.error') + ": " + err.message);
     } finally {

@@ -5,6 +5,7 @@
     "refresh": "Обновить",
     "save": "Сохранить",
     "cancel": "Отмена",
+    "tryAgain": "Попробовать снова",
     "delete": "Удалить",
     "edit": "Редактировать",
     "search": "Поиск",
@@ -82,8 +83,10 @@
     "errorLoading": "Ошибка при загрузке данных",
     "todaySales": "Продажи сегодня",
     "todayAppointments": "Записи сегодня",
-    "lowStock": "Мало на складе",
-    "lowStockSubtext": "Меньше 5 единиц"
+    "lowStock": "Мало товаров",
+    "lowStockSubtext": "Рекомендуется пополнение",
+    "lowSessionPackages": "Заканчивающиеся сеансы",
+    "noLowSessions": "У всех клиентов достаточно сеансов"
   },
   "members": {
     "title": "Участники",
@@ -268,7 +271,16 @@
     "noAppointments": "Пока нет записей",
     "deleteConfirm": "Вы подтверждаете удаление участника? Все связанные записи (входы, услуги, информация о здоровье) также будут удалены. Это действие нельзя отменить.",
     "deleteError": "Ошибка при удалении участника",
-    "errorLoading": "Ошибка при загрузке данных"
+    "errorLoading": "Ошибка при загрузке данных участника",
+    "recentServices": "История процедур",
+    "last30Days": "За 30 дней",
+    "mostUsedService": "Чаще всего",
+    "times": "раз",
+    "totalServices": "Всего услуг",
+    "allTime": "Все время",
+    "moreItems": "+ {count} тов.",
+    "activePackages": "Активные пакеты (Сеансы)",
+    "noActivePackages": "Нет активных пакетов"
   },
   "checkins": {
     "title": "Входы",
@@ -307,7 +319,11 @@
     "daysRemaining": "Осталось {days} дней",
     "daysRemainingOne": "Остался 1 день",
     "daysRemainingToday": "Истекает сегодня",
-    "noName": "Без имени"
+    "noName": "Без имени",
+    "memberInfo": "Информация об участнике",
+    "allCheckins": "Все входы",
+    "totalCheckins": "Всего входов",
+    "dateRange": "Диапазон дат"
   },
   "beautyServices": {
     "title": "Услуги красоты",
@@ -334,6 +350,9 @@
     "discountPlaceholder": "Введите процент скидки (0-100)",
     "discountHint": "Введите процент скидки, если применимо",
     "modalTitle": "Добавить новую услугу",
+    "addToList": "Добавить в список",
+    "selectedServices": "Выбранные услуги",
+    "submitting": "Сохранение...",
     "memberLabel": "Участник",
     "memberPlaceholder": "Поиск по имени, телефону или ID",
     "memberSelected": "Выбрано",
@@ -345,7 +364,6 @@
     "serviceDateLabel": "Дата услуги",
     "noteLabel": "Примечание",
     "notePlaceholder": "Дополнительная информация...",
-    "submitting": "Сохранение...",
     "add": "Добавить",
     "errorLoading": "Ошибка при загрузке записей услуг",
     "errorNoMembers": "В базе данных не найдено участников. Сначала добавьте участника.",
@@ -354,10 +372,29 @@
     "errorServiceNameRequired": "Название услуги обязательно",
     "errorAdding": "Ошибка при добавлении услуги",
     "successAdded": "Услуга успешно добавлена",
-    "deleteConfirm": "Вы подтверждаете удаление этой записи услуги?",
-    "deleteError": "Ошибка при удалении услуги",
+    "deleteConfirm": "Вы уверены, что хотите удалить эту запись об услуге?",
+    "deleteError": "Произошла ошибка при удалении услуги",
     "noResults": "Услуги не найдены",
-    "noName": "Без имени"
+    "noName": "Без имени",
+    "dateRange": "Диапазон дат",
+    "totalServices": "Всего услуг",
+    "reportDate": "Дата отчета",
+    "from": "от",
+    "to": "до",
+    "allServices": "Все услуги",
+    "items": "шт",
+    "newPackage": "Новый пакет",
+    "useSession": "Использовать сеанс",
+    "buyPackage": "Продать пакет",
+    "totalSessions": "Всего сеансов",
+    "remainingSessions": "Осталось сеансов",
+    "sessionsCount": "{count} сеансов",
+    "noActivePackages": "Активных пакетов не найдено",
+    "packageDetails": "Детали пакета",
+    "successUsed": "Сеанс успешно использован",
+    "successPackageAdded": "Пакет успешно добавлен",
+    "packageType": "Тип пакета",
+    "sessionAction": "Действие"
   },
   "barcode": {
     "title": "Штрих-код",
@@ -436,7 +473,12 @@
     "deleteConfirm": "Вы уверены, что хотите удалить?",
     "saving": "Сохранение...",
     "errorLoading": "Ошибка при загрузке",
-    "unit": "Ед. изм."
+    "unit": "Ед. изм.",
+    "discountPercent": "Скидка %",
+    "discountPlaceholder": "0-100",
+    "discountHint": "Процент скидки (0-100)",
+    "originalPrice": "Исходная цена",
+    "discountedPrice": "Цена со скидкой"
   },
   "inventory": {
     "title": "Складской учет",
@@ -467,6 +509,11 @@
     "searchProduct": "Поиск товара...",
     "cart": "Корзина",
     "total": "Итого",
+    "subtotal": "Промежуточный итог",
+    "discount": "Скидка",
+    "additionalDiscount": "Дополнительная скидка",
+    "discountPlaceholder": "0",
+    "discountHint": "Дополнительный процент скидки на всю продажу",
     "checkout": "Оформить",
     "paymentMethod": "Способ оплаты",
     "customer": "Клиент",
@@ -484,6 +531,29 @@
     "errorOutOfStock": "Товара нет в наличии!",
     "errorNoMoreStock": "Больше нет на складе!",
     "errorNotEnoughStock": "Недостаточно на складе!"
+  },
+  "invoice": {
+    "title": "Счёт",
+    "number": "Счёт №",
+    "date": "Дата",
+    "status": "Статус",
+    "paid": "Оплачено",
+    "customer": "Клиент",
+    "items": "Товары",
+    "product": "Товар",
+    "qty": "Кол-во",
+    "price": "Цена",
+    "lineTotal": "Итого",
+    "discount": "Скидка",
+    "subtotal": "Промежуточный итог",
+    "grandTotal": "Общий итог",
+    "paymentMethod": "Способ оплаты",
+    "print": "Печать",
+    "downloadPdf": "Скачать PDF",
+    "close": "Закрыть",
+    "thankYou": "Спасибо за покупку!",
+    "returnPolicy": "Для возврата обратитесь к нам в течение 3 дней.",
+    "viewInvoice": "Просмотр счёта"
   },
   "appointments": {
     "title": "Записи",
@@ -522,6 +592,11 @@
       "serviceName": "Название услуги"
     },
     "book": "Записаться",
-    "booking": "Запись..."
+    "booking": "Запись...",
+    "dateFrom": "С",
+    "dateTo": "По",
+    "todayOnly": "Только сегодня",
+    "resetFilters": "Очистить",
+    "searchPlaceholder": "Поиск по имени, телефону или услуге..."
   }
 }

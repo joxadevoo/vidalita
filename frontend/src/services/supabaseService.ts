@@ -273,6 +273,72 @@ export const beautyService = {
         return true;
     },
 
+    async getMemberPackages(memberId: number | string) {
+        const { data, error } = await supabase
+            .from('service_packages')
+            .select('*')
+            .eq('member_id', memberId)
+            .eq('is_active', true)
+            .gt('remaining_sessions', 0)
+            .order('purchase_date', { ascending: false });
+        if (error) throw error;
+        return (data || []).map(mappings.mapServicePackageToCamelCase);
+    },
+
+    async addPackage(payload: any) {
+        const { data, error } = await supabase
+            .from('service_packages')
+            .insert({
+                member_id: payload.memberId,
+                service_type: payload.serviceType,
+                service_name: payload.serviceName,
+                total_sessions: payload.totalSessions,
+                remaining_sessions: payload.totalSessions,
+                notes: payload.notes
+            })
+            .select()
+            .single();
+        if (error) throw error;
+        return mappings.mapServicePackageToCamelCase(data);
+    },
+
+    async usePackageSession(packageId: number | string, serviceDate?: string) {
+        // 1. Get package current balance
+        const { data: pkg, error: getError } = await supabase
+            .from('service_packages')
+            .select('*')
+            .eq('id', packageId)
+            .single();
+
+        if (getError) throw getError;
+        if (pkg.remaining_sessions <= 0) throw new Error('No sessions remaining');
+
+        // 2. Decrement balance
+        const { error: updateError } = await supabase
+            .from('service_packages')
+            .update({ remaining_sessions: pkg.remaining_sessions - 1 })
+            .eq('id', packageId);
+
+        if (updateError) throw updateError;
+
+        // 3. Add to beauty_services (log the actual service)
+        const { data: service, error: serviceError } = await supabase
+            .from('beauty_services')
+            .insert({
+                memberid: pkg.member_id,
+                servicetype: pkg.service_type,
+                servicename: pkg.service_name,
+                servicedate: serviceDate || new Date().toISOString(),
+                amount: 0, // Already paid via package
+                note: `Used from package ID: ${packageId}`
+            })
+            .select()
+            .single();
+
+        if (serviceError) throw serviceError;
+        return mappings.mapBeautyServiceToCamelCase(service);
+    },
+
     async getServiceTypes() {
         return {
             types: [
@@ -666,6 +732,7 @@ export const productsService = {
                 barcode,
                 unit: productData.unit || 'pcs',
                 sale_price: productData.salePrice ?? 0,
+                discount_percent: productData.discountPercent ?? 0,
                 cost_price_default: productData.costPriceDefault ?? 0,
                 reorder_level: productData.reorderLevel ?? 0,
 
@@ -693,6 +760,7 @@ export const productsService = {
                 barcode,
                 unit: productData.unit || 'pcs',
                 sale_price: productData.salePrice ?? 0,
+                discount_percent: productData.discountPercent ?? 0,
                 cost_price_default: productData.costPriceDefault ?? 0,
                 reorder_level: productData.reorderLevel ?? 0,
                 image_url: productData.imageUrl,
@@ -844,6 +912,16 @@ export const salesService = {
             .order('created_at', { ascending: false });
         if (error) throw error;
         return (data || []).map(mappings.mapSaleToCamelCase);
+    },
+
+    async getById(id: number | string) {
+        const { data, error } = await supabase
+            .from('sales')
+            .select('*, members(fullname, phone), sale_items(*, products(name, brand, sku))')
+            .eq('id', id)
+            .single();
+        if (error) throw error;
+        return mappings.mapSaleToCamelCase(data);
     }
 };
 

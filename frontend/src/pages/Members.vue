@@ -62,9 +62,20 @@
               <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ member.qrCodeId }}</td>
               <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ formatDate(member.joinDate) }}</td>
               <td class="whitespace-nowrap px-3 py-4 text-sm">
-                <span :class="member.gymActive === 1 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold">
-                  {{ member.gymActive === 1 ? $t('common.active') : $t('common.inactive') }}
-                </span>
+                <div class="flex flex-col gap-1">
+                  <span :class="member.gymActive === 1 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold">
+                    {{ member.gymActive === 1 ? $t('common.active') : $t('common.inactive') }}
+                  </span>
+                  <!-- Expiration warnings -->
+                  <span v-if="member.gymEnd && isExpired(member.gymEnd)" 
+                        class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+                    ⚠️ {{ $t('members.expired') }}
+                  </span>
+                  <span v-else-if="member.gymEnd && isExpiringSoon(member.gymEnd)" 
+                        class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-semibold text-yellow-700">
+                    🔔 {{ getDaysRemaining(member.gymEnd) }} {{ $t('members.daysLeft') }}
+                  </span>
+                </div>
               </td>
               <td class="whitespace-nowrap px-3 py-4 text-sm">
                 <span :class="member.beautyHasRecord ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold">
@@ -108,6 +119,7 @@ type Member = {
   phone: string
   qrCodeId: string
   gymActive: number
+  gymEnd?: string  // Added for expiration tracking
   joinDate?: string
   beautyHasRecord?: number
 }
@@ -160,6 +172,25 @@ const filteredMembers = computed(() => {
 })
 
 // formatDate funksiyasi utility'dan import qilingan
+
+// Helper functions for expiration status
+const isExpired = (dateStr: string | undefined) => {
+  if (!dateStr) return false
+  return new Date(dateStr) < new Date()
+}
+
+const getDaysRemaining = (dateStr: string | undefined) => {
+  if (!dateStr) return null
+  const end = new Date(dateStr)
+  const now = new Date()
+  const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  return diff
+}
+
+const isExpiringSoon = (dateStr: string | undefined) => {
+  const days = getDaysRemaining(dateStr)
+  return days !== null && days >= 0 && days <= 7
+}
 
 const onDeleteMember = async (id: number) => {
   const ok = window.confirm(t('members.deleteConfirm'))

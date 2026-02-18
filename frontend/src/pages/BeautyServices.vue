@@ -171,8 +171,25 @@
               </optgroup>
             </select>
             <p class="mt-1 text-xs text-gray-500">{{ $t('beautyServices.serviceNameHint') }}</p>
-            <!-- Narx ko'rsatish -->
-            <div v-if="form.serviceName && serviceTypes?.prices?.[form.serviceName]" class="mt-2 rounded-lg bg-green-50 px-3 py-2">
+
+            <!-- Amallarni tanlash -->
+            <div class="mt-4 flex gap-4">
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="radio" v-model="form.actionType" value="service" class="text-sky-600 focus:ring-sky-500" />
+                <span class="text-sm text-gray-700">{{ $t('beautyServices.add') }}</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="radio" v-model="form.actionType" value="package" class="text-sky-600 focus:ring-sky-500" />
+                <span class="text-sm text-gray-700">{{ $t('beautyServices.buyPackage') }}</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer" v-if="activePackages.length > 0">
+                <input type="radio" v-model="form.actionType" value="use" class="text-sky-600 focus:ring-sky-500" />
+                <span class="text-sm text-gray-700">{{ $t('beautyServices.useSession') }}</span>
+              </label>
+            </div>
+
+            <!-- Narx ko'rsatish (Faqat xizmat yoki paket sotib olayotganda) -->
+            <div v-if="form.serviceName && serviceTypes?.prices?.[form.serviceName] && form.actionType !== 'use'" class="mt-2 rounded-lg bg-green-50 px-3 py-2">
               <div class="flex items-center justify-between">
                 <span class="text-sm font-medium text-green-800">
                   {{ $t('beautyServices.originalPrice') }}: {{ formatPrice(serviceTypes.prices[form.serviceName]) }}
@@ -184,6 +201,33 @@
               <div v-if="form.discountPercent > 0" class="mt-1 text-sm font-bold text-green-800">
                 {{ $t('beautyServices.finalPrice') }}: {{ formatPrice(calculatedPrice) }}
               </div>
+            </div>
+
+            <!-- Seanslar soni (Faqat paket sotib olayotganda) -->
+            <div v-if="form.actionType === 'package'" class="mt-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('beautyServices.totalSessions') }}</label>
+              <input
+                v-model.number="form.totalSessions"
+                type="number"
+                min="1"
+                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
+                required
+              />
+            </div>
+
+            <!-- Mavjud paketni tanlash (Faqat seans foydalanayotganda) -->
+            <div v-if="form.actionType === 'use'" class="mt-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('beautyServices.packageDetails') }}</label>
+              <select
+                v-model="form.selectedPackageId"
+                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
+                required
+              >
+                <option value="">{{ $t('beautyServices.noActivePackages') }}</option>
+                <option v-for="pkg in filteredPackagesByService" :key="pkg.id" :value="pkg.id">
+                  {{ pkg.serviceName }} ({{ pkg.remainingSessions }}/{{ pkg.totalSessions }})
+                </option>
+              </select>
             </div>
           </div>
 
@@ -223,11 +267,71 @@
             ></textarea>
           </div>
 
-          <div class="flex items-center justify-end gap-3 pt-4">
-            <button type="button" @click="closeModal" class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">{{ $t('common.cancel') }}</button>
-            <button type="submit" :disabled="submitting" class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-60">
-              {{ submitting ? $t('beautyServices.submitting') : $t('beautyServices.add') }}
-            </button>
+          <div class="flex items-center justify-between gap-3 pt-4 border-t border-gray-100">
+            <div class="flex items-center gap-2">
+              <button type="button" @click="closeModal" class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">{{ $t('common.cancel') }}</button>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button 
+                type="button" 
+                @click="addToBasket" 
+                :disabled="!form.serviceName || !selectedMember"
+                class="rounded-lg border border-sky-600 px-3 py-2 text-sm font-semibold text-sky-600 hover:bg-sky-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {{ $t('beautyServices.addToList') }}
+              </button>
+
+              <button 
+                type="submit" 
+                :disabled="submitting || basket.length === 0" 
+                class="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-60 shadow-sm"
+              >
+                <div class="flex items-center gap-2">
+                  <span v-if="submitting" class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                  {{ submitting ? $t('beautyServices.submitting') : $t('common.save') }}
+                  <span v-if="basket.length > 0" class="ml-1 inline-flex items-center justify-center rounded-full bg-sky-500 px-2 py-0.5 text-xs font-bold">{{ basket.length }}</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Savat (Basket) Jadvali -->
+          <div v-if="basket.length > 0" class="mt-6 border-t border-gray-100 pt-4">
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{{ $t('beautyServices.selectedServices') }}</h4>
+            <div class="max-h-48 overflow-y-auto rounded-lg border border-gray-100">
+              <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase">{{ $t('beautyServices.serviceNameLabel') }}</th>
+                    <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase">{{ $t('beautyServices.columns.price') }}</th>
+                    <th class="px-3 py-2 text-right text-[11px] font-semibold text-gray-500 uppercase"></th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 bg-white">
+                  <tr v-for="(item, index) in basket" :key="index" class="hover:bg-gray-50">
+                    <td class="px-3 py-2 text-xs text-gray-900">
+                      <div class="font-medium">{{ item.serviceNameLabel }}</div>
+                      <div class="text-[10px] text-gray-500">
+                        <span v-if="item.actionType === 'package'" class="text-purple-600 font-medium">[{{ $t('beautyServices.buyPackage') }}: {{ item.totalSessions }}]</span>
+                        <span v-else-if="item.actionType === 'use'" class="text-orange-600 font-medium">[{{ $t('beautyServices.useSession') }}]</span>
+                        <span v-else class="text-blue-600 font-medium">[{{ $t('beautyServices.add') }}]</span>
+                      </div>
+                    </td>
+                    <td class="px-3 py-2 text-xs text-gray-600">
+                      {{ item.actionType === 'use' ? '—' : formatPrice(item.finalAmount) }}
+                    </td>
+                    <td class="px-3 py-2 text-right">
+                      <button type="button" @click="removeFromBasket(index)" class="text-red-400 hover:text-red-600">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </form>
       </div>
@@ -301,8 +405,17 @@ const form = ref({
   serviceName: '', // Bu endi serviceType'ni ham o'z ichiga oladi
   serviceDate: getCurrentDateTimeLocal(), // Hozirgi vaqt (Toshkent timezone)
   discountPercent: 0, // Chegirma foizi
-  note: ''
+  note: '',
+  actionType: 'service', // 'service', 'package', 'use'
+  totalSessions: 10,
+  selectedPackageId: ''
 })
+
+const activePackages = ref<any[]>([])
+const filteredPackagesByService = computed(() => {
+  if (!form.value.serviceName) return activePackages.value;
+  return activePackages.value.filter(p => p.serviceType === form.value.serviceName);
+});
 
 // Service types (enum) - Backend'dan yuklanadi
 // Service types (enum) - Default qiymatlar bilan initialize qilamiz
@@ -613,67 +726,130 @@ const openModal = async () => {
   await fetchMembers()
 }
 
+const basket = ref<any[]>([])
+
+const addToBasket = () => {
+  if (!selectedMember.value || !form.value.serviceName) {
+    formError.value = t('beautyServices.errorMemberRequired')
+    return
+  }
+
+  if (form.value.actionType === 'use' && !form.value.selectedPackageId) {
+    formError.value = t('beautyServices.noActivePackages')
+    return
+  }
+
+  const serviceType = form.value.serviceName
+  const serviceNameLabel = serviceTypes.value?.labels[serviceType] || form.value.serviceName
+  
+  const originalPrice = serviceTypes.value?.prices?.[serviceType] || 0
+  const discount = form.value.discountPercent || 0
+  let finalAmount = originalPrice
+  if (originalPrice > 0 && discount > 0) {
+    const discountAmount = (originalPrice * discount) / 100
+    finalAmount = originalPrice - discountAmount
+  }
+
+  basket.value.push({
+    ...form.value,
+    serviceNameLabel,
+    finalAmount,
+    memberId: selectedMember.value.id,
+    memberName: selectedMember.value.fullName
+  })
+
+  // Formani qisman tozalash
+  form.value.serviceName = ''
+  form.value.discountPercent = 0
+  form.value.note = ''
+  form.value.totalSessions = 10
+  form.value.selectedPackageId = ''
+  formError.value = null
+}
+
+const removeFromBasket = (index: number) => {
+  basket.value.splice(index, 1)
+}
+
 const closeModal = () => {
   showModal.value = false
   form.value = {
     serviceName: '',
     serviceDate: getCurrentDateTimeLocal(), // Hozirgi vaqt (Toshkent timezone)
     discountPercent: 0,
-    note: ''
+    note: '',
+    actionType: 'service',
+    totalSessions: 10,
+    selectedPackageId: ''
   }
   selectedMember.value = null
   memberSearch.value = ''
   formError.value = null
   showMemberDropdown.value = false
+  activePackages.value = []
+  basket.value = []
 }
+
+watch(selectedMember, async (newVal) => {
+  if (newVal) {
+    try {
+      activePackages.value = await beautyService.getMemberPackages(newVal.id)
+    } catch (err) {
+      console.error('Paketlarni yuklashda xatolik:', err)
+    }
+  } else {
+    activePackages.value = []
+  }
+})
 
 // Endi watch kerak emas, chunki bitta dropdown bor
 
 const handleSubmit = async () => {
   formError.value = null
   
-  if (!selectedMember.value) {
-    formError.value = t('beautyServices.errorMemberRequired')
-    return
-  }
-  
-  if (!form.value.serviceName.trim()) {
-    formError.value = t('beautyServices.errorServiceNameRequired')
-    return
+  if (basket.value.length === 0) {
+    if (!form.value.serviceName) {
+      formError.value = t('beautyServices.errorServiceNameRequired')
+      return
+    }
+    addToBasket()
   }
 
   submitting.value = true
   try {
-    // serviceName endi serviceType'ni ham o'z ichiga oladi (enum qiymati)
-    // serviceName sifatida rus tilidagi label'ni yuboramiz
-    const serviceType = form.value.serviceName // Enum qiymati (masalan: 'depilation')
-    const serviceNameLabel = serviceTypes.value?.labels[serviceType] || form.value.serviceName // Rus tilidagi label (masalan: 'Депиляция')
-    
-    // Narxni hisoblash (chegirma bilan)
-    const originalPrice = serviceTypes.value?.prices?.[serviceType] || 0
-    const discount = form.value.discountPercent || 0
-    let finalAmount = originalPrice
-    if (originalPrice > 0 && discount > 0) {
-      const discountAmount = (originalPrice * discount) / 100
-      finalAmount = originalPrice - discountAmount
+    // Savatdagi barcha elementlarni birma-bir yuboramiz
+    for (const item of basket.value) {
+      if (item.actionType === 'service') {
+        const payload = {
+          memberId: item.memberId,
+          serviceType: item.serviceName || undefined,
+          serviceName: item.serviceNameLabel,
+          serviceDate: item.serviceDate ? new Date(item.serviceDate).toISOString() : undefined,
+          amount: item.finalAmount > 0 ? item.finalAmount : undefined,
+          discountPercent: item.discountPercent > 0 ? item.discountPercent : undefined,
+          note: item.note.trim() || undefined
+        }
+        await beautyService.add(payload)
+      } 
+      else if (item.actionType === 'package') {
+        const payload = {
+          memberId: item.memberId,
+          serviceType: item.serviceName,
+          serviceName: item.serviceNameLabel,
+          totalSessions: item.totalSessions,
+          notes: item.note.trim() || undefined
+        }
+        await beautyService.addPackage(payload)
+      }
+      else if (item.actionType === 'use') {
+        await beautyService.usePackageSession(item.selectedPackageId, item.serviceDate ? new Date(item.serviceDate).toISOString() : undefined)
+      }
     }
-    
-    const payload = {
-      memberId: selectedMember.value.id,
-      serviceType: serviceType || undefined,  // Enum qiymati
-      serviceName: serviceNameLabel,  // Rus tilidagi label
-      serviceDate: form.value.serviceDate ? new Date(form.value.serviceDate).toISOString() : undefined,
-      amount: finalAmount > 0 ? finalAmount : undefined,
-      discountPercent: discount > 0 ? discount : undefined,
-      note: form.value.note.trim() || undefined
-    }
-    
-    await beautyService.add(payload)
+
     successMessage.value = t('beautyServices.successAdded')
     closeModal()
     await fetchServices()
     
-    // Clear success message after 3 seconds
     setTimeout(() => {
       successMessage.value = null
     }, 3000)
@@ -709,9 +885,8 @@ const fetchServices = async () => {
 }
 
 onMounted(() => {
-  const today = new Date().toISOString().slice(0, 10)
-  dateFrom.value = today
-  dateTo.value = today
+  dateFrom.value = ''
+  dateTo.value = ''
   onlyToday.value = false
   fetchServices()
   fetchServiceTypes()  // Enum qiymatlarini yuklash
@@ -747,14 +922,26 @@ const filteredServices = computed(() => {
       s.serviceName.toLowerCase().includes(search) ||
       (s.note && s.note.toLowerCase().includes(search))
 
-    // Sana filtri
+    // Sana filtri (Mahalliy vaqtni hisobga olgan holda)
     let matchesDate = true
     
+    // ISO string'dan YYYY-MM-DD local formatini olish
+    const getLocalDateString = (isoString: string) => {
+      if (!isoString) return ''
+      const d = new Date(isoString)
+      const year = d.getFullYear()
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const day = String(d.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+
+    const itemDate = getLocalDateString(s.serviceDate)
+    
     if (onlyToday.value) {
-      const today = new Date().toISOString().slice(0, 10)
-      matchesDate = s.serviceDate.slice(0, 10) === today
+      const today = new Date()
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+      matchesDate = itemDate === todayStr
     } else if (dateFrom.value || dateTo.value) {
-      const itemDate = s.serviceDate.slice(0, 10)
       if (dateFrom.value && dateTo.value) {
         matchesDate = itemDate >= dateFrom.value && itemDate <= dateTo.value
       } else if (dateFrom.value) {
@@ -769,9 +956,8 @@ const filteredServices = computed(() => {
 })
 
 const resetFilters = () => {
-  const today = new Date().toISOString().slice(0, 10)
-  dateFrom.value = today
-  dateTo.value = today
+  dateFrom.value = ''
+  dateTo.value = ''
   searchTerm.value = ''
   onlyToday.value = false
 }
@@ -782,8 +968,8 @@ const resetFilters = () => {
 const formatPrice = (price: number | null | undefined): string => {
   if (!price || price === 0) return '—'
   // So'm formatida ko'rsatish (1000 -> 1 000 so'm)
-  return new Intl.NumberFormat('uz-UZ', {
-    style: 'currency',
+  return new Intl.NumberFormat(t('locale') || 'uz-UZ', {
+    style: 'decimal',
     currency: 'UZS',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
@@ -926,7 +1112,7 @@ const exportToPDF = () => {
           </tbody>
         </table>
         <div class="footer">
-          <p>Vidalita Gym & Beauty - ${new Date().toLocaleDateString('uz-UZ')}</p>
+          <p>Vidalita Gym & Beauty - ${new Date().toLocaleDateString(t('locale') || 'uz-UZ')}</p>
         </div>
       </body>
     </html>

@@ -5,6 +5,7 @@
     "refresh": "Yenile",
     "save": "Kaydet",
     "cancel": "İptal",
+    "tryAgain": "Tekrar Dene",
     "delete": "Sil",
     "edit": "Düzenle",
     "search": "Ara",
@@ -12,6 +13,7 @@
     "all": "Tümü",
     "active": "Aktif",
     "inactive": "Pasif",
+    "items": "adet",
     "yes": "Evet",
     "no": "Hayır",
     "has": "Var",
@@ -83,7 +85,11 @@
     "todaySales": "Bugünkü Satışlar",
     "todayAppointments": "Bugünkü Randevular",
     "lowStock": "Azalan Stoklar",
-    "lowStockSubtext": "5'ten az kaldı"
+    "lowStockSubtext": "Stok yenileme önerilir",
+    "lowSessionPackages": "Azalan Seanslı Paketler",
+    "noLowSessions": "Tüm paketlerde yeterli seans var",
+    "lowStockProducts": "Azalan Stoklu Ürünler",
+    "total": "Toplam"
   },
   "members": {
     "title": "Üyeler",
@@ -106,7 +112,10 @@
     "errorLoading": "Üyeler yüklenirken hata oluştu",
     "deleteConfirm": "Üyeyi silmeyi onaylıyor musunuz? İlişkili kayıtlar varsa silme izni verilmez.",
     "deleteError": "Üye silinirken hata oluştu",
-    "noResults": "Eşleşen sonuç bulunamadı"
+    "noResults": "Eşleşen sonuç bulunamadı",
+    "expired": "Süresi Dolmuş",
+    "daysLeft": "gün kaldı",
+    "noMembership": "Üyelik Yok"
   },
   "memberCreate": {
     "title": "Yeni Üye Ekle",
@@ -269,7 +278,16 @@
     "deleteConfirm": "Üyeyi silmeyi onaylıyor musunuz? Tüm ilişkili kayıtlar (girişler, hizmetler, sağlık bilgileri) da silinecektir. Bu işlem geri alınamaz.",
     "deleteError": "Üye silinirken hata oluştu",
     "errorLoading": "Veriler yüklenirken hata oluştu",
-    "loading": "Yükleniyor..."
+    "loading": "Yükleniyor...",
+    "recentServices": "Son hizmetler",
+    "last30Days": "30 gün içinde",
+    "mostUsedService": "En çok kullanılan",
+    "times": "kez",
+    "totalServices": "Toplam hizmetler",
+    "allTime": "Tüm zamanlar",
+    "moreItems": "+ {count} ürün daha",
+    "activePackages": "Aktif Paketler (Seanslar)",
+    "noActivePackages": "Yok"
   },
   "checkins": {
     "title": "Girişler",
@@ -308,7 +326,11 @@
     "daysRemaining": "{days} gün kaldı",
     "daysRemainingOne": "1 gün kaldı",
     "daysRemainingToday": "Bugün doluyor",
-    "noName": "İsimsiz"
+    "noName": "İsimsiz",
+    "memberInfo": "Üye Bilgileri",
+    "allCheckins": "Tüm Girişler",
+    "totalCheckins": "Toplam Girişler",
+    "dateRange": "Tarih Aralığı"
   },
   "beautyServices": {
     "title": "Güzellik Hizmetleri",
@@ -328,6 +350,9 @@
       "note": "Not"
     },
     "modalTitle": "Yeni Hizmet Ekle",
+    "addToList": "Listeye Ekle",
+    "selectedServices": "Seçilen Hizmetler",
+    "submitting": "Kaydediliyor...",
     "memberLabel": "Üye",
     "memberPlaceholder": "İsim, telefon veya ID ile ara",
     "memberSelected": "Seçilen",
@@ -339,7 +364,6 @@
     "serviceDateLabel": "Hizmet Tarihi",
     "noteLabel": "Not",
     "notePlaceholder": "Ek bilgiler...",
-    "submitting": "Kaydediliyor...",
     "add": "Ekle",
     "errorLoading": "Hizmet kayıtları yüklenirken hata oluştu",
     "errorNoMembers": "Veritabanında hiç üye bulunamadı. Önce üye ekleyin.",
@@ -351,7 +375,32 @@
     "deleteConfirm": "Bu hizmet kaydını silmeyi onaylıyor musunuz?",
     "deleteError": "Hizmet silinirken hata oluştu",
     "noResults": "Hiç hizmet bulunamadı",
-    "noName": "İsimsiz"
+    "noName": "İsimsiz",
+    "price": "Fiyat",
+    "originalPrice": "Orijinal Fiyat",
+    "finalPrice": "Son Fiyat",
+    "discountLabel": "İndirim",
+    "discountPlaceholder": "İndirim yüzdesini girin (0-100)",
+    "discountHint": "Varsa indirim yüzdesini girin",
+    "dateRange": "Tarih Aralığı",
+    "totalServices": "Toplam Hizmetler",
+    "reportDate": "Rapor Tarihi",
+    "from": "tarihinden",
+    "to": "tarihine",
+    "allServices": "Tüm Hizmetler",
+    "items": "adet",
+    "newPackage": "Yeni Paket",
+    "useSession": "Seans Kullan",
+    "buyPackage": "Paket Sat",
+    "totalSessions": "Toplam Seans",
+    "remainingSessions": "Kalan Seans",
+    "sessionsCount": "{count} seans",
+    "noActivePackages": "Aktif paket bulunamadı",
+    "packageDetails": "Paket Detayları",
+    "successUsed": "Seans başarıyla kullanıldı",
+    "successPackageAdded": "Paket başarıyla eklendi",
+    "packageType": "Paket Türü",
+    "sessionAction": "İşlem"
   },
   "barcode": {
     "title": "Barkod",
@@ -377,6 +426,17 @@
   "settings": {
     "title": "Ayarlar",
     "apiUrl": "API"
+  },
+  "scanner": {
+    "manual": "Manuel",
+    "camera": "Kamera",
+    "cameraNotStarted": "Kamera başlatılmadı",
+    "startScanning": "Taramayı Başlat",
+    "stopScanning": "Taramayı Durdur",
+    "expiredDays": "{days} gün önce dolmuş",
+    "expiringToday": "Bugün doluyor",
+    "oneDayRemaining": "1 gün kaldı",
+    "daysRemaining": "{days} gün kaldı"
   },
   "login": {
     "title": "Giriş",
@@ -421,8 +481,6 @@
     "noBarcode": "Barkod Yok",
     "salePrice": "Satış Fiyatı",
     "costPrice": "Maliyet",
-    "reorderLevel": "Min. Stok",
-    "lowStock": "Stok Az!",
     "addProduct": "Ürün Ekle",
     "editProduct": "Ürünü Düzenle",
     "saveError": "Kaydetme Hatası",
@@ -430,7 +488,15 @@
     "deleteConfirm": "Silmek istediğinizden emin misiniz?",
     "saving": "Kaydediliyor...",
     "errorLoading": "Yükleme Hatası",
-    "unit": "Birim"
+    "unit": "Birim",
+    "discountPercent": "İndirim %",
+    "discountPlaceholder": "0-100",
+    "discountHint": "Yüzde olarak (0-100)",
+    "originalPrice": "Orijinal fiyat",
+    "discountedPrice": "İndirimli fiyat",
+    "currentStock": "Mevcut Stok",
+    "reorderLevel": "Minimum Stok",
+    "reorderLevelHint": "Stok bu seviyenin altına düştüğünde uyarı ver"
   },
   "inventory": {
     "title": "Stok Kontrolü",
@@ -461,6 +527,11 @@
     "searchProduct": "Ürün ara...",
     "cart": "Sepet",
     "total": "Toplam",
+    "subtotal": "Ara Toplam",
+    "discount": "İndirim",
+    "additionalDiscount": "Ek İndirim",
+    "discountPlaceholder": "0",
+    "discountHint": "Tüm satış için ek indirim yüzdesi",
     "checkout": "Ödeme",
     "paymentMethod": "Ödeme Yöntemi",
     "customer": "Müşteri",
@@ -478,6 +549,29 @@
     "errorOutOfStock": "Ürün stokta yok!",
     "errorNoMoreStock": "Stokta bitti!",
     "errorNotEnoughStock": "Yetersiz stok!"
+  },
+  "invoice": {
+    "title": "Fatura",
+    "number": "Fatura №",
+    "date": "Tarih",
+    "status": "Durum",
+    "paid": "Ödendi",
+    "customer": "Müşteri",
+    "items": "Ürünler",
+    "product": "Ürün",
+    "qty": "Miktar",
+    "price": "Fiyat",
+    "lineTotal": "Toplam",
+    "discount": "İndirim",
+    "subtotal": "Ara Toplam",
+    "grandTotal": "Genel Toplam",
+    "paymentMethod": "Ödeme Yöntemi",
+    "print": "Yazdır",
+    "downloadPdf": "PDF İndir",
+    "close": "Kapat",
+    "thankYou": "Alışverişiniz için teşekkürler!",
+    "returnPolicy": "İade için 3 gün içinde bizimle iletişime geçin.",
+    "viewInvoice": "Faturayı Görüntüle"
   },
   "appointments": {
     "title": "Randevular",
@@ -516,6 +610,11 @@
       "serviceName": "Hizmet Adı"
     },
     "book": "Rezerve Et",
-    "booking": "Rezerve Ediliyor..."
+    "booking": "Rezerve Ediliyor...",
+    "dateFrom": "Başlangıç",
+    "dateTo": "Bitiş",
+    "todayOnly": "Sadece bugün",
+    "resetFilters": "Temizle",
+    "searchPlaceholder": "İsim, telefon veya hizmet ile ara..."
   }
 }

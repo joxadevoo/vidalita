@@ -27,6 +27,34 @@
         </div>
     </div>
 
+    <!-- Filter paneli -->
+    <div class="sticky top-0 z-20 grid gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm md:grid-cols-2 lg:grid-cols-4">
+      <div class="flex min-w-0 flex-col">
+        <label class="mb-1 text-xs text-gray-500">{{ $t('appointments.dateFrom') }}</label>
+        <input v-model="dateFrom" type="date" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400" />
+      </div>
+      <div class="flex min-w-0 flex-col">
+        <label class="mb-1 text-xs text-gray-500">{{ $t('appointments.dateTo') }}</label>
+        <input v-model="dateTo" type="date" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400" />
+      </div>
+      <div class="flex min-w-0 flex-col">
+        <label class="mb-1 text-xs text-gray-500">{{ $t('common.search') }}</label>
+        <input v-model="searchTerm" type="text" :placeholder="$t('appointments.searchPlaceholder')" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400" />
+      </div>
+      <div class="flex min-w-0 w-full items-end gap-1 overflow-hidden">
+        <div class="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2 py-2">
+          <input id="todayOnly" v-model="onlyToday" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500" />
+          <label for="todayOnly" class="text-xs text-gray-600 whitespace-nowrap">{{ $t('appointments.todayOnly') }}</label>
+        </div>
+        <button
+          @click="resetFilters"
+          class="flex-shrink-0 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-2 py-2 text-xs text-gray-700 hover:bg-gray-50 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
+        >
+          {{ $t('appointments.resetFilters') }}
+        </button>
+      </div>
+    </div>
+
     <!-- Appointments Table -->
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         <div v-if="loading" class="p-8 text-center text-gray-500 italic">{{ $t('common.loading') }}</div>
@@ -42,14 +70,14 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 bg-white">
-                <tr v-for="app in appointments" :key="app.id" class="hover:bg-gray-50">
+                <tr v-for="app in filteredAppointments" :key="app.id" class="hover:bg-gray-50">
                     <td class="px-3 py-4 text-sm font-medium text-gray-900">
                         <div v-if="app.member">{{ app.member.fullName }} <span class="text-xs text-sky-500 font-normal">({{ $t('appointments.member') }})</span></div>
                         <div v-else>{{ app.guestName }} <span class="text-xs text-gray-400 font-normal">({{ $t('appointments.guest') }})</span></div>
                         <div class="text-xs text-gray-500">{{ app.member?.phone || app.guestPhone }}</div>
                     </td>
                     <td class="px-3 py-4 text-sm text-gray-800 font-semibold">
-                        <div>{{ new Date(app.startTime).toLocaleDateString('uz-UZ') }}</div>
+                        <div>{{ new Date(app.startTime).toLocaleDateString() }}</div>
                         <div class="text-xs text-indigo-500">{{ formatTime(app.startTime) }} - {{ formatTime(app.endTime) }}</div>
                     </td>
                     <td class="px-3 py-4 text-sm text-gray-600">
@@ -77,7 +105,7 @@
                         </select>
                     </td>
                 </tr>
-                <tr v-if="appointments.length === 0">
+                <tr v-if="filteredAppointments.length === 0">
                     <td colspan="6" class="p-8 text-center text-gray-400 italic">{{ $t('appointments.noAppointments') }}</td>
                 </tr>
             </tbody>
@@ -143,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { appointmentsService, membersService } from '../services/supabaseService';
 import * as XLSX from 'xlsx';
 import { useI18n } from 'vue-i18n';
@@ -157,6 +185,12 @@ const members = ref<any[]>([]);
 const loading = ref(false);
 const submitting = ref(false);
 const showModal = ref(false);
+
+// Filter state
+const dateFrom = ref('');
+const dateTo = ref('');
+const searchTerm = ref('');
+const onlyToday = ref(false);
 
 const form = ref({
     memberId: null,
@@ -185,10 +219,15 @@ const fetchAppointments = async () => {
     }
 };
 
-onMounted(fetchAppointments);
+onMounted(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    dateFrom.value = today;
+    dateTo.value = today;
+    fetchAppointments();
+});
 
 const formatTime = (iso: string) => {
-    return new Date(iso).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+    return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
 const isToday = (iso: string) => {
@@ -227,6 +266,48 @@ const updateStatus = async (id: string, newStatus: string) => {
     }
 };
 
+// Filtered appointments with date range
+const filteredAppointments = computed(() => {
+    const search = searchTerm.value.trim().toLowerCase();
+    return appointments.value.filter((app) => {
+        // Search filter
+        const matchesSearch =
+            !search ||
+            (app.member?.fullName && app.member.fullName.toLowerCase().includes(search)) ||
+            (app.guestName && app.guestName.toLowerCase().includes(search)) ||
+            (app.serviceName && app.serviceName.toLowerCase().includes(search)) ||
+            (app.member?.phone && app.member.phone.includes(search)) ||
+            (app.guestPhone && app.guestPhone.includes(search));
+
+        // Date filter
+        let matchesDate = true;
+        const appDate = new Date(app.startTime).toISOString().slice(0, 10);
+
+        if (onlyToday.value) {
+            const today = new Date().toISOString().slice(0, 10);
+            matchesDate = appDate === today;
+        } else if (dateFrom.value || dateTo.value) {
+            if (dateFrom.value && dateTo.value) {
+                matchesDate = appDate >= dateFrom.value && appDate <= dateTo.value;
+            } else if (dateFrom.value) {
+                matchesDate = appDate >= dateFrom.value;
+            } else if (dateTo.value) {
+                matchesDate = appDate <= dateTo.value;
+            }
+        }
+
+        return matchesSearch && matchesDate;
+    });
+});
+
+const resetFilters = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    dateFrom.value = today;
+    dateTo.value = today;
+    searchTerm.value = '';
+    onlyToday.value = false;
+};
+
 const submitBooking = async () => {
     submitting.value = true;
     try {
@@ -246,8 +327,8 @@ const exportToExcel = () => {
     const excelData = appointments.value.map(app => ({
         [t('appointments.columns.customer')]: app.member?.fullName || app.guestName,
         [t('common.phone')]: app.member?.phone || app.guestPhone,
-        [t('appointments.form.startTime')]: new Date(app.startTime).toLocaleString('uz-UZ'),
-        [t('appointments.form.endTime')]: new Date(app.endTime).toLocaleString('uz-UZ'),
+        [t('appointments.form.startTime')]: new Date(app.startTime).toLocaleString(),
+        [t('appointments.form.endTime')]: new Date(app.endTime).toLocaleString(),
         [t('appointments.form.staff')]: app.staff?.fullName || '',
         [t('appointments.form.room')]: app.room?.name || '',
         [t('appointments.columns.service')]: app.serviceName || '',
@@ -257,6 +338,6 @@ const exportToExcel = () => {
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(excelData);
     XLSX.utils.book_append_sheet(wb, ws, t('appointments.title'));
-    XLSX.writeFile(wb, `uchrashuvlar_${new Date().toISOString().slice(0,10)}.xlsx`);
+    XLSX.writeFile(wb, `appointments_${new Date().toISOString().slice(0,10)}.xlsx`);
 };
 </script>

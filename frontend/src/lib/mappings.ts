@@ -103,7 +103,7 @@ export const mapSaleItemToCamelCase = (si: any) => {
         id: si.id,
         saleId: si.sale_id,
         productId: si.product_id,
-        product: si.products ? { name: si.products.name, sku: si.products.sku } : null,
+        product: si.products ? { name: si.products.name, brand: si.products.brand, sku: si.products.sku } : null,
         qty: si.qty,
         unitPrice: si.unit_price,
         unitCostSnapshot: si.unit_cost_snapshot,
@@ -164,5 +164,19 @@ export const mapMembershipToCamelCase = (item: any) => {
         fullName: item.members?.fullname || null,
         phone: item.members?.phone || null,
         qrCodeId: item.members?.qrcodeid || null
+    };
+};
+export const mapServicePackageToCamelCase = (pkg: any) => {
+    if (!pkg) return null;
+    return {
+        id: pkg.id,
+        memberId: pkg.member_id,
+        serviceType: pkg.service_type,
+        serviceName: pkg.service_name,
+        totalSessions: pkg.total_sessions,
+        remainingSessions: pkg.remaining_sessions,
+        purchaseDate: pkg.purchase_date,
+        isActive: pkg.is_active,
+        notes: pkg.notes
     };
 };

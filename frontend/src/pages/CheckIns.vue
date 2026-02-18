@@ -172,7 +172,7 @@
                   </thead>
                   <tbody class="divide-y divide-gray-200 bg-white">
                     <tr v-for="question in beautyQuestions" :key="question.key" class="align-top">
-                      <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-700">{{ question.label }}</td>
+                      <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-700">{{ $t(question.labelKey) }}</td>
                       <td class="px-2 sm:px-4 py-3 text-center text-xs sm:text-sm">
                         <span v-if="scannedBeautyHealth[question.key] === 'yes'" class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700">
                           {{ $t('common.yes') }}
@@ -235,6 +235,36 @@
             </div>
           </section>
 
+          <!-- Faol Paketlar (Seanslar) -->
+          <section v-if="scannedPackages && scannedPackages.length > 0" class="rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div class="border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4">
+              <h4 class="text-base sm:text-lg font-semibold text-gray-900">{{ $t('memberDetail.activePackages') }}</h4>
+              <p class="text-xs sm:text-sm text-gray-500">{{ scannedPackages.length }} {{ $t('beautyServices.items') }}</p>
+            </div>
+            <div class="px-4 sm:px-6 py-4 sm:py-6">
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">{{ $t('beautyServices.packageType') }}</th>
+                      <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('beautyServices.totalSessions') }}</th>
+                      <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('beautyServices.remainingSessions') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200 bg-white">
+                    <tr v-for="pkg in scannedPackages" :key="pkg.id" class="hover:bg-gray-50">
+                      <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">{{ pkg.serviceName }}</td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ pkg.totalSessions }}</td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm font-bold" :class="pkg.remainingSessions <= 1 ? 'text-red-600' : 'text-green-600'">
+                        {{ pkg.remainingSessions }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
           <!-- Go'zallik xizmatlari -->
           <section v-if="scannedBeautyServices && scannedBeautyServices.length > 0" class="rounded-xl border border-gray-200 bg-white shadow-sm">
             <div class="border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4">
@@ -269,11 +299,56 @@
 
     <!-- Barcode Scanner Input -->
     <div class="rounded-lg border border-sky-200 bg-sky-50 p-4">
-      <div class="mb-3">
-        <h3 class="text-sm font-semibold text-gray-900">{{ $t('checkins.barcodeTitle') }}</h3>
-        <p class="text-xs text-gray-500">{{ $t('checkins.barcodeSubtitle') }}</p>
+      <div class="mb-3 flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-semibold text-gray-900">{{ $t('checkins.barcodeTitle') }}</h3>
+          <p class="text-xs text-gray-500">{{ $t('checkins.barcodeSubtitle') }}</p>
+        </div>
+        <button
+          @click="toggleCameraScanner"
+          class="rounded-lg border border-sky-300 bg-white px-3 py-1.5 text-xs font-medium text-sky-700 hover:bg-sky-50"
+        >
+          {{ showCameraScanner ? '⌨️ ' + $t('scanner.manual') : '📸 ' + $t('scanner.camera') }}
+        </button>
       </div>
-      <div class="flex gap-2">
+      
+      <!-- Camera Scanner -->
+      <div v-if="showCameraScanner" class="space-y-3">
+        <div class="relative">
+          <div id="qr-reader-checkin" class="rounded-lg overflow-hidden border-2" :class="cameraScanning ? 'border-sky-500' : 'border-gray-300'"></div>
+          <div v-if="!cameraScanning" class="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-lg">
+            <div class="text-center">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <p class="mt-2 text-xs text-gray-500">{{ $t('scanner.cameraNotStarted') }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button
+            v-if="!cameraScanning"
+            @click="startCameraScanning"
+            class="flex-1 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500"
+          >
+            {{ $t('scanner.startScanning') }}
+          </button>
+          <button
+            v-else
+            @click="stopCameraScanning"
+            class="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
+          >
+            {{ $t('scanner.stopScanning') }}
+          </button>
+        </div>
+        <div v-if="cameraScannerError" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+          {{ cameraScannerError }}
+        </div>
+      </div>
+
+      <!-- Manual Input -->
+      <div v-else class="flex gap-2">
         <input
           ref="barcodeInputRef"
           v-model="barcodeInput"
@@ -399,6 +474,7 @@ import * as mappings from '../lib/mappings'
 import * as XLSX from 'xlsx'
 import { TableCellsIcon, DocumentTextIcon } from '@heroicons/vue/24/outline'
 import { formatDate, formatDateTime, getCurrentDateTime } from '../lib/dateUtils'
+import { Html5Qrcode } from 'html5-qrcode'
 
 const { t } = useI18n()
 
@@ -426,6 +502,12 @@ const barcodeInputRef = ref<HTMLInputElement | null>(null)
 const scanning = ref(false)
 let autoCheckTimeout: ReturnType<typeof setTimeout> | null = null
 
+// Camera scanner state
+const showCameraScanner = ref(false)
+const cameraScanning = ref(false)
+const cameraScannerError = ref<string | null>(null)
+let html5QrCodeInstance: Html5Qrcode | null = null
+
 // Modal state
 const showMemberModal = ref(false)
 const scannedMember = ref<any>(null)
@@ -433,6 +515,7 @@ const scannedGymInfo = ref<any>(null)
 const scannedBeautyHealth = ref<any>(null)
 const scannedCheckins = ref<any[]>([])
 const scannedBeautyServices = ref<any[]>([])
+const scannedPackages = ref<any[]>([])
 const memberModalLoading = ref(false)
 const memberModalError = ref<string | null>(null)
 const currentTime = ref(new Date()) // Vaqtni yangilash uchun
@@ -444,20 +527,20 @@ const currentTimeFormatted = computed(() => {
 
 // Beauty questions for health info
 const beautyQuestions = [
-  { key: 'bloodPressure', label: 'Qon bosimi / Yurak kasalligi' },
-  { key: 'diabetes', label: 'Qandli diabet' },
-  { key: 'cancer', label: 'Saraton yoki onkologik kasallik', detailKey: 'cancerDetails' },
-  { key: 'cancerTreatment', label: "Siz saraton kasalligini davolaganmisiz?", detailKey: 'cancerTreatmentDetails' },
-  { key: 'hormonal', label: 'Gormonal buzilish' },
-  { key: 'thyroid', label: 'Qalqonsimon bez kasalligi' },
-  { key: 'skin', label: 'Teri kasalliklari (ekzema, psoriaz va boshqalar)', detailKey: 'skinDetails' },
-  { key: 'alcohol', label: "Spirtli ichimlik iste'moli" },
-  { key: 'prosthesis', label: 'Sizning tanangizda protez bormi ?' },
-  { key: 'platinum', label: 'Sizning tanangizda platina bormi ?' },
-  { key: 'implants', label: 'Tishlaringizda implantlar bormi ?' },
-  { key: 'crowns', label: 'Tishlaringizda toj yoki protez bormi ?' },
-  { key: 'surgery', label: "Siz operatsiya amaliyotini o'tkazgansizmi?", detailKey: 'surgeryDetails', extraDateKey: 'surgeryDate' },
-  { key: 'smoking', label: 'Chekish odati' }
+  { key: 'bloodPressure', labelKey: 'memberCreate.beautyQuestionBloodPressure' },
+  { key: 'diabetes', labelKey: 'memberCreate.beautyQuestionDiabetes' },
+  { key: 'cancer', labelKey: 'memberCreate.beautyQuestionCancer', detailKey: 'cancerDetails' },
+  { key: 'cancerTreatment', labelKey: 'memberCreate.beautyQuestionCancerTreatment', detailKey: 'cancerTreatmentDetails' },
+  { key: 'hormonal', labelKey: 'memberCreate.beautyQuestionHormonal' },
+  { key: 'thyroid', labelKey: 'memberCreate.beautyQuestionThyroid' },
+  { key: 'skin', labelKey: 'memberCreate.beautyQuestionSkin', detailKey: 'skinDetails' },
+  { key: 'alcohol', labelKey: 'memberCreate.beautyQuestionAlcohol' },
+  { key: 'prosthesis', labelKey: 'memberCreate.beautyQuestionProsthesis' },
+  { key: 'platinum', labelKey: 'memberCreate.beautyQuestionPlatinum' },
+  { key: 'implants', labelKey: 'memberCreate.beautyQuestionImplants' },
+  { key: 'crowns', labelKey: 'memberCreate.beautyQuestionCrowns' },
+  { key: 'surgery', labelKey: 'memberCreate.beautyQuestionSurgery', detailKey: 'surgeryDetails', extraDateKey: 'surgeryDate' },
+  { key: 'smoking', labelKey: 'memberCreate.beautyQuestionSmoking' }
 ]
 
 const fetchCheckins = async () => {
@@ -576,7 +659,7 @@ const exportToExcel = () => {
     : new Date().toISOString().slice(0, 10)
   
   // Excel faylini yuklab olish
-  XLSX.writeFile(wb, `kirishlar_${dateRange}.xlsx`)
+  XLSX.writeFile(wb, `checkins_${dateRange}.xlsx`)
 }
 
 // PDF export
@@ -675,7 +758,7 @@ const exportToPDF = () => {
           </tbody>
         </table>
         <div class="footer">
-          <p>Vidalita Gym & Beauty - ${new Date().toLocaleDateString('uz-UZ')}</p>
+          <p>Vidalita Gym & Beauty - ${new Date().toLocaleDateString()}</p>
         </div>
       </body>
     </html>
@@ -804,17 +887,19 @@ const fetchMemberByQrCode = async (qrCode: string) => {
     const memberId = member.id
     
     // Qolgan ma'lumotlarni member ID orqali parallel olish
-    const [gymInfo, healthInfo, checkinsInfo, beautyInfo] = await Promise.all([
+    const [gymInfo, healthInfo, checkinsInfo, beautyInfo, packagesInfo] = await Promise.all([
       membersService.getGymInfo(memberId).catch(() => null),
       membersService.getBeautyHealth(memberId).catch(() => null),
       checkinsService.getByMemberId(memberId).catch(() => []),
-      beautyService.getByMemberId(memberId).catch(() => [])
+      beautyService.getByMemberId(memberId).catch(() => []),
+      beautyService.getMemberPackages(memberId).catch(() => [])
     ])
     
     scannedGymInfo.value = gymInfo
     scannedBeautyHealth.value = healthInfo
     scannedCheckins.value = checkinsInfo || []
     scannedBeautyServices.value = beautyInfo || []
+    scannedPackages.value = packagesInfo || []
     
     showMemberModal.value = true
   } catch (err: any) {
@@ -833,6 +918,7 @@ const closeMemberModal = () => {
   scannedBeautyHealth.value = null
   scannedCheckins.value = []
   scannedBeautyServices.value = []
+  scannedPackages.value = []
   memberModalError.value = null
   // Input'ga fokus qaytarish
   setTimeout(() => {
@@ -959,5 +1045,63 @@ const getDaysRemainingClass = (endDate: string): string => {
   if (days <= 7) return 'text-yellow-600'
   return 'text-green-600'
 }
+
+// Camera scanner funksiyalari
+const toggleCameraScanner = () => {
+  showCameraScanner.value = !showCameraScanner.value
+  if (!showCameraScanner.value && cameraScanning.value) {
+    stopCameraScanning()
+  }
+}
+
+const startCameraScanning = async () => {
+  try {
+    cameraScannerError.value = null
+    
+    if (!html5QrCodeInstance) {
+      html5QrCodeInstance = new Html5Qrcode('qr-reader-checkin')
+    }
+
+    const config = {
+      fps: 10,
+      qrbox: { width: 250, height: 250 }
+    }
+
+    await html5QrCodeInstance.start(
+      { facingMode: 'environment' },
+      config,
+      (decodedText) => {
+        // Scan muvaffaqiyatli - qrCode'ni ishlatish
+        stopCameraScanning()
+        barcodeInput.value = normalizeBarcode(decodedText)
+        handleBarcodeScan()
+      },
+      (errorMessage) => {
+        // Scan xatosi - ignore
+      }
+    )
+
+    cameraScanning.value = true
+  } catch (err: any) {
+    console.error('Camera scanner error:', err)
+    cameraScannerError.value = err.message || t('scanner.errorStarting')
+  }
+}
+
+const stopCameraScanning = async () => {
+  try {
+    if (html5QrCodeInstance && cameraScanning.value) {
+      await html5QrCodeInstance.stop()
+      cameraScanning.value = false
+    }
+  } catch (err: any) {
+    console.error('Error stopping camera:', err)
+  }
+}
 </script>
 
+<style scoped>
+#qr-reader-checkin {
+  min-height: 250px;
+}
+</style>
