@@ -220,9 +220,6 @@ const fetchAppointments = async () => {
 };
 
 onMounted(() => {
-    const today = new Date().toISOString().slice(0, 10);
-    dateFrom.value = today;
-    dateTo.value = today;
     fetchAppointments();
 });
 
@@ -301,9 +298,8 @@ const filteredAppointments = computed(() => {
 });
 
 const resetFilters = () => {
-    const today = new Date().toISOString().slice(0, 10);
-    dateFrom.value = today;
-    dateTo.value = today;
+    dateFrom.value = '';
+    dateTo.value = '';
     searchTerm.value = '';
     onlyToday.value = false;
 };
