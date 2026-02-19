@@ -136,7 +136,7 @@
     "phone": "Telefon",
     "phonePlaceholder": "+998 90 123 45 67",
     "email": "E-pochta (ixtiyoriy)",
-    "emailPlaceholder": "example@domain.com",
+    "emailPlaceholder": "example{'@'}domain.com",
     "registrationDate": "Ro'yxatdan o'tgan sana",
     "region": "Viloyat",
     "regionPlaceholder": "Masalan: Toshkent viloyati",

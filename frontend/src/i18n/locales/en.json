@@ -134,7 +134,7 @@
     "phone": "Phone",
     "phonePlaceholder": "+1 555 123 4567",
     "email": "Email (optional)",
-    "emailPlaceholder": "example@domain.com",
+    "emailPlaceholder": "example{'@'}domain.com",
     "registrationDate": "Registration Date",
     "region": "Region",
     "regionPlaceholder": "e.g., Tashkent region",

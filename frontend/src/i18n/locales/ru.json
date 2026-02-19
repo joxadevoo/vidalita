@@ -133,7 +133,7 @@
     "phone": "Телефон",
     "phonePlaceholder": "+7 900 123 45 67",
     "email": "Электронная почта (необязательно)",
-    "emailPlaceholder": "example@domain.com",
+    "emailPlaceholder": "example{'@'}domain.com",
     "registrationDate": "Дата регистрации",
     "region": "Область",
     "regionPlaceholder": "Напр.: Ташкентская область",

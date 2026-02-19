@@ -52,7 +52,10 @@ export const membersService = {
             })
             .select()
             .single();
-        if (error) throw error;
+        if (error) {
+            console.error('Supabase member creation error:', error);
+            throw error;
+        }
         return mappings.mapMemberToCamelCase(data);
     },
 

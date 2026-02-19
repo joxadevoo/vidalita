@@ -114,6 +114,12 @@ body {
   color: var(--app-input-text);
   border-color: var(--app-input-border);
 }
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  background-color: var(--app-input-bg);
+  color: var(--app-input-text);
+}
 .dark input::placeholder,
 .dark textarea::placeholder {
   color: var(--app-text-muted);

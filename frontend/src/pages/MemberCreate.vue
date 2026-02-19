@@ -503,11 +503,14 @@ const loadMemberData = async () => {
   pageLoading.value = true
   try {
     const [member, gym, health] = await Promise.all([
-      membersService.getById(memberId.value),
-      membersService.getGymInfo(memberId.value).catch(() => null),
-      membersService.getBeautyHealth(memberId.value).catch(() => null)
+      membersService.getById(memberId.value).then(res => { console.log('Member fetched:', res); return res; }),
+      membersService.getGymInfo(memberId.value).then(res => { console.log('Gym info fetched:', res); return res; }).catch(err => { console.log('Gym info fetch failed (expected if not exist):', err); return null; }),
+      membersService.getBeautyHealth(memberId.value).then(res => { console.log('Beauty health fetched:', res); return res; }).catch(err => { console.log('Beauty health fetch failed (expected if not exist):', err); return null; })
     ])
-    if (!member) throw new Error(t('memberCreate.errorLoading'))
+    if (!member) {
+      console.error('Member not found with ID:', memberId.value);
+      throw new Error(t('memberCreate.errorLoading'))
+    }
     
     form.fullName = member.fullName || ''
     form.birthDate = member.birthDate ? new Date(member.birthDate).toISOString().slice(0, 10) : ''
@@ -579,8 +582,14 @@ const removePhoto = () => {
 }
 
 onMounted(async () => {
-  if (isEditMode.value) await loadMemberData()
-  else generatePreviewId()
+  console.log('MemberCreate component mounted. Edit mode:', isEditMode.value, 'ID:', memberId.value)
+  if (isEditMode.value) {
+    console.log('Loading member data for edit...')
+    await loadMemberData()
+  } else {
+    console.log('Generating preview ID...')
+    generatePreviewId()
+  }
 })
 
 const handleSubmit = async () => {
@@ -593,16 +602,26 @@ const handleSubmit = async () => {
   saveStatus.value = 'saving'
   saveProgress.value = t('memberCreate.preparingData')
   
-  try {
-    let finalQrCodeId = form.qrCodeId.trim()
-    if (!finalQrCodeId) finalQrCodeId = generateQrCodeId()
+    try {
+      console.log('Starting handleSubmit. Form data:', JSON.parse(JSON.stringify(form)));
+      let finalQrCodeId = form.qrCodeId.trim()
+      if (!finalQrCodeId) finalQrCodeId = generateQrCodeId()
 
-    const now = new Date()
-    const formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Tashkent', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
-    const timeParts = formatter.formatToParts(now)
-    const hours = timeParts.find(p => p.type === 'hour')?.value || '00'
-    const minutes = timeParts.find(p => p.type === 'minute')?.value || '00'
-    const seconds = timeParts.find(p => p.type === 'second')?.value || '00'
+      const now = new Date()
+      let hours = '00', minutes = '00', seconds = '00'
+      
+      try {
+        const formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Tashkent', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        const timeParts = formatter.formatToParts(now)
+        hours = timeParts.find(p => p.type === 'hour')?.value || '00'
+        minutes = timeParts.find(p => p.type === 'minute')?.value || '00'
+        seconds = timeParts.find(p => p.type === 'second')?.value || '00'
+      } catch (timezoneErr) {
+        console.warn('Timezone Asia/Tashkent not supported, falling back to local time:', timezoneErr)
+        hours = String(now.getHours()).padStart(2, '0')
+        minutes = String(now.getMinutes()).padStart(2, '0')
+        seconds = String(now.getSeconds()).padStart(2, '0')
+      }
     
     const dateWithTime = form.registrationDate ? new Date(`${form.registrationDate}T${hours}:${minutes}:${seconds}+05:00`).toISOString() : null
     let gymEndDate = dateWithTime
@@ -646,15 +665,21 @@ const handleSubmit = async () => {
       beautyHasRecord: showsBeautySection.value ? 1 : 0
     }
 
+    console.log('Constructed payload:', payload);
+
     if (isEditMode.value && memberId.value) {
+      console.log('Edit mode: updating member', memberId.value);
       await membersService.update(memberId.value, payload)
       if (form.serviceType !== 'beauty') await membersService.upsertGymInfo(memberId.value, gymInfo)
       if (showsBeautySection.value) await membersService.upsertBeautyHealth(memberId.value, beautyHealth)
       
       submitSuccess.value = t('memberCreate.updateSuccess')
+      console.log('Member updated successfully');
       setTimeout(() => router.push(`/members/${memberId.value}`), 1500)
     } else {
+      console.log('Create mode: creating new member');
       const member = await membersService.create(payload)
+      console.log('Member created successfully:', member);
       const newId = member.id
       if (form.serviceType !== 'beauty') {
         await gymMembershipsService.create({ memberId: newId, startDate: dateWithTime, endDate: gymEndDate, membershipType: gymInfo.membershipType })
