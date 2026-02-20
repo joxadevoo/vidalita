@@ -114,8 +114,8 @@
     </div>
 
     <!-- Stock In Modal -->
-    <div v-if="showStockInModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+    <div v-if="showStockInModal" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 p-4">
+        <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl z-[151]">
             <h3 class="text-lg font-bold mb-4">{{ $t('inventory.stockInTitle') }}</h3>
             <div class="space-y-4">
                 <div>

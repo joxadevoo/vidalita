@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full gap-6">
+  <div class="flex flex-col h-full gap-6 no-print">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h2 class="text-2xl font-bold text-gray-900">{{ $t('pos.title') }}</h2>
@@ -182,11 +182,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { productsService, membersService, salesService } from '../services/supabaseService';
+import { productsService, membersService, salesService, cashSessionsService } from '../services/supabaseService';
 import { useI18n } from 'vue-i18n';
 import InvoiceModal from '../components/InvoiceModal.vue';
+import { useRouter } from 'vue-router';
 
 const { t } = useI18n();
+const router = useRouter();
 
 const searchTerm = ref('');
 const products = ref<any[]>([]);
@@ -201,11 +203,13 @@ const processing = ref(false);
 // Invoice state
 const showInvoice = ref(false);
 const lastSaleId = ref<number | null>(null);
+const currentSession = ref<any>(null);
 
 const fetchData = async () => {
     try {
         products.value = await productsService.getAll();
         members.value = await membersService.getAll();
+        currentSession.value = await cashSessionsService.getCurrentSession();
     } catch (err) {
         console.error(err);
     }
@@ -285,8 +289,18 @@ const formatCurrency = (val: number) => {
     return new Intl.NumberFormat(t('locale') || 'uz-UZ').format(val);
 };
 
+const isSessionOpen = computed(() => !!currentSession.value);
+
 const checkout = async () => {
     if (cart.value.length === 0) return;
+
+    if (!isSessionOpen.value) {
+        if (confirm(t('cashier.noActiveSession') + ". " + t('cashier.openSession') + "?")) {
+            router.push('/cashier');
+        }
+        return;
+    }
+
     if (!selectedMemberId.value && !customerName.value.trim()) {
         alert(t('pos.customerRequired'));
         return;
@@ -298,6 +312,7 @@ const checkout = async () => {
             customerName: customerName.value.trim(),
             totalAmount: cartTotal.value,
             paymentMethod: paymentMethod.value,
+            cashSessionId: currentSession.value.id,
             items: cart.value.map(i => ({
                 productId: i.id,
                 qty: i.qty,

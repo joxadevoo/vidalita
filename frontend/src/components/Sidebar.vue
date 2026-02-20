@@ -1,14 +1,14 @@
 <template>
   <!-- Mobile overlay -->
   <transition name="fade">
-    <div v-if="isOpen" class="fixed inset-0 z-40 bg-black/40 lg:hidden" @click="$emit('close')"></div>
+    <div v-if="isOpen" class="no-print fixed inset-0 z-40 bg-black/40 lg:hidden" @click="$emit('close')"></div>
   </transition>
 
   <!-- Mobile sidebar -->
   <transition name="slide">
     <aside
       v-if="isOpen"
-      class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-white shadow-lg lg:hidden"
+      class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-white shadow-lg lg:hidden no-print"
     >
       <div class="flex grow flex-col gap-y-5 overflow-y-auto px-6 pb-4">
         <div class="flex h-16 shrink-0 items-center justify-between">
@@ -48,7 +48,7 @@
   <!-- Desktop sidebar (har doim ko'rinadi) -->
     <aside
       :class="[
-        'hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col border-r border-gray-200 bg-white shadow-lg transition-all duration-300',
+        'hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col border-r border-gray-200 bg-white shadow-lg transition-all duration-300 no-print',
         collapsed ? 'lg:w-20' : 'lg:w-72'
       ]"
     style="overflow-y: auto; overflow-x: hidden; max-height: 100vh;"
@@ -128,7 +128,8 @@ import {
   ShoppingBagIcon,
   ArchiveBoxIcon,
   CreditCardIcon,
-  CalendarDaysIcon
+  CalendarDaysIcon,
+  BanknotesIcon
 } from '@heroicons/vue/24/outline'
 
 defineProps<{ isOpen: boolean; collapsed?: boolean }>()
@@ -146,6 +147,7 @@ const navItems = computed(() => [
   { name: t('sidebar.beautyServices'), href: '/beauty', icon: ScissorsIcon },
   { name: t('sidebar.appointments'), href: '/appointments', icon: CalendarDaysIcon },
   { name: t('sidebar.pos'), href: '/pos', icon: CreditCardIcon },
+  { name: t('sidebar.cashier'), href: '/cashier', icon: BanknotesIcon },
   { name: t('sidebar.products'), href: '/products', icon: ShoppingBagIcon },
   { name: t('sidebar.inventory'), href: '/inventory', icon: ArchiveBoxIcon },
   { name: t('sidebar.barcode'), href: '/barcode', icon: QrCodeIcon },

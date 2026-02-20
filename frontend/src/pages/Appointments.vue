@@ -1,22 +1,34 @@
 <template>
   <div class="space-y-6">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between no-print">
       <div>
         <h2 class="text-2xl font-bold text-gray-900">{{ $t('appointments.title') }}</h2>
         <p class="text-sm text-gray-500">{{ $t('appointments.subtitle') }}</p>
       </div>
       <div class="flex gap-2">
+        <div class="flex rounded-lg border border-gray-200 p-1 bg-white">
+          <button 
+            @click="viewType = 'calendar'"
+            :class="viewType === 'calendar' ? 'bg-sky-50 text-sky-600' : 'text-gray-500 hover:text-gray-700'"
+            class="px-3 py-1 text-sm font-medium rounded-md transition-colors"
+          >
+            {{ $t('appointments.view.calendar') }}
+          </button>
+          <button 
+            @click="viewType = 'list'"
+            :class="viewType === 'list' ? 'bg-sky-50 text-sky-600' : 'text-gray-500 hover:text-gray-700'"
+            class="px-3 py-1 text-sm font-medium rounded-md transition-colors"
+          >
+            {{ $t('appointments.view.list') }}
+          </button>
+        </div>
         <button class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50" @click="fetchAppointments">{{ $t('common.refresh') }}</button>
-        <button class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 flex items-center gap-1" @click="exportToExcel">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-            {{ $t('common.exportExcel') }}
-        </button>
-        <button class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500" @click="showModal = true">{{ $t('appointments.newAppointment') }}</button>
+        <button class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500" @click="openModal()">{{ $t('appointments.newAppointment') }}</button>
       </div>
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 no-print">
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
             <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ $t('appointments.stats.today') }}</div>
             <div class="text-2xl font-black text-sky-600 mt-1">{{ appointments.filter(a => isToday(a.startTime)).length }}</div>
@@ -28,7 +40,7 @@
     </div>
 
     <!-- Filter paneli -->
-    <div class="sticky top-0 z-20 grid gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm md:grid-cols-2 lg:grid-cols-4">
+    <div class="sticky top-0 z-20 grid gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm md:grid-cols-2 lg:grid-cols-4 no-print">
       <div class="flex min-w-0 flex-col">
         <label class="mb-1 text-xs text-gray-500">{{ $t('appointments.dateFrom') }}</label>
         <input v-model="dateFrom" type="date" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400" />
@@ -55,8 +67,12 @@
       </div>
     </div>
 
-    <!-- Appointments Table -->
-    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+    <!-- Calendar/List View -->
+    <div v-if="viewType === 'calendar'" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm min-h-[600px] no-print">
+        <FullCalendar :options="calendarOptions" />
+    </div>
+
+    <div v-else class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm no-print">
         <div v-if="loading" class="p-8 text-center text-gray-500 italic">{{ $t('common.loading') }}</div>
         <table v-else class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -99,10 +115,17 @@
                             <option value="BOOKED">{{ $t('appointments.status.booked') }}</option>
                             <option value="CONFIRMED">{{ $t('appointments.status.confirmed') }}</option>
                             <option value="IN_PROGRESS">{{ $t('appointments.status.inProgress') }}</option>
-                            <option value="COMPLETED">{{ $t('appointments.status.completed') }}</option>
+                            <option value="COMPLETED" :disabled="app.status === 'COMPLETED'">{{ $t('appointments.status.completed') }}</option>
                             <option value="CANCELLED">{{ $t('appointments.status.cancelled') }}</option>
                             <option value="NO_SHOW">{{ $t('appointments.status.noShow') }}</option>
                         </select>
+                        <button 
+                            @click="deleteAppointment(app.id)" 
+                            class="text-red-500 hover:text-red-700 p-1"
+                            :title="$t('common.delete')"
+                        >
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
                     </td>
                 </tr>
                 <tr v-if="filteredAppointments.length === 0">
@@ -112,58 +135,141 @@
         </table>
     </div>
 
-    <!-- Booking Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
-        <div class="w-full max-w-xl rounded-xl bg-white p-6 shadow-2xl my-auto">
-            <h3 class="text-lg font-bold mb-4">{{ $t('appointments.newAppointment') }}</h3>
-            <div class="grid gap-4 sm:grid-cols-2">
-                <div class="sm:col-span-2">
-                    <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.memberOptional') }}</label>
-                    <select v-model="form.memberId" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400">
-                        <option :value="null">{{ $t('appointments.form.guestOption') }}</option>
-                        <option v-for="m in members" :key="m.id" :value="m.id">{{ m.fullName }}</option>
-                    </select>
-                </div>
-                <template v-if="!form.memberId">
+    <!-- New Booking Modal -->
+    <div v-if="showModal" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 p-4" @click.self="showModal = false">
+        <div class="relative w-full max-w-xl rounded-xl bg-white shadow-2xl flex flex-col max-h-[92vh] overflow-hidden z-[151]" @click.stop>
+            <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between bg-gray-50/50 flex-shrink-0">
+                <h3 class="text-lg font-bold text-gray-900">{{ $t('appointments.newAppointment') }}</h3>
+                <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto px-6 py-6 scroll-smooth">
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.memberOptional') }}</label>
+                        <select v-model="form.memberId" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400">
+                            <option :value="null">{{ $t('appointments.form.guestOption') }}</option>
+                            <option v-for="m in members" :key="m.id" :value="m.id">{{ m.fullName }}</option>
+                        </select>
+                    </div>
+                    <template v-if="!form.memberId">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.guestName') }}</label>
+                            <input v-model="form.guestName" type="text" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.guestPhone') }}</label>
+                            <input v-model="form.guestPhone" type="text" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
+                        </div>
+                    </template>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.guestName') }}</label>
-                        <input v-model="form.guestName" type="text" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
+                        <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.startTime') }}</label>
+                        <input v-model="form.startTime" type="datetime-local" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.guestPhone') }}</label>
-                        <input v-model="form.guestPhone" type="text" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
+                        <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.endTime') }}</label>
+                        <input v-model="form.endTime" type="datetime-local" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
                     </div>
-                </template>
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.startTime') }}</label>
-                    <input v-model="form.startTime" type="datetime-local" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.endTime') }}</label>
-                    <input v-model="form.endTime" type="datetime-local" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.staff') }}</label>
-                    <select v-model="form.staffId" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm">
-                        <option v-for="s in staff" :key="s.id" :value="s.id">{{ s.full_name }}</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.room') }}</label>
-                    <select v-model="form.roomId" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm">
-                        <option v-for="r in rooms" :key="r.id" :value="r.id">{{ r.name }}</option>
-                    </select>
-                </div>
-                <div class="sm:col-span-2">
-                    <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.serviceName') }}</label>
-                    <input v-model="form.serviceName" type="text" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.staff') }}</label>
+                        <select v-model="form.staffId" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm">
+                            <option v-for="s in staff" :key="s.id" :value="s.id">{{ s.full_name }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.room') }}</label>
+                        <select v-model="form.roomId" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm">
+                            <option v-for="r in rooms" :key="r.id" :value="r.id">{{ r.name }}</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.serviceName') }}</label>
+                        <input v-model="form.serviceName" type="text" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
+                    </div>
+                    <div v-if="form.memberId && activePackages.length > 0" class="sm:col-span-2">
+                        <label class="block text-xs font-medium text-orange-600 uppercase">{{ $t('appointments.form.usePackage') }}</label>
+                        <select v-model="form.servicePackageId" class="mt-1 w-full rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 text-sm">
+                            <option v-for="pkg in activePackages" :key="pkg.id" :value="pkg.id">
+                                {{ pkg.serviceName }} ({{ pkg.remainingSessions }} {{ $t('beautyServices.sessionsLeft') }})
+                            </option>
+                        </select>
+                    </div>
                 </div>
             </div>
-            <div class="mt-8 flex justify-end gap-3">
-                <button @click="showModal = false" class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">{{ $t('common.cancel') }}</button>
-                <button @click="submitBooking" class="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500" :disabled="submitting">
-                    {{ submitting ? $t('appointments.booking') : $t('appointments.book') }}
+
+            <div class="border-t border-gray-100 px-6 py-4 bg-gray-50/50 flex justify-end gap-3 flex-shrink-0">
+                <button 
+                    @click="showModal = false" 
+                    class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-white transition-colors"
+                >
+                    {{ $t('common.cancel') }}
                 </button>
+                <button 
+                    @click="submitBooking" 
+                    :disabled="submitting"
+                    class="rounded-lg bg-sky-600 px-6 py-2 text-sm font-semibold text-white hover:bg-sky-500 disabled:opacity-50 shadow-sm transition-all active:scale-[0.98]"
+                >
+                    {{ submitting ? $t('common.loading') : $t('common.save') }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div v-if="showDetailModal && selectedEvent" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
+        <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl my-auto z-[151]">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-xl font-bold text-gray-900">{{ $t('appointments.details') }}</h3>
+                <button @click="showDetailModal = false" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-sm text-gray-500">{{ $t('appointments.columns.customer') }}</span>
+                    <span class="text-sm font-semibold">{{ selectedEvent.member?.fullName || selectedEvent.guestName }}</span>
+                </div>
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-sm text-gray-500">{{ $t('common.time') }}</span>
+                    <span class="text-sm font-semibold">{{ formatTime(selectedEvent.startTime) }} - {{ formatTime(selectedEvent.endTime) }}</span>
+                </div>
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-sm text-gray-500">{{ $t('appointments.columns.service') }}</span>
+                    <span class="text-sm font-semibold">{{ selectedEvent.serviceName || '—' }}</span>
+                </div>
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-sm text-gray-500">{{ $t('appointments.form.staff') }}</span>
+                    <span class="text-sm font-semibold">{{ selectedEvent.staff?.fullName || '—' }}</span>
+                </div>
+                <div v-if="selectedEvent.notes" class="border-b pb-2">
+                    <span class="text-sm text-gray-500 block mb-1">{{ $t('common.notes') }}</span>
+                    <p class="text-sm bg-gray-50 p-2 rounded">{{ selectedEvent.notes }}</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mt-6">
+                    <select 
+                        @change="updateStatusAndClose(selectedEvent.id, ($event.target as HTMLSelectElement).value)"
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400"
+                        :value="selectedEvent.status"
+                    >
+                        <option value="BOOKED">{{ $t('appointments.status.booked') }}</option>
+                        <option value="CONFIRMED">{{ $t('appointments.status.confirmed') }}</option>
+                        <option value="IN_PROGRESS">{{ $t('appointments.status.inProgress') }}</option>
+                        <option value="COMPLETED" :disabled="selectedEvent.status === 'COMPLETED'">{{ $t('appointments.status.completed') }}</option>
+                        <option value="CANCELLED">{{ $t('appointments.status.cancelled') }}</option>
+                    </select>
+                    <button 
+                        @click="deleteAppointmentAndClose(selectedEvent.id)" 
+                        class="w-full rounded-lg border border-red-200 bg-red-50 py-2 text-sm font-semibold text-red-600 hover:bg-red-100"
+                    >
+                        {{ $t('common.delete') }}
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -171,8 +277,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { appointmentsService, membersService } from '../services/supabaseService';
+import { ref, onMounted, computed, watch } from 'vue';
+import { appointmentsService, membersService, beautyService, cashSessionsService } from '../services/supabaseService';
+import FullCalendar from '@fullcalendar/vue3';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
 import * as XLSX from 'xlsx';
 import { useI18n } from 'vue-i18n';
 
@@ -185,6 +295,11 @@ const members = ref<any[]>([]);
 const loading = ref(false);
 const submitting = ref(false);
 const showModal = ref(false);
+const showDetailModal = ref(false);
+const selectedEvent = ref<any>(null);
+const viewType = ref<'calendar' | 'list'>('calendar');
+const activePackages = ref<any[]>([]);
+const currentSession = ref<any>(null);
 
 // Filter state
 const dateFrom = ref('');
@@ -202,7 +317,17 @@ const form = ref({
     startTime: '',
     endTime: '',
     price: 0,
-    notes: ''
+    notes: '',
+    servicePackageId: null as number | null
+});
+
+watch(() => form.value.memberId, async (newId) => {
+    if (newId) {
+        activePackages.value = await beautyService.getMemberPackages(newId);
+    } else {
+        activePackages.value = [];
+        form.value.servicePackageId = null;
+    }
 });
 
 const fetchAppointments = async () => {
@@ -219,8 +344,13 @@ const fetchAppointments = async () => {
     }
 };
 
-onMounted(() => {
+onMounted(async () => {
     fetchAppointments();
+    try {
+        currentSession.value = await cashSessionsService.getCurrentSession();
+    } catch (err) {
+        console.error('Kassa sessiyasini yuklashda xatolik:', err);
+    }
 });
 
 const formatTime = (iso: string) => {
@@ -256,11 +386,44 @@ const translateStatus = (status: string) => {
 
 const updateStatus = async (id: string, newStatus: string) => {
     try {
-        await appointmentsService.updateStatus(id, newStatus);
+        if (newStatus === 'COMPLETED') {
+            const app = appointments.value.find(a => a.id === id);
+            if (app && app.servicePackageId) {
+                if (confirm(t('appointments.confirmComplete') + "?")) {
+                    await appointmentsService.completeAppointment(id, app.servicePackageId);
+                } else {
+                    return;
+                }
+            } else {
+                await appointmentsService.updateStatus(id, newStatus);
+            }
+        } else {
+            await appointmentsService.updateStatus(id, newStatus);
+        }
         await fetchAppointments();
     } catch (err: any) {
         alert(t('common.error') + ": " + err.message);
     }
+};
+
+const deleteAppointment = async (id: string) => {
+    if (!confirm(t('common.deleteConfirm'))) return;
+    try {
+        await appointmentsService.deleteAppointment(id);
+        await fetchAppointments();
+    } catch (err: any) {
+        alert(t('common.error') + ": " + err.message);
+    }
+};
+
+const updateStatusAndClose = async (id: string, newStatus: string) => {
+    await updateStatus(id, newStatus);
+    showDetailModal.value = false;
+};
+
+const deleteAppointmentAndClose = async (id: string) => {
+    await deleteAppointment(id);
+    showDetailModal.value = false;
 };
 
 // Filtered appointments with date range
@@ -305,16 +468,90 @@ const resetFilters = () => {
 };
 
 const submitBooking = async () => {
+    if (form.value.servicePackageId) {
+        const pkg = activePackages.value.find(p => p.id === form.value.servicePackageId);
+        if (pkg && pkg.remainingSessions <= 0) {
+            alert(t('beautyServices.errorNoSessions'));
+            return;
+        }
+    }
+    
     submitting.value = true;
     try {
-        await appointmentsService.create(form.value);
+        const payload = { 
+            ...form.value,
+            cashSessionId: currentSession.value?.id || null
+        };
+        await appointmentsService.create(payload);
         showModal.value = false;
         await fetchAppointments();
-        form.value = { memberId: null, guestName: '', guestPhone: '', serviceName: '', staffId: null, roomId: null, startTime: '', endTime: '', price: 0, notes: '' };
+        form.value = { memberId: null, guestName: '', guestPhone: '', serviceName: '', staffId: null, roomId: null, startTime: '', endTime: '', price: 0, notes: '', servicePackageId: null };
     } catch (err: any) {
         alert(t('common.error') + ": " + err.message);
     } finally {
         submitting.value = false;
+    }
+};
+
+const openModal = (start?: string, end?: string) => {
+    form.value.startTime = start || '';
+    form.value.endTime = end || '';
+    showModal.value = true;
+};
+
+const calendarOptions = computed(() => ({
+    plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+    initialView: 'timeGridWeek',
+    headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'timeGridDay,timeGridWeek,dayGridMonth'
+    },
+    editable: true,
+    selectable: true,
+    selectMirror: true,
+    dayMaxEvents: true,
+    weekends: true,
+    slotMinTime: '07:00:00',
+    slotMaxTime: '22:00:00',
+    events: appointments.value.map(app => ({
+        id: app.id,
+        title: (app.member?.fullName || app.guestName) + ' - ' + (app.serviceName || ''),
+        start: app.startTime,
+        end: app.endTime,
+        backgroundColor: getEventColor(app.status),
+        borderColor: getEventColor(app.status),
+        extendedProps: app
+    })),
+    select: (info: any) => {
+        openModal(info.startStr.slice(0, 16), info.endStr.slice(0, 16));
+    },
+    eventClick: (info: any) => {
+        selectedEvent.value = info.event.extendedProps;
+        showDetailModal.value = true;
+    },
+    eventDrop: async (info: any) => {
+        try {
+            await appointmentsService.updateTime(
+                info.event.id, 
+                info.event.startStr.slice(0, 16), 
+                info.event.endStr?.slice(0, 16) || info.event.startStr.slice(0, 16)
+            );
+            await fetchAppointments();
+        } catch (err: any) {
+            alert(t('common.error') + ": " + err.message);
+            info.revert();
+        }
+    }
+}));
+
+const getEventColor = (status: string) => {
+    switch (status) {
+        case 'COMPLETED': return '#10b981';
+        case 'CANCELLED': return '#ef4444';
+        case 'CONFIRMED': return '#6366f1';
+        case 'IN_PROGRESS': return '#f59e0b';
+        default: return '#0ea5e9';
     }
 };
 

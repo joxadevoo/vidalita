@@ -262,6 +262,8 @@ export const beautyService = {
                 servicedate: payload.serviceDate,
                 amount: payload.amount,
                 discountpercent: payload.discountPercent,
+                cash_session_id: payload.cashSessionId,
+                payment_method: payload.paymentMethod,
                 note: payload.note
             })
             .select('*, members(fullname, phone)')
@@ -297,6 +299,8 @@ export const beautyService = {
                 service_name: payload.serviceName,
                 total_sessions: payload.totalSessions,
                 remaining_sessions: payload.totalSessions,
+                cash_session_id: payload.cashSessionId,
+                payment_method: payload.paymentMethod,
                 notes: payload.notes
             })
             .select()
@@ -305,26 +309,40 @@ export const beautyService = {
         return mappings.mapServicePackageToCamelCase(data);
     },
 
-    async usePackageSession(packageId: number | string, serviceDate?: string) {
-        // 1. Get package current balance
-        const { data: pkg, error: getError } = await supabase
+    async usePackageSession(packageId: number | string, serviceDate?: string, appointmentId?: number | string, cashSessionId?: number) {
+        // 1. Paketni tekshirish
+        const { data: pkg, error: pkgError } = await supabase
             .from('service_packages')
             .select('*')
             .eq('id', packageId)
             .single();
 
-        if (getError) throw getError;
-        if (pkg.remaining_sessions <= 0) throw new Error('No sessions remaining');
+        if (pkgError) throw pkgError;
+        if (pkg.remaining_sessions <= 0) throw new Error('Seanslar tugagan');
 
-        // 2. Decrement balance
+        // 2. Seanslar sonini kamaytirish
         const { error: updateError } = await supabase
             .from('service_packages')
-            .update({ remaining_sessions: pkg.remaining_sessions - 1 })
+            .update({
+                remaining_sessions: pkg.remaining_sessions - 1,
+                is_active: pkg.remaining_sessions - 1 > 0
+            })
             .eq('id', packageId);
 
         if (updateError) throw updateError;
 
-        // 3. Add to beauty_services (log the actual service)
+        // 3. Log yaratish
+        const { error: logError } = await supabase
+            .from('package_usage_log')
+            .insert({
+                package_id: packageId,
+                appointment_id: appointmentId || null,
+                used_at: serviceDate || new Date().toISOString()
+            });
+
+        if (logError) throw logError;
+
+        // 4. Xizmatlar tarixiga ham qo'shish (reporting uchun)
         const { data: service, error: serviceError } = await supabase
             .from('beauty_services')
             .insert({
@@ -332,8 +350,9 @@ export const beautyService = {
                 servicetype: pkg.service_type,
                 servicename: pkg.service_name,
                 servicedate: serviceDate || new Date().toISOString(),
-                amount: 0, // Already paid via package
-                note: `Used from package ID: ${packageId}`
+                amount: 0,
+                note: `Paketdan foydalanildi (ID: ${packageId})`,
+                cash_session_id: cashSessionId || null
             })
             .select()
             .single();
@@ -577,7 +596,8 @@ export const statsService = {
             { data: todaySales },
             { data: totalSales },
             { count: lowStockCount },
-            { count: todayAppointments }
+            { count: todayAppointments },
+            { data: todayBeautySales }
         ] = await Promise.all([
             supabase.from('checkins').select('*', { count: 'exact', head: true }).gte('date', today).lt('date', tomorrow),
             supabase.from('gym_memberships').select('*', { count: 'exact', head: true }).eq('active', 1).or(`enddate.is.null,enddate.gte.${today}`),
@@ -586,23 +606,123 @@ export const statsService = {
             supabase.from('sales').select('total_amount').gte('created_at', today).lt('created_at', tomorrow),
             supabase.from('sales').select('total_amount'),
             supabase.from('inventory_stock').select('*', { count: 'exact', head: true }).lte('quantity_on_hand', 5),
-            supabase.from('appointments').select('*', { count: 'exact', head: true }).gte('start_time', today).lt('start_time', tomorrow).not('status', 'eq', 'CANCELLED')
+            supabase.from('appointments').select('*', { count: 'exact', head: true }).gte('start_time', today).lt('start_time', tomorrow).not('status', 'eq', 'CANCELLED'),
+            supabase.from('beauty_services').select('amount').gte('servicedate', today).lt('servicedate', tomorrow).not('amount', 'eq', 0)
         ]);
 
-        const todaySalesTotal = todaySales?.reduce((sum, s) => sum + parseFloat(s.total_amount), 0) || 0;
-        const totalSalesSum = totalSales?.reduce((sum, s) => sum + parseFloat(s.total_amount), 0) || 0;
+        const todaySalesTotal = todaySales?.reduce((sum: number, s: any) => sum + parseFloat(s.total_amount), 0) || 0;
+        const todayBeautyTotal = todayBeautySales?.reduce((sum: number, b: any) => sum + parseFloat(b.amount), 0) || 0;
+        const totalSalesSum = totalSales?.reduce((sum: number, s: any) => sum + parseFloat(s.total_amount), 0) || 0;
 
         return {
             checkins: { today: todayCheckins || 0 },
             members: { active: activeMembers || 0, total: totalMembers || 0 },
             beautyServices: { total: totalBeauty || 0 },
             pos: {
-                todayRevenue: todaySalesTotal,
+                todayRevenue: todaySalesTotal + todayBeautyTotal,
                 totalRevenue: totalSalesSum,
                 lowStockCount: lowStockCount || 0
             },
             appointments: {
                 today: todayAppointments || 0
+            }
+        };
+    }
+};
+
+export const cashSessionsService = {
+    async getCurrentSession() {
+        const { data, error } = await supabase
+            .from('cash_sessions')
+            .select('*')
+            .eq('status', 'open')
+            .maybeSingle();
+        if (error) throw error;
+        return data;
+    },
+
+    async openSession(openingBalance: number, userId: string) {
+        const { data, error } = await supabase
+            .from('cash_sessions')
+            .insert({
+                opening_balance: openingBalance,
+                opened_by: userId,
+                status: 'open'
+            })
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    async closeSession(sessionId: number | string, closingBalance: number, userId: string) {
+        const { data, error } = await supabase
+            .from('cash_sessions')
+            .update({
+                closing_balance: closingBalance,
+                closed_at: new Date().toISOString(),
+                closed_by: userId,
+                status: 'closed'
+            })
+            .eq('id', sessionId)
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    async getReport(sessionId: string | number) {
+        const { data: sales, error: salesError } = await supabase
+            .from('sales')
+            .select('*')
+            .eq('cash_session_id', sessionId);
+        if (salesError) throw salesError;
+
+        const { data: beauty, error: beautyError } = await supabase
+            .from('beauty_services')
+            .select('*')
+            .eq('cash_session_id', sessionId);
+        if (beautyError) throw beautyError;
+
+        return { sales, beauty };
+    },
+
+    async getPeriodReport(from: string, to: string) {
+        // Adjust dates to cover full days in the local timezone-equivalent UTC range
+        const fromDate = `${from}T00:00:00.000Z`;
+        const toDate = `${to}T23:59:59.999Z`;
+
+        const [{ data: sales }, { data: beauty }, { data: packages }] = await Promise.all([
+            supabase.from('sales').select('*').gte('created_at', fromDate).lte('created_at', toDate),
+            supabase.from('beauty_services').select('*').gte('servicedate', fromDate).lte('servicedate', toDate).not('amount', 'eq', 0),
+            supabase.from('service_packages').select('*').gte('purchase_date', fromDate).lte('purchase_date', toDate)
+        ]);
+
+        const totalSales = (sales || []).reduce((acc, s) => acc + (s.total_amount || 0), 0);
+        const totalBeauty = (beauty || []).reduce((acc, b) => acc + (b.amount || 0), 0);
+        const totalPackages = (packages || []).reduce((acc, p) => acc + (p.price || 0), 0);
+
+        const byMethod: Record<string, number> = {};
+
+        const normalizeAndAdd = (method: string | null, amount: number) => {
+            const m = (method || 'OTHER').toUpperCase();
+            byMethod[m] = (byMethod[m] || 0) + amount;
+        };
+
+        (sales || []).forEach(s => normalizeAndAdd(s.payment_method, s.total_amount || 0));
+        (beauty || []).forEach(b => normalizeAndAdd(b.payment_method, b.amount || 0));
+        (packages || []).forEach(p => normalizeAndAdd(p.payment_method, p.price || 0));
+
+        return {
+            total: totalSales + totalBeauty + totalPackages,
+            byMethod,
+            salesCount: (sales || []).length,
+            beautyCount: (beauty || []).length,
+            packageCount: (packages || []).length,
+            breakdown: {
+                pos: totalSales,
+                beauty: totalBeauty,
+                packages: totalPackages
             }
         };
     }
@@ -866,6 +986,7 @@ export const salesService = {
                 discount_amount: saleData.discountAmount || 0,
                 payment_method: saleData.paymentMethod,
                 payment_status: saleData.paymentStatus || 'PAID',
+                cash_session_id: saleData.cashSessionId || null,
                 notes: customerName || null
             })
             .select()
@@ -961,6 +1082,8 @@ export const appointmentsService = {
                 price: data.price,
                 discount: data.discount || 0,
                 deposit_amount: data.depositAmount || 0,
+                service_package_id: data.servicePackageId || null,
+                cash_session_id: data.cashSessionId || null,
                 notes: data.notes
             })
             .select()
@@ -1000,5 +1123,42 @@ export const appointmentsService = {
             .order('start_time', { ascending: false });
         if (error) throw error;
         return (data || []).map(mappings.mapAppointmentToCamelCase);
+    },
+
+    async completeAppointment(id: string, packageId?: number | string) {
+        const { data, error } = await supabase
+            .from('appointments')
+            .update({ status: 'completed', updated_at: new Date().toISOString() })
+            .eq('id', id)
+            .select()
+            .single();
+        if (error) throw error;
+
+        if (packageId) {
+            await beautyService.usePackageSession(packageId, data.start_time, id);
+        }
+
+        return mappings.mapAppointmentToCamelCase(data);
+    },
+
+    async deleteAppointment(id: string) {
+        const { error } = await supabase.from('appointments').delete().eq('id', id);
+        if (error) throw error;
+        return true;
+    },
+
+    async updateTime(id: string, startTime: string, endTime: string) {
+        const { data, error } = await supabase
+            .from('appointments')
+            .update({
+                start_time: startTime,
+                end_time: endTime,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', id)
+            .select()
+            .single();
+        if (error) throw error;
+        return mappings.mapAppointmentToCamelCase(data);
     }
 };

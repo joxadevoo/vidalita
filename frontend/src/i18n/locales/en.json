@@ -35,6 +35,7 @@
     "import": "Import",
     "total": "Total"
   },
+  "locale": "en-US",
   "sidebar": {
     "home": "Home",
     "members": "Members",
@@ -43,6 +44,7 @@
     "barcode": "Barcode",
     "appointments": "Appointments",
     "pos": "Sales (POS)",
+    "cashier": "Cashier",
     "products": "Products",
     "inventory": "Inventory",
     "settings": "Settings",
@@ -381,12 +383,9 @@
     "to": "to",
     "allServices": "All Services",
     "items": "items",
-    "newPackage": "New Package",
-    "useSession": "Use Session",
     "buyPackage": "Buy Package",
-    "totalSessions": "Total Sessions",
-    "remainingSessions": "Remaining Sessions",
-    "sessionsCount": "{count} sessions",
+    "useSession": "Use Session",
+    "sessionsLeft": "sessions left",
     "noActivePackages": "No active packages found",
     "packageDetails": "Package Details",
     "successUsed": "Session successfully used",
@@ -566,29 +565,19 @@
   },
   "appointments": {
     "title": "Appointments",
-    "subtitle": "Manage service queues",
+    "subtitle": "Service and events calendar",
     "newAppointment": "New Appointment",
-    "stats": {
-      "today": "Today's Queue",
-      "pending": "Pending"
+    "noAppointments": "No appointments found",
+    "confirmComplete": "Are you sure you want to complete this appointment and deduct a session?",
+    "view": {
+      "calendar": "Calendar",
+      "list": "List"
     },
     "columns": {
       "customer": "Customer / Guest",
       "staffRoom": "Staff / Room",
       "service": "Service"
     },
-    "member": "Member",
-    "guest": "Guest",
-    "noRoom": "No Room",
-    "status": {
-      "booked": "Booked",
-      "confirmed": "Confirmed",
-      "inProgress": "In Progress",
-      "completed": "Completed",
-      "cancelled": "Cancelled",
-      "noShow": "No Show"
-    },
-    "noAppointments": "No appointments found",
     "form": {
       "memberOptional": "Member (optional)",
       "guestOption": "Guest (not registered)",
@@ -598,9 +587,42 @@
       "endTime": "End Time",
       "staff": "Staff",
       "room": "Room",
-      "serviceName": "Service Name"
+      "serviceName": "Service Name",
+      "usePackage": "Use current package",
+      "noPackage": "No package (Sale)"
+    },
+    "status": {
+      "booked": "Booked",
+      "confirmed": "Confirmed",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "noShow": "No Show"
     },
     "book": "Book",
-    "booking": "Booking..."
+    "booking": "Booking...",
+    "details": "Appointment Details"
+  },
+  "cashier": {
+    "title": "Cashier",
+    "subtitle": "Cashier sessions and daily reports",
+    "status": "Cashier Status",
+    "sessionOpened": "Session Opened",
+    "sessionClosed": "Session Closed",
+    "noActiveSession": "No active cashier session found",
+    "openSession": "Open Cashier",
+    "closeSession": "Close Cashier",
+    "openingBalance": "Opening Balance",
+    "closingBalance": "Closing Balance",
+    "totalSales": "Total Sales",
+    "cashSales": "Cash Sales",
+    "cardSales": "Card Sales",
+    "otherSales": "Other Sales",
+    "printReport": "Print Report",
+    "dailyReport": "Daily Report",
+    "selectRange": "Select Date Range",
+    "breakdownPOS": "POS Sales",
+    "breakdownBeauty": "Beauty Services",
+    "breakdownPackages": "Service Packages"
   }
 }

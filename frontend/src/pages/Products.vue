@@ -73,8 +73,8 @@
     </div>
 
     <!-- Add/Edit Modal (Simplified) -->
-    <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
+    <div v-if="showAddModal" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 p-4">
+        <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl z-[151]">
             <h3 class="text-lg font-bold mb-4">{{ editingProduct ? $t('products.editProduct') : $t('products.addProduct') }}</h3>
             <div class="grid gap-4 sm:grid-cols-2">
                 <div class="sm:col-span-2">

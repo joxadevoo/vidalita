@@ -3,11 +3,11 @@
   <Teleport to="body">
     <div
       v-if="show"
-      class="fixed inset-0 z-[200] overflow-y-auto bg-black/70 backdrop-blur-sm p-4"
+      class="fixed inset-0 z-[200] overflow-y-auto bg-black/70 backdrop-blur-sm p-4 print:p-0 print:bg-transparent print:backdrop-blur-none"
       @click.self="$emit('close')"
     >
       <!-- Modal container -->
-      <div class="relative w-full max-w-4xl mx-auto my-4 rounded-2xl bg-black/80 shadow-2xl overflow-hidden border border-white/10">
+      <div class="relative w-full max-w-4xl mx-auto my-4 rounded-2xl bg-black/80 shadow-2xl overflow-hidden border border-white/10 print:my-0 print:bg-transparent print:border-none print:shadow-none">
 
         <!-- Toolbar -->
         <div class="no-print flex items-center justify-between bg-gray-800 px-5 py-3">
@@ -50,7 +50,7 @@
 
         <!-- Invoice Content -->
         <!-- Simple Minimalist Style -->
-        <div v-else-if="sale" id="invoice-printable" class="bg-white w-[800px] mx-auto text-left py-8 px-10 font-serif flex flex-col shadow-sm border border-gray-100">
+        <div v-else-if="sale" id="invoice-printable" style="background-color: #ffffff; color: #000000; border-color: #000000;" class="w-[800px] mx-auto text-left py-8 px-10 font-serif flex flex-col shadow-sm border">
 
           <!-- Header Section: Just Text -->
           <div class="flex justify-between items-start mb-8 pb-4 border-b border-black">
@@ -89,7 +89,7 @@
             <p class="text-[10px] font-bold uppercase mb-2">{{ $t('invoice.items') }}:</p>
             <table class="w-full border-collapse border border-black text-sm">
               <thead>
-                <tr class="bg-gray-100">
+                <tr style="background-color: #f3f4f6;">
                   <th class="border border-black px-2 py-2 text-left w-10">№</th>
                   <th class="border border-black px-2 py-2 text-left">{{ $t('invoice.product') }}</th>
                   <th class="border border-black px-2 py-2 text-center w-20">{{ $t('invoice.qty') }}</th>
@@ -121,7 +121,7 @@
                   <td class="border border-black px-3 py-2 bg-gray-50 font-bold uppercase text-red-600 text-[10px]">{{ $t('invoice.discount') }} (-)</td>
                   <td class="border border-black px-3 py-2 text-right font-bold text-red-600 whitespace-nowrap">-{{ formatCurrency(discountAmount) }}</td>
                 </tr>
-                <tr class="bg-gray-50">
+                <tr style="background-color: #f9fafb;">
                   <td class="border border-black px-3 py-2 font-bold uppercase">{{ $t('invoice.total') || $t('pos.total') }}:</td>
                   <td class="border border-black px-3 py-2 text-right text-xl font-bold text-black whitespace-nowrap">{{ formatCurrency(sale.totalAmount) }}</td>
                 </tr>
@@ -243,7 +243,16 @@ const formatDate = (dateStr: string) => {
 };
 
 const printInvoice = () => {
+  document.body.classList.add('printing-pos-invoice');
   window.print();
+  // We use onafterprint to clean up, or a timeout for safer handling
+  const cleanup = () => {
+    document.body.classList.remove('printing-pos-invoice');
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+  // Fallback for browsers that don't support afterprint well
+  setTimeout(cleanup, 1000);
 };
 
 const downloadPdf = async () => {
@@ -256,54 +265,68 @@ const downloadPdf = async () => {
     const { default: jsPDF } = await import('jspdf');
 
     const canvas = await html2canvas(el, {
-      scale: 3, // Sifatni oshirish
+      scale: 2, // 2 is enough for good quality and speed
       useCORS: true,
       backgroundColor: '#ffffff',
       logging: false,
-      width: 800, // Qat'iy kenglik
+      width: 800,
+      windowWidth: 800, // Important: force window width for layout stability
       onclone: (clonedDoc) => {
-        const elements = clonedDoc.querySelectorAll('*');
-        elements.forEach((node) => {
-          const htmlNode = node as HTMLElement;
-          
-          // 1. Oklch va boshqa muammoli o'zgaruvchilarni tozalash
-          htmlNode.style.setProperty('--tw-bg-opacity', '1', 'important');
-          htmlNode.style.setProperty('--tw-text-opacity', '1', 'important');
-          htmlNode.style.setProperty('--tw-border-opacity', '1', 'important');
-          
-          // 2. Computed ranglarni olish va oklch bo'lsa HEX ga o'tkazish
-          // Eslatma: html2canvas uchun ranglar RGB yoki HEX bo'lishi shart
-          const style = window.getComputedStyle(htmlNode);
-          
-          if (style.color.includes('oklch')) htmlNode.style.color = '#000000';
-          if (style.backgroundColor.includes('oklch')) {
-            // Agar u bg-gray-50 yoki shunga o'xshash bo'lsa
-            if (htmlNode.classList.contains('bg-gray-50')) htmlNode.style.backgroundColor = '#f9fafb';
-            else if (htmlNode.classList.contains('bg-gray-100')) htmlNode.style.backgroundColor = '#f3f4f6';
-            else htmlNode.style.backgroundColor = '#ffffff';
-          }
-          if (style.borderColor.includes('oklch')) htmlNode.style.borderColor = '#000000';
-
-          // 3. Fontni Word uslubiga o'tkazish
-          htmlNode.style.fontFamily = "'Times New Roman', Times, serif";
-        });
-        
         const printable = clonedDoc.getElementById('invoice-printable');
         if (printable) {
+          printable.style.fontFamily = "'Times New Roman', Times, serif";
           printable.style.backgroundColor = '#ffffff';
           printable.style.color = '#000000';
-          printable.style.padding = '40px';
           printable.style.width = '800px';
+          printable.style.display = 'block';
+          printable.style.margin = '0';
+          printable.style.padding = '40px';
+          
+          // Explicitly fix table styles for html2canvas
+          const tables = printable.querySelectorAll('table');
+          tables.forEach(table => {
+            (table as HTMLElement).style.borderCollapse = 'collapse';
+            (table as HTMLElement).style.width = '100%';
+            (table as HTMLElement).style.tableLayout = 'auto';
+          });
+
+          const cells = printable.querySelectorAll('td, th');
+          cells.forEach(cell => {
+            (cell as HTMLElement).style.borderColor = '#000000';
+            (cell as HTMLElement).style.color = '#000000';
+            (cell as HTMLElement).style.backgroundColor = (cell as HTMLElement).classList.contains('bg-gray-50') ? '#f9fafb' : 
+                                                         (cell as HTMLElement).classList.contains('bg-gray-100') ? '#f3f4f6' : 'transparent';
+          });
+
+          // Comprising all elements in printable to strip oklch/modern colors
+          const allElements = printable.getElementsByTagName('*');
+          for (let i = 0; i < allElements.length; i++) {
+            const node = allElements[i] as HTMLElement;
+            const style = window.getComputedStyle(node);
+            
+            // html2canvas fails on oklch. We force standard colors for any modern function.
+            if (style.color && (style.color.includes('oklch') || style.color.includes('var'))) {
+              node.style.color = '#000000';
+            }
+            if (style.backgroundColor && (style.backgroundColor.includes('oklch') || style.backgroundColor.includes('var'))) {
+              // Preserve subtle backgrounds if possible by checking classes
+              if (node.classList.contains('bg-gray-50')) node.style.backgroundColor = '#f9fafb';
+              else if (node.classList.contains('bg-gray-100')) node.style.backgroundColor = '#f3f4f6';
+              else node.style.backgroundColor = 'transparent';
+            }
+            if (style.borderColor && (style.borderColor.includes('oklch') || style.borderColor.includes('var'))) {
+              node.style.borderColor = '#000000';
+            }
+          }
         }
       }
     });
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.98);
-    // Dinamik balandlik: A4 MM (210mm kenglik, balandlikni esa canvas nisbatiga qarab moslaymiz)
+    const imgData = canvas.toDataURL('image/jpeg', 1.0);
     const pdf = new jsPDF({ 
       orientation: 'portrait', 
       unit: 'mm', 
-      format: [210, Math.max(297, (canvas.height * 210) / canvas.width)] 
+      format: 'a4' 
     });
     
     const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -323,22 +346,46 @@ const downloadPdf = async () => {
 
 <style>
 @media print {
-  body * {
-    visibility: hidden;
+  /* Hide the app ONLY if the invoice is being printed */
+  body.printing-pos-invoice #app {
+    display: none !important;
   }
-  #invoice-printable,
-  #invoice-printable * {
-    visibility: visible;
-  }
-  #invoice-printable {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    padding: 20px;
-  }
+
+  /* Hide the main app and everything else with no-print */
   .no-print {
     display: none !important;
+  }
+
+  /* Reset body and html for print */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+
+  /* Ensure the printable area takes full width and is visible */
+  #invoice-printable {
+    position: relative !important;
+    width: 210mm !important; /* Standard A4 width */
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 10mm !important;
+    border: none !important;
+    box-shadow: none !important;
+    visibility: visible !important;
+    display: block !important;
+  }
+
+  /* Reset the modal wrapper to be a simple block in print */
+  .fixed.inset-0 {
+    position: static !important;
+    display: block !important;
+    background: transparent !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
   }
 }
 </style>

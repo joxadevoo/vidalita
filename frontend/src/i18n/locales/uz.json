@@ -35,6 +35,7 @@
     "import": "Import",
     "total": "Jami"
   },
+  "locale": "uz-UZ",
   "sidebar": {
     "home": "Bosh sahifa",
     "members": "A'zolar",
@@ -45,6 +46,7 @@
     "settings": "Sozlamalar",
     "appointments": "Uchrashuvlar",
     "pos": "Sotuv (POS)",
+    "cashier": "Kassa",
     "products": "Mahsulotlar",
     "inventory": "Ombor",
     "expand": "Sidebar'ni kengaytirish",
@@ -399,13 +401,13 @@
     "to": "gacha",
     "allServices": "Barcha xizmatlar",
     "items": "ta",
-    "newPackage": "Yangi paket",
+    "buyPackage": "Paket sotib olish",
     "useSession": "Seansdan foydalanish",
-    "buyPackage": "Paket sotish",
+    "sessionsLeft": "seans qoldi",
+    "noActivePackages": "Mavjud paketlar topilmadi",
     "totalSessions": "Jami seanslar",
     "remainingSessions": "Qolgan seanslar",
     "sessionsCount": "{count} ta seans",
-    "noActivePackages": "Faol paketlar topilmadi",
     "packageDetails": "Paket tafsilotlari",
     "successUsed": "Seans muvaffaqiyatli ishlatildi",
     "successPackageAdded": "Paket muvaffaqiyatli qo'shildi",
@@ -591,43 +593,52 @@
     "close": "Yopish",
     "thankYou": "Xaridingiz uchun rahmat!",
     "returnPolicy": "Mahsulotni qaytarish uchun 3 kun ichida murojaat qiling.",
-    "viewInvoice": "Fakturani ko'rish"
+    "viewInvoice": "Fakturani ko'rish",
+    "total": "Jami"
   },
   "appointments": {
-    "title": "Uchrashuvlar",
-    "subtitle": "Xizmatlar uchun navbatlarni boshqarish",
-    "newAppointment": "Yangi band qilish",
-    "stats": {
-      "today": "Bugungi navbatlar",
-      "pending": "Kutilmoqda"
-    },
-    "columns": {
-      "customer": "Mijoz / Mehmon",
-      "staffRoom": "Xodim / Xona",
-      "service": "Xizmat"
-    },
+    "title": "Randevular",
+    "subtitle": "Xizmatlar va tadbirlar jadvali",
+    "newAppointment": "Yangi randevu",
+    "noAppointments": "Hech qanday randevu topilmadi",
+    "confirmComplete": "Ushbu randevuni yakunlashni va seansni chegirib tashlashni tasdiqlaysizmi",
+    "details": "Randevu tafsilotlari",
     "member": "A'zo",
     "guest": "Mehmon",
-    "noRoom": "Xona belgilanmagan",
-    "status": {
-      "booked": "Yozildi",
-      "confirmed": "Tasdiqlandi",
-      "inProgress": "Jarayonda",
-      "completed": "Tugadi",
-      "cancelled": "Bekor qilindi",
-      "noShow": "Kelmagan"
+    "noRoom": "Xonasiz",
+    "view": {
+      "calendar": "Taqvim",
+      "list": "Ro'yxat"
     },
-    "noAppointments": "Hech qanday bandlik topilmadi",
+    "stats": {
+      "today": "Bugungi randevular",
+      "pending": "Kutilayotgan"
+    },
+    "columns": {
+      "customer": "Mijoz",
+      "service": "Xizmat",
+      "staffRoom": "Xodim / Xona"
+    },
     "form": {
-      "memberOptional": "A'zo (ixtiyoriy)",
-      "guestOption": "Mehmon (ro'yxatdan o'tmagan)",
+      "memberOptional": "Mijoz (Tanlanmasa mehmon)",
+      "guestOption": "Mehmon sifatida",
       "guestName": "Mehmon ismi",
       "guestPhone": "Mehmon telefoni",
+      "serviceName": "Xizmat nomi",
       "startTime": "Boshlanish vaqti",
       "endTime": "Tugash vaqti",
       "staff": "Xodim",
       "room": "Xona",
-      "serviceName": "Xizmat nomi"
+      "usePackage": "Mavjud paketdan foydalanish",
+      "noPackage": "Paketsiz (Sotish)"
+    },
+    "status": {
+      "booked": "Band qilingan",
+      "confirmed": "Tasdiqlangan",
+      "inProgress": "Jarayonda",
+      "completed": "Yakunlangan",
+      "cancelled": "Bekor qilingan",
+      "noShow": "Kelmagan"
     },
     "book": "Band qilish",
     "booking": "Yozilmoqda...",
@@ -636,5 +647,30 @@
     "todayOnly": "Faqat bugun",
     "resetFilters": "Filterni tozalash",
     "searchPlaceholder": "Ism, telefon yoki xizmat bo'yicha qidirish..."
+  },
+  "cashier": {
+    "title": "Kassa",
+    "subtitle": "Kassa sessiyalari va kunlik hisobotlar",
+    "openSession": "Kassa ochish",
+    "closeSession": "Kassa yopish",
+    "openingBalance": "Ochilish balansi",
+    "closingBalance": "Yopilish balansi",
+    "status": "Holat",
+    "sessionOpened": "Sessiya ochildi",
+    "sessionClosed": "Sessiya yopildi",
+    "totalSales": "Jami savdo",
+    "cashSales": "Naqd",
+    "cardSales": "Karta",
+    "otherSales": "Boshqa",
+    "printReport": "X-hisobot (Oraliq hisobot)",
+    "dailyReport": "Kunlik hisobot",
+    "selectRange": "Sana oralig'ini tanlang",
+    "noActiveSession": "Hozirda faol kassa sessiyasi yo'q",
+    "xReport": "X-hisobot (Oraliq)",
+    "zReport": "Z-hisobot (Smenani yopish)",
+    "zReportWarning": "Ishonchingiz komilmi? Smena yopiladi va ma'lumotlar nolga tushiriladi!",
+    "breakdownPOS": "Magazin sotuvi",
+    "breakdownBeauty": "Xizmatlar",
+    "breakdownPackages": "Kurslar (Paketlar)"
   }
 }

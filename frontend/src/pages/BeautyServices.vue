@@ -106,12 +106,12 @@
     </div>
 
     <!-- Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-[120] flex items-center justify-center p-4" @click.self="closeModal">
+    <div v-if="showModal" class="fixed inset-0 z-[150] flex items-center justify-center p-4" @click.self="closeModal">
       <!-- Backdrop with blur -->
-      <div class="absolute inset-0 bg-black/30 backdrop-blur-sm z-[120]"></div>
+      <div class="absolute inset-0 bg-black/30 backdrop-blur-sm z-[150]"></div>
       <!-- Modal content -->
-      <div class="relative w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-lg z-[121]" @click.stop>
-        <div class="border-b border-gray-200 px-6 py-4">
+      <div class="relative w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-lg z-[151] flex flex-col max-h-[92vh] overflow-hidden" @click.stop>
+        <div class="border-b border-gray-200 px-6 py-4 flex-shrink-0">
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900">{{ $t('beautyServices.modalTitle') }}</h3>
             <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
@@ -121,8 +121,9 @@
             </button>
           </div>
         </div>
-        <form @submit.prevent="handleSubmit" class="px-6 py-4 space-y-4">
-          <div v-if="formError" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{{ formError }}</div>
+        <form @submit.prevent="handleSubmit" class="flex flex-col flex-1 overflow-hidden">
+          <div class="px-6 py-4 space-y-4 overflow-y-auto">
+            <div v-if="formError" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{{ formError }}</div>
           
           <!-- Member Selection -->
           <div>
@@ -161,7 +162,6 @@
             <select
               v-model="form.serviceName"
               class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-              required
             >
               <option value="">{{ $t('beautyServices.serviceNameSelect') }}</option>
               <optgroup v-for="category in serviceCategories" :key="category.key" :label="category.label">
@@ -243,7 +243,21 @@
               :placeholder="$t('beautyServices.discountPlaceholder')"
               class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
             />
-            <p class="mt-1 text-xs text-gray-500">{{ $t('beautyServices.discountHint') }}</p>
+          </div>
+
+          <!-- Payment Method (Faqat xizmat yoki paket sotib olayotganda) -->
+          <div v-if="form.actionType !== 'use'">
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('pos.paymentMethod') }}</label>
+            <div class="flex gap-4">
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="radio" v-model="form.paymentMethod" value="CASH" class="text-sky-600 focus:ring-sky-500" />
+                <span class="text-sm text-gray-700">{{ $t('pos.cash') }}</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="radio" v-model="form.paymentMethod" value="CARD" class="text-sky-600 focus:ring-sky-500" />
+                <span class="text-sm text-gray-700">{{ $t('pos.card') }}</span>
+              </label>
+            </div>
           </div>
 
           <!-- Service Date -->
@@ -267,7 +281,9 @@
             ></textarea>
           </div>
 
-          <div class="flex items-center justify-between gap-3 pt-4 border-t border-gray-100">
+          </div>
+
+          <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
             <div class="flex items-center gap-2">
               <button type="button" @click="closeModal" class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">{{ $t('common.cancel') }}</button>
             </div>
@@ -343,7 +359,7 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
-import { beautyService, membersService } from '../services/supabaseService'
+import { beautyService, membersService, cashSessionsService } from '../services/supabaseService'
 import * as XLSX from 'xlsx'
 import { TableCellsIcon, DocumentTextIcon } from '@heroicons/vue/24/outline'
 import { formatDate, getCurrentDateTimeISO } from '../lib/dateUtils'
@@ -372,6 +388,8 @@ const services = ref<Service[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const successMessage = ref<string | null>(null)
+
+const currentSession = ref<any>(null)
 
 // Filter state
 const dateFrom = ref('')
@@ -408,7 +426,8 @@ const form = ref({
   note: '',
   actionType: 'service', // 'service', 'package', 'use'
   totalSessions: 10,
-  selectedPackageId: ''
+  selectedPackageId: '',
+  paymentMethod: 'CASH'
 })
 
 const activePackages = ref<any[]>([])
@@ -724,6 +743,13 @@ const openModal = async () => {
   form.value.serviceDate = getCurrentDateTimeLocal()
   // Har doim bazadan yangi a'zolarni yuklash
   await fetchMembers()
+  
+  // Kassa sessiyasini tekshirish
+  try {
+    currentSession.value = await cashSessionsService.getCurrentSession()
+  } catch (err) {
+    console.error('Kassa sessiyasini yuklashda xatolik:', err)
+  }
 }
 
 const basket = ref<any[]>([])
@@ -764,6 +790,7 @@ const addToBasket = () => {
   form.value.note = ''
   form.value.totalSessions = 10
   form.value.selectedPackageId = ''
+  form.value.paymentMethod = 'CASH'
   formError.value = null
 }
 
@@ -780,7 +807,8 @@ const closeModal = () => {
     note: '',
     actionType: 'service',
     totalSessions: 10,
-    selectedPackageId: ''
+    selectedPackageId: '',
+    paymentMethod: 'CASH'
   }
   selectedMember.value = null
   memberSearch.value = ''
@@ -812,7 +840,21 @@ const handleSubmit = async () => {
       formError.value = t('beautyServices.errorServiceNameRequired')
       return
     }
+    if (!selectedMember.value) {
+      formError.value = t('beautyServices.errorMemberRequired')
+      return
+    }
     addToBasket()
+  } else if (form.value.serviceName) {
+    // Agar savatda narsa bo'lsa va yana xizmat tanlangan bo'lsa, uni ham savatga qo'shamiz
+    addToBasket()
+  }
+
+  // To'lov talab qilinadigan amallarni tekshirish
+  const needsPayment = basket.value.some(item => item.finalAmount > 0)
+  if (needsPayment && !currentSession.value) {
+    formError.value = t('cashier.noActiveSession')
+    return
   }
 
   submitting.value = true
@@ -827,6 +869,8 @@ const handleSubmit = async () => {
           serviceDate: item.serviceDate ? new Date(item.serviceDate).toISOString() : undefined,
           amount: item.finalAmount > 0 ? item.finalAmount : undefined,
           discountPercent: item.discountPercent > 0 ? item.discountPercent : undefined,
+          cashSessionId: currentSession.value?.id || undefined,
+          paymentMethod: item.paymentMethod,
           note: item.note.trim() || undefined
         }
         await beautyService.add(payload)
@@ -837,12 +881,19 @@ const handleSubmit = async () => {
           serviceType: item.serviceName,
           serviceName: item.serviceNameLabel,
           totalSessions: item.totalSessions,
+          cashSessionId: currentSession.value?.id || undefined,
+          paymentMethod: item.paymentMethod,
           notes: item.note.trim() || undefined
         }
         await beautyService.addPackage(payload)
       }
       else if (item.actionType === 'use') {
-        await beautyService.usePackageSession(item.selectedPackageId, item.serviceDate ? new Date(item.serviceDate).toISOString() : undefined)
+        await beautyService.usePackageSession(
+          item.selectedPackageId, 
+          item.serviceDate ? new Date(item.serviceDate).toISOString() : undefined,
+          undefined,
+          currentSession.value?.id
+        )
       }
     }
 

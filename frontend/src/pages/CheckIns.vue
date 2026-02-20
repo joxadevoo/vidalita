@@ -14,11 +14,11 @@
 
     <!-- Member Info Modal -->
     <Teleport to="body">
-      <div v-if="showMemberModal" class="fixed inset-0 z-[120] flex items-center justify-center p-2 sm:p-4" @click.self="closeMemberModal">
+      <div v-if="showMemberModal" class="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4" @click.self="closeMemberModal">
         <!-- Backdrop with blur -->
-        <div class="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+        <div class="absolute inset-0 bg-black/30 backdrop-blur-sm z-[150]"></div>
         <!-- Modal content -->
-        <div class="relative w-full max-w-6xl max-h-[95vh] overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-xl" @click.stop>
+        <div class="relative w-full max-w-6xl max-h-[95vh] overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-xl z-[151]" @click.stop>
         <div class="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 sm:px-6 sm:py-4">
           <h3 class="text-lg sm:text-xl font-bold text-gray-900">{{ $t('checkins.memberInfo') }}</h3>
           <button @click="closeMemberModal" class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600">

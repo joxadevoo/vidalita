@@ -5,7 +5,7 @@
   </div>
   
   <!-- Boshqa sahifalar - sidebar va topbar bilan -->
-  <div v-else class="min-h-screen bg-gray-50">
+  <div v-else class="min-h-screen bg-gray-50 print:min-h-0">
     <Sidebar 
       :is-open="sidebarOpen" 
       :collapsed="sidebarCollapsed"
@@ -15,7 +15,7 @@
     />
     <div 
       :class="[
-        'transition-all duration-300',
+        'transition-all duration-300 print:pl-0 print:overflow-visible print:static',
         !isMobile
           ? (sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-72') 
           : 'lg:pl-0'
@@ -26,8 +26,8 @@
         :sidebar-collapsed="sidebarCollapsed"
         @menu="handleSidebarToggle" 
       />
-      <div class="flex flex-col overflow-hidden pt-16" style="height: calc(100vh - 64px);">
-        <main class="flex-1 overflow-y-auto p-4 md:p-6">
+      <div class="flex flex-col pt-16 h-screen print:h-auto print:pt-0 print:overflow-visible print:static">
+        <main class="flex-1 overflow-y-auto p-4 md:p-6 print:p-0 print:overflow-visible print:static">
           <RouterView />
         </main>
       </div>

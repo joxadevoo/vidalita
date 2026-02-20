@@ -13,6 +13,7 @@ const Login = () => import('../pages/Login.vue')
 const Products = () => import('../pages/Products.vue')
 const Inventory = () => import('../pages/Inventory.vue')
 const POS = () => import('../pages/POS.vue')
+const Cashier = () => import('../pages/Cashier.vue')
 const Appointments = () => import('../pages/Appointments.vue')
 
 const routes: RouteRecordRaw[] = [
@@ -29,6 +30,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/products', component: Products, meta: { requiresAuth: true } },
   { path: '/inventory', component: Inventory, meta: { requiresAuth: true } },
   { path: '/pos', component: POS, meta: { requiresAuth: true } },
+  { path: '/cashier', component: Cashier, meta: { requiresAuth: true } }, // New route added here
   { path: '/appointments', component: Appointments, meta: { requiresAuth: true } },
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ]

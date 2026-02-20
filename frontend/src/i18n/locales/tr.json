@@ -36,6 +36,7 @@
     "import": "İçe Aktar",
     "total": "Toplam"
   },
+  "locale": "tr-TR",
   "sidebar": {
     "home": "Ana Sayfa",
     "members": "Üyeler",
@@ -44,6 +45,7 @@
     "barcode": "Barkod",
     "appointments": "Randevular",
     "pos": "Satış (POS)",
+    "cashier": "Kasa",
     "products": "Ürünler",
     "inventory": "Stok",
     "settings": "Ayarlar",
@@ -389,12 +391,9 @@
     "to": "tarihine",
     "allServices": "Tüm Hizmetler",
     "items": "adet",
-    "newPackage": "Yeni Paket",
+    "buyPackage": "Paket Satın Al",
     "useSession": "Seans Kullan",
-    "buyPackage": "Paket Sat",
-    "totalSessions": "Toplam Seans",
-    "remainingSessions": "Kalan Seans",
-    "sessionsCount": "{count} seans",
+    "sessionsLeft": "seans kaldı",
     "noActivePackages": "Aktif paket bulunamadı",
     "packageDetails": "Paket Detayları",
     "successUsed": "Seans başarıyla kullanıldı",
@@ -575,29 +574,19 @@
   },
   "appointments": {
     "title": "Randevular",
-    "subtitle": "Hizmet sıralarını yönet",
+    "subtitle": "Hizmet ve etkinlik takvimi",
     "newAppointment": "Yeni Randevu",
-    "stats": {
-      "today": "Bugünkü Sıra",
-      "pending": "Bekleyen"
+    "noAppointments": "Randevu bulunamadı",
+    "confirmComplete": "Bu randevuyu tamamlamak ve seansı düşmek istediğinizden emin misiniz?",
+    "view": {
+      "calendar": "Takvim",
+      "list": "Liste"
     },
     "columns": {
       "customer": "Müşteri / Misafir",
       "staffRoom": "Personel / Oda",
       "service": "Hizmet"
     },
-    "member": "Üye",
-    "guest": "Misafir",
-    "noRoom": "Oda Atanmadı",
-    "status": {
-      "booked": "Rezerve",
-      "confirmed": "Onaylandı",
-      "inProgress": "Devam Ediyor",
-      "completed": "Tamamlandı",
-      "cancelled": "İptal Edildi",
-      "noShow": "Gelmedi"
-    },
-    "noAppointments": "Randevu bulunamadı",
     "form": {
       "memberOptional": "Üye (isteğe bağlı)",
       "guestOption": "Misafir (kayıtsız)",
@@ -607,14 +596,42 @@
       "endTime": "Bitiş Saati",
       "staff": "Personel",
       "room": "Oda",
-      "serviceName": "Hizmet Adı"
+      "serviceName": "Hizmet Adı",
+      "usePackage": "Mevcut paketi kullan",
+      "noPackage": "Paketsiz (Satış)"
+    },
+    "status": {
+      "booked": "Rezerve",
+      "confirmed": "Onaylandı",
+      "inProgress": "Devam Ediyor",
+      "completed": "Tamamlandı",
+      "cancelled": "İptal Edildi",
+      "noShow": "Gelmedi"
     },
     "book": "Rezerve Et",
     "booking": "Rezerve Ediliyor...",
-    "dateFrom": "Başlangıç",
-    "dateTo": "Bitiş",
-    "todayOnly": "Sadece bugün",
-    "resetFilters": "Temizle",
-    "searchPlaceholder": "İsim, telefon veya hizmet ile ara..."
+    "details": "Randevu Detayları"
+  },
+  "cashier": {
+    "title": "Kasa",
+    "subtitle": "Kasiyer oturumları ve günlük raporlar",
+    "status": "Kasa Durumu",
+    "sessionOpened": "Kasa Açık",
+    "sessionClosed": "Kasa Kapalı",
+    "noActiveSession": "Aktif kasa oturumu bulunamadı",
+    "openSession": "Kasayı Aç",
+    "closeSession": "Kasayı Kapat",
+    "openingBalance": "Açılış Bakiyesi",
+    "closingBalance": "Kapanış Bakiyesi",
+    "totalSales": "Toplam Satış",
+    "cashSales": "Nakit Satışlar",
+    "cardSales": "Kartlı Satışlar",
+    "otherSales": "Diğer Satışlar",
+    "printReport": "Raporu Yazdır",
+    "dailyReport": "Günlük Rapor",
+    "selectRange": "Tarih Aralığı Seçin",
+    "breakdownPOS": "Mağaza Satışları",
+    "breakdownBeauty": "Hizmetler",
+    "breakdownPackages": "Paket Satışları"
   }
 }

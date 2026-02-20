@@ -1,6 +1,6 @@
 <template>
   <header 
-    class="fixed top-0 right-0 z-[110] flex h-16 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8 transition-all duration-300"
+    class="fixed top-0 right-0 z-[110] flex h-16 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8 transition-all duration-300 no-print"
     :style="headerStyle"
   >
     <!-- Mobile menu button (faqat mobile'da) -->

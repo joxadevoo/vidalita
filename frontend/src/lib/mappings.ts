@@ -53,6 +53,7 @@ export const mapBeautyServiceToCamelCase = (item: any): any => {
         paymentStatus: item.paymentstatus || 'pending',
         paymentMethod: item.paymentmethod || null,
         paymentDate: item.paymentdate || null,
+        cashSessionId: item.cash_session_id || null,
         fullName: item.members?.fullname || null,
         phone: item.members?.phone || null,
         qrCodeId: item.members?.qrcodeid || null
@@ -91,6 +92,7 @@ export const mapSaleToCamelCase = (s: any) => {
         discountAmount: s.discount_amount,
         paymentStatus: s.payment_status,
         paymentMethod: s.payment_method,
+        cashSessionId: s.cash_session_id,
         notes: s.notes,
         createdAt: s.created_at,
         items: s.sale_items ? s.sale_items.map(mapSaleItemToCamelCase) : []
@@ -130,8 +132,9 @@ export const mapAppointmentToCamelCase = (a: any) => {
         status: a.status,
         price: a.price,
         discount: a.discount,
-        depositAmount: a.deposit_amount,
-        notes: a.notes,
+        depositAmount: a.deposit_amount || 0,
+        servicePackageId: a.service_package_id || null,
+        notes: a.notes || '',
         createdAt: a.created_at
     };
 };

@@ -44,12 +44,12 @@
           <div class="md:col-span-2">
             <label class="input-label" for="phone">{{ $t('memberCreate.phone') }} *</label>
             <div class="flex gap-2">
-              <select v-model="form.phoneCountry" class="w-36 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400">
-                <option value="uz">🇺🇿 O'zbekiston (+998)</option>
-                <option value="ru">🇷🇺 Rossiya (+7)</option>
-                <option value="tr">🇹🇷 Turkiya (+90)</option>
+              <select v-model="form.phoneCountry" class="w-20 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400">
+                <option value="uz">🇺🇿</option>
+                <option value="ru">🇷🇺</option>
+                <option value="tr">🇹🇷</option>
               </select>
-              <input id="phone" v-model="phoneField" type="tel" required class="flex-1 input" :placeholder="$t('memberCreate.phonePlaceholder')" />
+              <input id="phone" v-model="phoneField" type="tel" required class="flex-1 input" :placeholder="$t('memberCreate.phonePlaceholder')" :maxlength="phoneMaxLength" />
             </div>
           </div>
 
@@ -75,7 +75,7 @@
           </div>
 
           <div class="md:col-span-2">
-            <label class="input-label" for="photo">{{ $t('memberCreate.photo') }} <span class="text-red-500">*</span></label>
+            <label class="input-label" for="photo">{{ $t('memberCreate.photo') }}</label>
             <div class="mt-2 flex items-center gap-4">
               <div v-if="photoPreview" class="relative">
                 <img :src="photoPreview" alt="Preview" class="h-24 w-24 rounded-lg border-2 border-gray-200 object-cover" />
@@ -98,7 +98,6 @@
                 />
             </div>
             <p class="mt-1 text-xs text-gray-500">{{ $t('memberCreate.photoFormat') }}</p>
-            <p v-if="!isEditMode && !photoPreview" class="mt-1 text-xs text-amber-600 font-medium">⚠️ {{ $t('memberCreate.photoRequired') }}</p>
           </div>
         </div>
       </section>
@@ -434,8 +433,17 @@ const saveProgress = ref<string>('')
 
 const showsBeautySection = computed(() => form.serviceType === 'beauty' || form.serviceType === 'both')
 
+const phoneMaxLength = computed(() => {
+  switch (form.phoneCountry) {
+    case 'uz': return 17
+    case 'ru': return 18
+    case 'tr': return 19
+    default: return 20
+  }
+})
+
 const formatPhoneByCountry = (value: string, country: string) => {
-  const digits = value.replace(/\D/g, '')
+  let digits = value.replace(/\D/g, '')
   if (!digits) return ''
 
   const formatUz = (val: string) => {
@@ -451,18 +459,24 @@ const formatPhoneByCountry = (value: string, country: string) => {
   }
 
   const formatTr = (val: string) => {
-    const part = val.substring(0, 11)
+    const part = val.substring(0, 12)
     const groups = [part.slice(0, 2), part.slice(2, 5), part.slice(5, 8), part.slice(8, 10), part.slice(10, 12)].filter(Boolean)
     return `+${groups[0] || '90'} (${groups[1] || ''}) ${groups[2] || ''}${groups[3] ? ' ' + groups[3] : ''}${groups[4] ? ' ' + groups[4] : ''}`.trim()
   }
 
   switch (country) {
-    case 'uz':
-      return formatUz(digits.startsWith('998') ? digits : `998${digits}`)
-    case 'ru':
-      return formatRu(digits.startsWith('7') ? digits : `7${digits}`)
-    case 'tr':
-      return formatTr(digits.startsWith('90') ? digits : `90${digits}`)
+    case 'uz': {
+      let d = digits.startsWith('998') ? digits : `998${digits}`
+      return formatUz(d.substring(0, 12))
+    }
+    case 'ru': {
+      let d = digits.startsWith('7') ? digits : `7${digits}`
+      return formatRu(d.substring(0, 11))
+    }
+    case 'tr': {
+      let d = digits.startsWith('90') ? digits : `90${digits}`
+      return formatTr(d.substring(0, 12))
+    }
     default:
       return `+${digits}`
   }
@@ -596,7 +610,6 @@ const handleSubmit = async () => {
   submitError.value = null
   submitSuccess.value = null
   if (!form.fullName || !form.phone) { submitError.value = t('common.error'); return }
-  if (!isEditMode.value && !photoPreview.value) { submitError.value = t('memberCreate.photoRequired'); return }
   
   submitting.value = true
   saveStatus.value = 'saving'

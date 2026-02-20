@@ -35,6 +35,7 @@
     "import": "Импорт",
     "total": "Всего"
   },
+  "locale": "ru-RU",
   "sidebar": {
     "home": "Главная",
     "members": "Участники",
@@ -43,6 +44,7 @@
     "barcode": "Штрих-код",
     "appointments": "Записи",
     "pos": "Продажи (POS)",
+    "cashier": "Касса",
     "products": "Товары",
     "inventory": "Склад",
     "settings": "Настройки",
@@ -383,12 +385,9 @@
     "to": "до",
     "allServices": "Все услуги",
     "items": "шт",
-    "newPackage": "Новый пакет",
+    "buyPackage": "Купить пакет",
     "useSession": "Использовать сеанс",
-    "buyPackage": "Продать пакет",
-    "totalSessions": "Всего сеансов",
-    "remainingSessions": "Осталось сеансов",
-    "sessionsCount": "{count} сеансов",
+    "sessionsLeft": "сеансов осталось",
     "noActivePackages": "Активных пакетов не найдено",
     "packageDetails": "Детали пакета",
     "successUsed": "Сеанс успешно использован",
@@ -557,29 +556,19 @@
   },
   "appointments": {
     "title": "Записи",
-    "subtitle": "Управление очередью на услуги",
+    "subtitle": "Календарь услуг и мероприятий",
     "newAppointment": "Новая запись",
-    "stats": {
-      "today": "Сегодняшняя запись",
-      "pending": "Ожидание"
+    "noAppointments": "Записей не найдено",
+    "confirmComplete": "Вы уверены, что хотите завершить эту запись и списать сеанс?",
+    "view": {
+      "calendar": "Календарь",
+      "list": "Список"
     },
     "columns": {
       "customer": "Клиент / Гость",
       "staffRoom": "Сотрудник / Кабинет",
       "service": "Услуга"
     },
-    "member": "Участник",
-    "guest": "Гость",
-    "noRoom": "Без кабинета",
-    "status": {
-      "booked": "Записан",
-      "confirmed": "Подтверждено",
-      "inProgress": "В процессе",
-      "completed": "Завершено",
-      "cancelled": "Отменено",
-      "noShow": "Не пришел"
-    },
-    "noAppointments": "Записей не найдено",
     "form": {
       "memberOptional": "Участник (необязательно)",
       "guestOption": "Гость (без регистрации)",
@@ -589,14 +578,42 @@
       "endTime": "Время окончания",
       "staff": "Сотрудник",
       "room": "Кабинет",
-      "serviceName": "Название услуги"
+      "serviceName": "Название услуги",
+      "usePackage": "Использовать текущий пакет",
+      "noPackage": "Без пакета (Продажа)"
+    },
+    "status": {
+      "booked": "Записан",
+      "confirmed": "Подтверждено",
+      "inProgress": "В процессе",
+      "completed": "Завершено",
+      "cancelled": "Отменено",
+      "noShow": "Не пришел"
     },
     "book": "Записаться",
     "booking": "Запись...",
-    "dateFrom": "С",
-    "dateTo": "По",
-    "todayOnly": "Только сегодня",
-    "resetFilters": "Очистить",
-    "searchPlaceholder": "Поиск по имени, телефону или услуге..."
+    "details": "Детали записи"
+  },
+  "cashier": {
+    "title": "Касса",
+    "subtitle": "Сессии кассира и ежедневные отчеты",
+    "status": "Статус кассы",
+    "sessionOpened": "Касса открыта",
+    "sessionClosed": "Касса закрыта",
+    "noActiveSession": "Активная сессия кассы не найдена",
+    "openSession": "Открыть кассу",
+    "closeSession": "Закрыть кассу",
+    "openingBalance": "Начальный баланс",
+    "closingBalance": "Конечный баланс",
+    "totalSales": "Всего продаж",
+    "cashSales": "Наличные продажи",
+    "cardSales": "Продажи по карте",
+    "otherSales": "Другие продажи",
+    "printReport": "Печать отчета",
+    "dailyReport": "Ежедневный отчет",
+    "selectRange": "Выберите диапазон дат",
+    "breakdownPOS": "Продажи магазина",
+    "breakdownBeauty": "Услуги",
+    "breakdownPackages": "Курсы (Пакеты)"
   }
 }
