@@ -75,7 +75,12 @@
               </tr>
               <tr>
                 <td class="border border-black px-3 py-2 bg-gray-50 font-bold uppercase text-[10px] tracking-tight">{{ $t('invoice.paymentMethod') }}</td>
-                <td class="border border-black px-3 py-2">{{ sale.paymentMethod === 'CASH' ? $t('pos.cash') : $t('pos.card') }}</td>
+                <td class="border border-black px-3 py-2">
+                  {{ sale.paymentMethod === 'CASH' ? $t('pos.cash') : (sale.paymentMethod === 'CARD' ? $t('pos.card') : $t('pos.mixed')) }}
+                  <span v-if="sale.paymentMethod === 'MIXED'" class="ml-2 font-normal text-xs text-gray-600">
+                    ({{ formatCurrency(sale.cashAmount) }} + {{ formatCurrency(sale.cardAmount) }})
+                  </span>
+                </td>
               </tr>
               <tr>
                 <td class="border border-black px-3 py-2 bg-gray-50 font-bold uppercase text-[10px] tracking-tight">Status</td>
@@ -294,6 +299,7 @@ const downloadPdf = async () => {
           cells.forEach(cell => {
             (cell as HTMLElement).style.borderColor = '#000000';
             (cell as HTMLElement).style.color = '#000000';
+            (cell as HTMLElement).style.padding = '10px';
             (cell as HTMLElement).style.backgroundColor = (cell as HTMLElement).classList.contains('bg-gray-50') ? '#f9fafb' : 
                                                          (cell as HTMLElement).classList.contains('bg-gray-100') ? '#f3f4f6' : 'transparent';
           });

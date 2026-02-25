@@ -187,8 +187,15 @@
                         </select>
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('appointments.form.serviceName') }}</label>
-                        <input v-model="form.serviceName" type="text" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
+                        <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('beautyServices.serviceNameLabel') }}</label>
+                        <select v-model="form.serviceName" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400">
+                            <option value="">{{ $t('beautyServices.serviceNameSelect') }}</option>
+                            <optgroup v-for="(cat, key) in serviceData.categories" :key="key" :label="cat.label">
+                                <option v-for="sKey in cat.services" :key="sKey" :value="serviceData.labels[sKey]">
+                                    {{ serviceData.labels[sKey] }}
+                                </option>
+                            </optgroup>
+                        </select>
                     </div>
                     <div v-if="form.memberId && activePackages.length > 0" class="sm:col-span-2">
                         <label class="block text-xs font-medium text-orange-600 uppercase">{{ $t('appointments.form.usePackage') }}</label>
@@ -300,6 +307,8 @@ const selectedEvent = ref<any>(null);
 const viewType = ref<'calendar' | 'list'>('calendar');
 const activePackages = ref<any[]>([]);
 const currentSession = ref<any>(null);
+const serviceData = ref<any>({ categories: {}, labels: {} });
+const serviceTypes = ref<any[]>([]);
 
 // Filter state
 const dateFrom = ref('');
@@ -324,9 +333,25 @@ const form = ref({
 watch(() => form.value.memberId, async (newId) => {
     if (newId) {
         activePackages.value = await beautyService.getMemberPackages(newId);
+        // Try to auto-select package if service is already selected
+        if (form.value.serviceName) {
+            const matchingPkg = activePackages.value.find(p => p.serviceName === form.value.serviceName);
+            if (matchingPkg) form.value.servicePackageId = matchingPkg.id;
+        }
     } else {
         activePackages.value = [];
         form.value.servicePackageId = null;
+    }
+});
+
+watch(() => form.value.serviceName, (newName) => {
+    if (newName && form.value.memberId) {
+        const matchingPkg = activePackages.value.find(p => p.serviceName === newName);
+        if (matchingPkg) {
+            form.value.servicePackageId = matchingPkg.id;
+        } else {
+            form.value.servicePackageId = null;
+        }
     }
 });
 
@@ -348,8 +373,11 @@ onMounted(async () => {
     fetchAppointments();
     try {
         currentSession.value = await cashSessionsService.getCurrentSession();
+        const data = await beautyService.getServiceTypes();
+        serviceData.value = data;
+        serviceTypes.value = data.types;
     } catch (err) {
-        console.error('Kassa sessiyasini yuklashda xatolik:', err);
+        console.error('Initial data load error:', err);
     }
 });
 

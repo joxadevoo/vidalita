@@ -1,23 +1,43 @@
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-sky-50 to-blue-100 px-4">
-    <div class="w-full max-w-md">
-      <div class="rounded-xl border border-gray-200 bg-white shadow-xl">
-        <div class="px-6 py-8 sm:px-10 sm:py-12">
-          <!-- Logo yoki sarlavha -->
-          <div class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-gray-900">{{ $t('login.title') }}</h1>
-            <p class="mt-2 text-sm text-gray-500">{{ $t('login.subtitle') }}</p>
+  <div class="mesh-gradient-light dark:mesh-gradient-dark relative flex min-h-screen items-center justify-center overflow-hidden px-4">
+    <!-- Decorative background elements -->
+    <div class="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-sky-400/20 blur-3xl animate-float"></div>
+    <div class="absolute -right-20 -bottom-20 h-64 w-64 rounded-full bg-blue-400/20 blur-3xl animate-float" style="animation-delay: -3s"></div>
+
+    <div class="animate-fade-in-scale w-full max-w-md">
+      <div class="glass overflow-hidden rounded-2xl shadow-2xl backdrop-blur-xl transition-all duration-300">
+        <div class="px-8 py-10 sm:px-12 sm:py-14">
+          <!-- Header -->
+          <div class="mb-10 text-center">
+            <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-sky-600 text-white shadow-lg shadow-sky-600/30">
+              <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+              {{ $t('login.title') }}
+            </h1>
+            <p class="mt-3 text-base text-gray-500 dark:text-gray-400 font-medium">
+              {{ $t('login.subtitle') }}
+            </p>
           </div>
 
-          <!-- Xato xabari -->
-          <div v-if="error" class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {{ error }}
-          </div>
+          <!-- Error Message -->
+          <Transition name="fade">
+            <div v-if="error" class="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400 backdrop-blur-sm">
+              <div class="flex items-center gap-2">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ error }}</span>
+              </div>
+            </div>
+          </Transition>
 
           <!-- Login form -->
           <form @submit.prevent="handleLogin" class="space-y-6">
-            <div>
-              <label for="username" class="block text-sm font-medium text-gray-700">
+            <div class="group">
+              <label for="username" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors group-focus-within:text-sky-600">
                 {{ $t('login.username') }}
               </label>
               <input

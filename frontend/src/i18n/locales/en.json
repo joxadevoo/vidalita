@@ -44,20 +44,21 @@
     "barcode": "Barcode",
     "appointments": "Appointments",
     "pos": "Sales (POS)",
+    "sales": "Sales History",
     "cashier": "Cashier",
     "products": "Products",
     "inventory": "Inventory",
     "settings": "Settings",
     "expand": "Expand sidebar",
     "collapse": "Collapse sidebar",
+    "logout": "Logout",
     "copyright": "© {year} Vidalita"
   },
   "topbar": {
     "notifications": "Notifications",
     "admin": "Admin",
     "selectLanguage": "Select Language",
-    "menu": "Menu",
-    "logout": "Logout"
+    "menu": "Menu"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -68,6 +69,8 @@
     "activeMembers": "Active Members",
     "lastUpdated": "Last Updated",
     "recentCheckins": "Recent Check-ins",
+    "viewAll": "View All",
+    "recentBeauty": "Beauty Services",
     "lowStock": "Low Stock Products",
     "lowStockSubtext": "Restock recommended",
     "lowSessionPackages": "Low Session Packages",
@@ -323,7 +326,9 @@
     "daysRemaining": "{days} days remaining",
     "daysRemainingOne": "1 day remaining",
     "daysRemainingToday": "Expires today",
-    "noName": "No Name"
+    "noName": "No Name",
+    "from": "from",
+    "to": "to"
   },
   "beautyServices": {
     "title": "Beauty Services",
@@ -563,6 +568,26 @@
     "returnPolicy": "For returns, please contact us within 3 days.",
     "viewInvoice": "View Invoice"
   },
+  "sales": {
+    "title": "Sales History",
+    "subtitle": "History of all product and service sales",
+    "columns": {
+      "date": "Date",
+      "type": "Type",
+      "customer": "Customer",
+      "items": "Products/Services",
+      "total": "Total",
+      "method": "Method",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "typePos": "Product (POS)",
+    "typeService": "Service",
+    "filter": "Filter",
+    "searchPlaceholder": "Search by customer name...",
+    "noSales": "No sales yet",
+    "noInvoice": "No invoice"
+  },
   "appointments": {
     "title": "Appointments",
     "subtitle": "Service and events calendar",
@@ -578,6 +603,15 @@
       "staffRoom": "Staff / Room",
       "service": "Service"
     },
+    "stats": {
+      "today": "Today's Appointments",
+      "pending": "Pending"
+    },
+    "dateFrom": "From",
+    "dateTo": "To",
+    "todayOnly": "Today Only",
+    "resetFilters": "Reset Filters",
+    "searchPlaceholder": "Search by name, phone or service...",
     "form": {
       "memberOptional": "Member (optional)",
       "guestOption": "Guest (not registered)",
@@ -621,6 +655,9 @@
     "printReport": "Print Report",
     "dailyReport": "Daily Report",
     "selectRange": "Select Date Range",
+    "xReport": "X-Report (Interim)",
+    "zReport": "Z-Report (Close Shift)",
+    "zReportWarning": "Are you sure? This will close the shift and reset totals!",
     "breakdownPOS": "POS Sales",
     "breakdownBeauty": "Beauty Services",
     "breakdownPackages": "Service Packages"

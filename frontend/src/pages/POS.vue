@@ -141,6 +141,33 @@
                         :class="paymentMethod === 'CARD' ? 'bg-sky-600 text-white' : 'bg-white text-gray-600 border border-gray-200'"
                         class="px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm"
                     >{{ $t('pos.card') }}</button>
+                    <button 
+                        @click="paymentMethod = 'MIXED'" 
+                        :class="paymentMethod === 'MIXED' ? 'bg-orange-500 text-white' : 'bg-white text-gray-600 border border-gray-200'"
+                        class="col-span-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm"
+                    >{{ $t('pos.mixed') }}</button>
+                </div>
+            </div>
+
+            <!-- Split Payment Details -->
+            <div v-if="paymentMethod === 'MIXED'" class="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.cashAmount') }}</label>
+                    <input
+                        v-model.number="cashAmount"
+                        type="number"
+                        class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white font-bold"
+                        @input="updateSplit('CASH')"
+                    />
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.cardAmount') }}</label>
+                    <input
+                        v-model.number="cardAmount"
+                        type="number"
+                        class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white font-bold"
+                        @input="updateSplit('CARD')"
+                    />
                 </div>
             </div>
 
@@ -181,7 +208,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { productsService, membersService, salesService, cashSessionsService } from '../services/supabaseService';
 import { useI18n } from 'vue-i18n';
 import InvoiceModal from '../components/InvoiceModal.vue';
@@ -196,7 +223,9 @@ const members = ref<any[]>([]);
 const cart = ref<any[]>([]);
 const selectedMemberId = ref<number | null>(null);
 const customerName = ref('');
-const paymentMethod = ref<'CASH' | 'CARD'>('CASH');
+const paymentMethod = ref<'CASH' | 'CARD' | 'MIXED'>('CASH');
+const cashAmount = ref(0);
+const cardAmount = ref(0);
 const manualDiscountPercent = ref(0);  // Manual discount input
 const processing = ref(false);
 
@@ -285,6 +314,29 @@ const cartTotal = computed(() => {
     return subtotal;
 });
 
+const updateSplit = (source: 'CASH' | 'CARD') => {
+    const total = cartTotal.value;
+    if (source === 'CASH') {
+        cardAmount.value = Math.max(0, total - cashAmount.value);
+    } else {
+        cashAmount.value = Math.max(0, total - cardAmount.value);
+    }
+};
+
+watch(paymentMethod, (newMethod) => {
+    if (newMethod === 'MIXED') {
+        cashAmount.value = cartTotal.value;
+        cardAmount.value = 0;
+    }
+});
+
+watch(cartTotal, (newTotal) => {
+    if (paymentMethod.value === 'MIXED') {
+        cashAmount.value = newTotal;
+        cardAmount.value = 0;
+    }
+});
+
 const formatCurrency = (val: number) => {
     return new Intl.NumberFormat(t('locale') || 'uz-UZ').format(val);
 };
@@ -311,6 +363,8 @@ const checkout = async () => {
             memberId: selectedMemberId.value,
             customerName: customerName.value.trim(),
             totalAmount: cartTotal.value,
+            cashAmount: paymentMethod.value === 'MIXED' ? cashAmount.value : (paymentMethod.value === 'CASH' ? cartTotal.value : 0),
+            cardAmount: paymentMethod.value === 'MIXED' ? cardAmount.value : (paymentMethod.value === 'CARD' ? cartTotal.value : 0),
             paymentMethod: paymentMethod.value,
             cashSessionId: currentSession.value.id,
             items: cart.value.map(i => ({

@@ -44,20 +44,21 @@
     "barcode": "Штрих-код",
     "appointments": "Записи",
     "pos": "Продажи (POS)",
+    "sales": "История продаж",
     "cashier": "Касса",
     "products": "Товары",
     "inventory": "Склад",
     "settings": "Настройки",
     "expand": "Развернуть боковую панель",
     "collapse": "Свернуть боковую панель",
+    "logout": "Выйти",
     "copyright": "© {year} Vidalita"
   },
   "topbar": {
     "notifications": "Уведомления",
     "admin": "Администратор",
     "selectLanguage": "Выбрать язык",
-    "menu": "Меню",
-    "logout": "Выйти"
+    "menu": "Меню"
   },
   "dashboard": {
     "title": "Панель управления",
@@ -325,6 +326,8 @@
     "memberInfo": "Информация об участнике",
     "allCheckins": "Все входы",
     "totalCheckins": "Всего входов",
+    "from": "с",
+    "to": "по",
     "dateRange": "Диапазон дат"
   },
   "beautyServices": {
@@ -553,6 +556,26 @@
     "thankYou": "Спасибо за покупку!",
     "returnPolicy": "Для возврата обратитесь к нам в течение 3 дней.",
     "viewInvoice": "Просмотр счёта"
+  },
+  "sales": {
+    "title": "История продаж",
+    "subtitle": "История всех продаж товаров и услуг",
+    "columns": {
+      "date": "Дата",
+      "type": "Тип",
+      "customer": "Клиент",
+      "items": "Товары/Услуги",
+      "total": "Итого",
+      "method": "Метод",
+      "status": "Статус",
+      "actions": "Действия"
+    },
+    "typePos": "Товар (POS)",
+    "typeService": "Услуга",
+    "filter": "Фильтр",
+    "searchPlaceholder": "Поиск по имени клиента...",
+    "noSales": "Продаж пока нет",
+    "noInvoice": "Нет счета"
   },
   "appointments": {
     "title": "Записи",

@@ -46,19 +46,20 @@
     "settings": "Sozlamalar",
     "appointments": "Uchrashuvlar",
     "pos": "Sotuv (POS)",
+    "sales": "Sotuvlar tarixi",
     "cashier": "Kassa",
     "products": "Mahsulotlar",
     "inventory": "Ombor",
     "expand": "Sidebar'ni kengaytirish",
     "collapse": "Sidebar'ni kichiklashtirish",
+    "logout": "Chiqish",
     "copyright": "© {year} Vidalita"
   },
   "topbar": {
     "notifications": "Bildirishnomalar",
     "admin": "Admin",
     "selectLanguage": "Tilni tanlash",
-    "menu": "Menyu",
-    "logout": "Chiqish"
+    "menu": "Menyu"
   },
   "dashboard": {
     "title": "Boshqaruv paneli",
@@ -192,6 +193,7 @@
     "updateMember": "Yangilash",
     "required": "majburiy",
     "error": "Saqlashda xatolik yuz berdi",
+    "errorPhoneExists": "Bu raqam band: {name}",
     "errorLoading": "Ma'lumotlarni yuklashda xatolik",
     "success": "A'zo muvaffaqiyatli qo'shildi",
     "updateSuccess": "A'zo muvaffaqiyatli yangilandi ✅",
@@ -438,6 +440,8 @@
   "scanner": {
     "title": "Barcode Skaneri",
     "subtitle": "Kamera orqali barkod skanerlash va a'zoni qidirish",
+    "camera": "Kamera",
+    "manual": "Qo'lda kiritish",
     "cameraScanner": "Kamera Skaneri",
     "cameraScannerSubtitle": "Kamera orqali real-time skanerlash",
     "cameraNotStarted": "Skanerni boshlash uchun tugmani bosing",
@@ -567,6 +571,9 @@
     "guest": "Mehmon",
     "cash": "Naqd",
     "card": "Karta",
+    "mixed": "Aralash (Naqd+Karta)",
+    "cashAmount": "Naqd summa",
+    "cardAmount": "Karta summasi",
     "processing": "Bajarilmoqda...",
     "errorOutOfStock": "Mahsulot qoldig'i yo'q!",
     "errorNoMoreStock": "Omborda boshqa qolmagan!",
@@ -647,6 +654,42 @@
     "todayOnly": "Faqat bugun",
     "resetFilters": "Filterni tozalash",
     "searchPlaceholder": "Ism, telefon yoki xizmat bo'yicha qidirish..."
+  },
+  "sales": {
+    "title": "Sotuvlar tarixi",
+    "subtitle": "Barcha mahsulot va xizmatlar sotuvi tarixi",
+    "columns": {
+      "date": "Sana",
+      "type": "Turi",
+      "customer": "Mijoz",
+      "items": "Mahsulotlar/Xizmatlar",
+      "total": "Jami",
+      "method": "To'lov",
+      "status": "Holat",
+      "actions": "Amallar"
+    },
+    "typePos": "Mahsulot (POS)",
+    "typeService": "Xizmat",
+    "filter": "Filtr",
+    "searchPlaceholder": "Mijoz ismi bo'yicha qidirish...",
+    "noSales": "Hozircha sotuvlar yo'q",
+    "noInvoice": "Faktura yo'q",
+    "summary": "Umumiy ma'lumot",
+    "cashTotal": "Naqd",
+    "cardTotal": "Karta (Terminal)",
+    "posTotal": "Mahsulotlar",
+    "serviceTotal": "Xizmatlar",
+    "totalVolume": "Umumiy hajm",
+    "tabs": {
+      "all": "Barchasi",
+      "pos": "Fakturalar (POS)",
+      "beauty": "Xizmatlar"
+    },
+    "exportPdf": "PDF Export",
+    "month": {
+      "thisMonth": "Shu oy",
+      "lastMonth": "O'tgan oy"
+    }
   },
   "cashier": {
     "title": "Kassa",

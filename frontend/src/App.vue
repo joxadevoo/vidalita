@@ -5,7 +5,7 @@
   </div>
   
   <!-- Boshqa sahifalar - sidebar va topbar bilan -->
-  <div v-else class="min-h-screen bg-gray-50 print:min-h-0">
+  <div v-else class="min-h-screen mesh-gradient transition-all duration-500 print:min-h-0">
     <Sidebar 
       :is-open="sidebarOpen" 
       :collapsed="sidebarCollapsed"

@@ -90,6 +90,8 @@ export const mapSaleToCamelCase = (s: any) => {
         member: s.members ? { fullName: s.members.fullname, phone: s.members.phone } : null,
         totalAmount: s.total_amount,
         discountAmount: s.discount_amount,
+        cashAmount: s.cash_amount || 0,
+        cardAmount: s.card_amount || 0,
         paymentStatus: s.payment_status,
         paymentMethod: s.payment_method,
         cashSessionId: s.cash_session_id,

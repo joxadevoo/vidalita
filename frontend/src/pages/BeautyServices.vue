@@ -257,6 +257,32 @@
                 <input type="radio" v-model="form.paymentMethod" value="CARD" class="text-sky-600 focus:ring-sky-500" />
                 <span class="text-sm text-gray-700">{{ $t('pos.card') }}</span>
               </label>
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="radio" v-model="form.paymentMethod" value="MIXED" class="text-orange-500 focus:ring-sky-500" />
+                <span class="text-sm text-gray-700">{{ $t('pos.mixed') }}</span>
+              </label>
+            </div>
+
+            <!-- Split Payment Details -->
+            <div v-if="form.paymentMethod === 'MIXED'" class="grid grid-cols-2 gap-4 mt-3 animate-in fade-in slide-in-from-top-2">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.cashAmount') }}</label>
+                    <input
+                        v-model.number="form.cashAmount"
+                        type="number"
+                        class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white font-bold"
+                        @input="updateSplit('CASH')"
+                    />
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.cardAmount') }}</label>
+                    <input
+                        v-model.number="form.cardAmount"
+                        type="number"
+                        class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white font-bold"
+                        @input="updateSplit('CARD')"
+                    />
+                </div>
             </div>
           </div>
 
@@ -427,7 +453,9 @@ const form = ref({
   actionType: 'service', // 'service', 'package', 'use'
   totalSessions: 10,
   selectedPackageId: '',
-  paymentMethod: 'CASH'
+  paymentMethod: 'CASH',
+  cashAmount: 0,
+  cardAmount: 0
 })
 
 const activePackages = ref<any[]>([])
@@ -694,6 +722,29 @@ const calculatedPrice = computed(() => {
   return originalPrice - discountAmount
 })
 
+const updateSplit = (source: 'CASH' | 'CARD') => {
+    const total = calculatedPrice.value || 0;
+    if (source === 'CASH') {
+        form.value.cardAmount = Math.max(0, total - form.value.cashAmount);
+    } else {
+        form.value.cashAmount = Math.max(0, total - form.value.cardAmount);
+    }
+};
+
+watch(() => form.value.paymentMethod, (newMethod) => {
+    if (newMethod === 'MIXED') {
+        form.value.cashAmount = calculatedPrice.value || 0;
+        form.value.cardAmount = 0;
+    }
+});
+
+watch(calculatedPrice, (newTotal) => {
+    if (form.value.paymentMethod === 'MIXED') {
+        form.value.cashAmount = newTotal || 0;
+        form.value.cardAmount = 0;
+    }
+});
+
 // Member selection
 const members = ref<Member[]>([])
 const memberSearch = ref('')
@@ -780,6 +831,8 @@ const addToBasket = () => {
     ...form.value,
     serviceNameLabel,
     finalAmount,
+    cashAmount: form.value.paymentMethod === 'MIXED' ? form.value.cashAmount : (form.value.paymentMethod === 'CASH' ? finalAmount : 0),
+    cardAmount: form.value.paymentMethod === 'MIXED' ? form.value.cardAmount : (form.value.paymentMethod === 'CARD' ? finalAmount : 0),
     memberId: selectedMember.value.id,
     memberName: selectedMember.value.fullName
   })
@@ -791,6 +844,8 @@ const addToBasket = () => {
   form.value.totalSessions = 10
   form.value.selectedPackageId = ''
   form.value.paymentMethod = 'CASH'
+  form.value.cashAmount = 0
+  form.value.cardAmount = 0
   formError.value = null
 }
 
@@ -808,7 +863,9 @@ const closeModal = () => {
     actionType: 'service',
     totalSessions: 10,
     selectedPackageId: '',
-    paymentMethod: 'CASH'
+    paymentMethod: 'CASH',
+    cashAmount: 0,
+    cardAmount: 0
   }
   selectedMember.value = null
   memberSearch.value = ''
@@ -868,6 +925,8 @@ const handleSubmit = async () => {
           serviceName: item.serviceNameLabel,
           serviceDate: item.serviceDate ? new Date(item.serviceDate).toISOString() : undefined,
           amount: item.finalAmount > 0 ? item.finalAmount : undefined,
+          cashAmount: item.cashAmount,
+          cardAmount: item.cardAmount,
           discountPercent: item.discountPercent > 0 ? item.discountPercent : undefined,
           cashSessionId: currentSession.value?.id || undefined,
           paymentMethod: item.paymentMethod,
@@ -881,6 +940,9 @@ const handleSubmit = async () => {
           serviceType: item.serviceName,
           serviceName: item.serviceNameLabel,
           totalSessions: item.totalSessions,
+          price: item.finalAmount,
+          cashAmount: item.cashAmount,
+          cardAmount: item.cardAmount,
           cashSessionId: currentSession.value?.id || undefined,
           paymentMethod: item.paymentMethod,
           notes: item.note.trim() || undefined

@@ -1,6 +1,6 @@
 <template>
   <header 
-    class="fixed top-0 right-0 z-[110] flex h-16 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8 transition-all duration-300 no-print"
+    class="fixed top-0 right-0 z-[110] flex h-16 items-center gap-x-4 glass px-4 transition-all duration-500 no-print"
     :style="headerStyle"
   >
     <!-- Mobile menu button (faqat mobile'da) -->
@@ -16,7 +16,7 @@
       <!-- Theme toggle -->
       <button
         @click="toggleTheme"
-        class="rounded-lg border border-gray-200 bg-white p-2 text-gray-600 hover:bg-gray-50 transition-colors"
+        class="glass rounded-lg p-2 text-black dark:text-white hover:bg-sky-600/10 transition-colors"
         :title="isDark ? 'Light mode' : 'Dark mode'"
       >
         <SunIcon v-if="isDark" class="h-5 w-5" />
@@ -27,18 +27,18 @@
       <div class="relative language-selector">
         <button 
           @click="showLangDropdown = !showLangDropdown"
-          class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          class="flex items-center gap-2 rounded-lg glass px-3 py-2 text-sm font-bold text-black dark:text-white hover:bg-sky-600/10 transition-colors"
           :title="$t('topbar.selectLanguage')"
         >
-          <GlobeAltIcon class="h-5 w-5 text-gray-600" />
+          <GlobeAltIcon class="h-5 w-5 text-gray-800 dark:text-gray-300" />
           <span class="hidden sm:inline">{{ currentLanguage.code.toUpperCase() }}</span>
-          <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
         <div 
           v-if="showLangDropdown"
-          class="absolute right-0 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg z-50"
+          class="absolute right-0 mt-2 w-48 rounded-lg glass z-[120] overflow-hidden"
         >
           <div class="py-1">
             <button
@@ -46,8 +46,8 @@
               :key="lang.code"
               @click="setLocale(lang.code)"
               :class="[
-                'w-full flex items-center gap-3 px-4 py-2 text-sm text-left hover:bg-gray-50 transition-colors',
-                currentLocale === lang.code ? 'bg-sky-50 text-sky-700' : 'text-gray-700'
+                'w-full flex items-center gap-3 px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-bold',
+                currentLocale === lang.code ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-800 dark:text-sky-400' : 'text-gray-800 dark:text-gray-300'
               ]"
             >
               <GlobeAltIcon class="h-4 w-4 text-gray-500" />
@@ -63,12 +63,12 @@
       <div class="relative">
         <button 
           @click="showUserMenu = !showUserMenu"
-          class="flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 hover:bg-gray-200 transition-colors"
+          class="flex items-center gap-2 rounded-full glass px-3 py-1 hover:bg-sky-600/10 transition-colors"
         >
-          <span class="h-8 w-8 rounded-full bg-sky-500 text-white flex items-center justify-center text-sm font-semibold">A</span>
+          <span class="h-8 w-8 rounded-full bg-sky-600 text-white flex items-center justify-center text-sm font-black shadow-sm">A</span>
           <div class="hidden sm:block text-left">
-            <div class="text-sm font-medium text-gray-700">{{ currentUser?.username || $t('topbar.admin') }}</div>
-            <div class="text-xs text-gray-400">{{ currentUser?.role || 'admin' }}</div>
+            <div class="text-sm font-black text-black dark:text-white">{{ currentUser?.username || $t('topbar.admin') }}</div>
+            <div class="text-[10px] font-bold uppercase tracking-wider text-gray-600">{{ currentUser?.role || 'admin' }}</div>
           </div>
           <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -76,7 +76,7 @@
         </button>
         <div 
           v-if="showUserMenu"
-          class="absolute right-0 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg z-50"
+          class="absolute right-0 mt-2 w-48 rounded-lg glass z-[120] overflow-hidden"
         >
           <div class="py-1">
             <button
@@ -86,7 +86,7 @@
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-              <span>{{ $t('topbar.logout') }}</span>
+              <span>{{ $t('sidebar.logout') }}</span>
             </button>
           </div>
         </div>

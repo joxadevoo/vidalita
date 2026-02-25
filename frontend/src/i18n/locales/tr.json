@@ -51,14 +51,14 @@
     "settings": "Ayarlar",
     "expand": "Kenar çubuğunu genişlet",
     "collapse": "Kenar çubuğunu küçült",
+    "logout": "Çıkış",
     "copyright": "© {year} Vidalita"
   },
   "topbar": {
     "notifications": "Bildirimler",
     "admin": "Yönetici",
     "selectLanguage": "Dil seç",
-    "menu": "Menü",
-    "logout": "Çıkış"
+    "menu": "Menü"
   },
   "dashboard": {
     "title": "Kontrol Paneli",

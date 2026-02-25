@@ -32,6 +32,17 @@ export const membersService = {
     },
 
     async create(memberData: any) {
+        // Validation: Check if phone already exists
+        const { data: existing } = await supabase
+            .from('members')
+            .select('id, fullname')
+            .eq('phone', memberData.phone)
+            .maybeSingle();
+
+        if (existing) {
+            throw new Error(`Ushbu telefon raqami (+${memberData.phone}) bilan a'zo allaqachon ro'yxatdan o'tgan: ${existing.fullname}`);
+        }
+
         const { data, error } = await supabase
             .from('members')
             .insert({
@@ -56,7 +67,11 @@ export const membersService = {
             console.error('Supabase member creation error:', error);
             throw error;
         }
-        return mappings.mapMemberToCamelCase(data);
+        const result = mappings.mapMemberToCamelCase(data);
+        if (result) {
+            await auditLogsService.log('MEMBER_CREATE', result.id.toString(), { fullName: result.fullName });
+        }
+        return result;
     },
 
     async update(id: number | string, memberData: any) {
@@ -88,6 +103,7 @@ export const membersService = {
     async delete(id: number | string) {
         const { error } = await supabase.from('members').delete().eq('id', id);
         if (error) throw error;
+        await auditLogsService.log('MEMBER_DELETE', id.toString());
         return true;
     },
 
@@ -184,6 +200,7 @@ export const checkinsService = {
     async delete(id: number | string) {
         const { error } = await supabase.from('checkins').delete().eq('id', id);
         if (error) throw error;
+        await auditLogsService.log('CHECKIN_DELETE', id.toString());
         return true;
     },
 
@@ -228,7 +245,11 @@ export const checkinsService = {
             .single();
 
         if (error) throw error;
-        return mappings.mapCheckinToCamelCase(data);
+        const result = mappings.mapCheckinToCamelCase(data);
+        if (result) {
+            await auditLogsService.log('CHECKIN_ADD', member.id.toString(), { fullName: member.fullname });
+        }
+        return result;
     }
 };
 
@@ -261,6 +282,8 @@ export const beautyService = {
                 servicename: payload.serviceName,
                 servicedate: payload.serviceDate,
                 amount: payload.amount,
+                cash_amount: payload.cashAmount || 0,
+                card_amount: payload.cardAmount || 0,
                 discountpercent: payload.discountPercent,
                 cash_session_id: payload.cashSessionId,
                 payment_method: payload.paymentMethod,
@@ -269,7 +292,11 @@ export const beautyService = {
             .select('*, members(fullname, phone)')
             .single();
         if (error) throw error;
-        return mappings.mapBeautyServiceToCamelCase(data);
+        const result = mappings.mapBeautyServiceToCamelCase(data);
+        if (result) {
+            await auditLogsService.log('BEAUTY_SERVICE_ADD', result.id.toString(), { serviceName: result.serviceName });
+        }
+        return result;
     },
 
     async delete(id: number | string) {
@@ -299,6 +326,9 @@ export const beautyService = {
                 service_name: payload.serviceName,
                 total_sessions: payload.totalSessions,
                 remaining_sessions: payload.totalSessions,
+                price: payload.price || 0,
+                cash_amount: payload.cashAmount || 0,
+                card_amount: payload.cardAmount || 0,
                 cash_session_id: payload.cashSessionId,
                 payment_method: payload.paymentMethod,
                 notes: payload.notes
@@ -306,59 +336,31 @@ export const beautyService = {
             .select()
             .single();
         if (error) throw error;
-        return mappings.mapServicePackageToCamelCase(data);
+        const result = mappings.mapServicePackageToCamelCase(data);
+        if (result) {
+            await auditLogsService.log('PACKAGE_ADD', result.id.toString(), { serviceName: result.serviceName });
+        }
+        return result;
     },
 
     async usePackageSession(packageId: number | string, serviceDate?: string, appointmentId?: number | string, cashSessionId?: number) {
-        // 1. Paketni tekshirish
-        const { data: pkg, error: pkgError } = await supabase
-            .from('service_packages')
-            .select('*')
-            .eq('id', packageId)
-            .single();
+        const { data, error } = await supabase.rpc('use_package_session_atomic', {
+            p_package_id: packageId,
+            p_appointment_id: appointmentId || null,
+            p_service_date: serviceDate || new Date().toISOString(),
+            p_cash_session_id: cashSessionId || null
+        });
 
-        if (pkgError) throw pkgError;
-        if (pkg.remaining_sessions <= 0) throw new Error('Seanslar tugagan');
+        if (error) {
+            console.error('RPC Error:', error);
+            throw error;
+        }
 
-        // 2. Seanslar sonini kamaytirish
-        const { error: updateError } = await supabase
-            .from('service_packages')
-            .update({
-                remaining_sessions: pkg.remaining_sessions - 1,
-                is_active: pkg.remaining_sessions - 1 > 0
-            })
-            .eq('id', packageId);
+        if (!data.success) {
+            throw new Error(data.message || 'Seansdan foydalanishda xatolik');
+        }
 
-        if (updateError) throw updateError;
-
-        // 3. Log yaratish
-        const { error: logError } = await supabase
-            .from('package_usage_log')
-            .insert({
-                package_id: packageId,
-                appointment_id: appointmentId || null,
-                used_at: serviceDate || new Date().toISOString()
-            });
-
-        if (logError) throw logError;
-
-        // 4. Xizmatlar tarixiga ham qo'shish (reporting uchun)
-        const { data: service, error: serviceError } = await supabase
-            .from('beauty_services')
-            .insert({
-                memberid: pkg.member_id,
-                servicetype: pkg.service_type,
-                servicename: pkg.service_name,
-                servicedate: serviceDate || new Date().toISOString(),
-                amount: 0,
-                note: `Paketdan foydalanildi (ID: ${packageId})`,
-                cash_session_id: cashSessionId || null
-            })
-            .select()
-            .single();
-
-        if (serviceError) throw serviceError;
-        return mappings.mapBeautyServiceToCamelCase(service);
+        return data.service_record;
     },
 
     async getServiceTypes() {
@@ -774,6 +776,67 @@ export const authService = {
                 role: data.role || 'admin'
             }
         };
+    },
+
+    async createUser(userData: { username: string, password: string, role: string }) {
+        const { data, error } = await supabase
+            .from('users')
+            .insert({
+                username: userData.username,
+                password: userData.password,
+                role: userData.role
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        await auditLogsService.log('USER_CREATE', data.id.toString(), { username: data.username, role: data.role });
+        return data;
+    },
+
+    async deleteUser(userId: string | number) {
+        const { error } = await supabase
+            .from('users')
+            .delete()
+            .eq('id', userId);
+
+        if (error) throw error;
+
+        await auditLogsService.log('USER_DELETE', userId.toString());
+        return true;
+    }
+};
+
+export const auditLogsService = {
+    async log(action: string, targetId?: string, details?: any) {
+        const userStr = localStorage.getItem('user');
+        const user = userStr ? JSON.parse(userStr) : null;
+
+        const { error } = await supabase
+            .from('audit_logs')
+            .insert({
+                user_id: user?.id,
+                performer_name: user?.username,
+                action,
+                target_id: targetId,
+                details
+            });
+
+        if (error) {
+            console.error('Audit log error:', error);
+            // We don't throw here to avoid blocking the main action
+        }
+    },
+
+    async getAll() {
+        const { data, error } = await supabase
+            .from('audit_logs')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(100);
+        if (error) throw error;
+        return data;
     }
 };
 
@@ -865,7 +928,7 @@ export const productsService = {
             .select()
             .single();
         if (error) throw error;
-
+        await auditLogsService.log('PRODUCT_CREATE', data.id.toString(), { name: data.name });
         await supabase.from('inventory_stock').insert({ product_id: data.id, quantity_on_hand: 0 });
         return mappings.mapProductToCamelCase(data);
     },
@@ -894,12 +957,14 @@ export const productsService = {
             .select()
             .single();
         if (error) throw error;
+        await auditLogsService.log('PRODUCT_UPDATE', id.toString(), { name: data.name });
         return mappings.mapProductToCamelCase(data);
     },
 
     async delete(id: number | string) {
         const { error } = await supabase.from('products').update({ is_active: false }).eq('id', id);
         if (error) throw error;
+        await auditLogsService.log('PRODUCT_DELETE', id.toString());
         return true;
     }
 };
@@ -939,6 +1004,7 @@ export const inventoryService = {
             .from('inventory_stock')
             .upsert({ product_id: payload.productId, quantity_on_hand: newTotal, updated_at: new Date().toISOString() });
         if (stockError) throw stockError;
+        await auditLogsService.log('STOCK_IN', payload.productId.toString(), { qty: payload.qty, reason: payload.reason });
         return newTotal;
     },
 
@@ -983,6 +1049,8 @@ export const salesService = {
             .insert({
                 member_id: saleData.memberId || null,
                 total_amount: saleData.totalAmount,
+                cash_amount: saleData.cashAmount || 0,
+                card_amount: saleData.cardAmount || 0,
                 discount_amount: saleData.discountAmount || 0,
                 payment_method: saleData.paymentMethod,
                 payment_status: saleData.paymentStatus || 'PAID',
@@ -1016,13 +1084,14 @@ export const salesService = {
                 reference_id: sale.id
             });
         }
+        await auditLogsService.log('SALE_CREATE', sale.id.toString(), { totalAmount: sale.total_amount });
         return sale;
     },
 
     async getAllSales() {
         const { data, error } = await supabase
             .from('sales')
-            .select('*, members(fullname, phone)')
+            .select('*, members(fullname, phone), sale_items(*, products(name, brand, sku))')
             .order('created_at', { ascending: false });
         if (error) throw error;
         return data.map(mappings.mapSaleToCamelCase);
@@ -1089,7 +1158,11 @@ export const appointmentsService = {
             .select()
             .single();
         if (error) throw error;
-        return mappings.mapAppointmentToCamelCase(created);
+        const result = mappings.mapAppointmentToCamelCase(created);
+        if (result) {
+            await auditLogsService.log('APPOINTMENT_CREATE', result.id.toString(), { serviceName: result.serviceName });
+        }
+        return result;
     },
 
     async updateStatus(id: string, status: string) {

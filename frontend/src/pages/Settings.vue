@@ -132,14 +132,133 @@
         </div>
       </div>
     </div>
+    
+    <!-- Users & Roles Management (Admin Only) -->
+    <div v-if="userRole === 'admin'" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+      <div class="border-b border-gray-100 px-6 py-4 flex items-center gap-2">
+        <UserGroupIcon class="h-5 w-5 text-sky-600" />
+        <h3 class="text-lg font-semibold text-gray-900">Tizim Foydalanuvchilari va Rollar</h3>
+      </div>
+      <div class="px-6 py-6 overflow-x-auto">
+        <!-- New User Form -->
+        <div class="mb-8 rounded-lg bg-gray-50 dark:bg-slate-800/50 p-4 border border-gray-100 dark:border-slate-700">
+           <h4 class="text-xs font-black uppercase text-gray-400 mb-4 tracking-widest">Yangi Foydalanuvchi Qo'shish</h4>
+           <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <input 
+                v-model="newUser.username" 
+                type="text" 
+                placeholder="Username" 
+                class="rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
+              />
+              <input 
+                v-model="newUser.password" 
+                type="text" 
+                placeholder="Parol" 
+                class="rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
+              />
+              <select 
+                v-model="newUser.role" 
+                class="rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
+              >
+                <option value="reception">Reception</option>
+                <option value="manager">Menejer</option>
+                <option value="admin">Admin</option>
+              </select>
+              <button 
+                @click="createUser" 
+                :disabled="creatingUser || !newUser.username || !newUser.password"
+                class="rounded-lg bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 disabled:opacity-50 transition-colors shadow-lg shadow-sky-600/20"
+              >
+                <span v-if="!creatingUser">Qo'shish</span>
+                <span v-else>Qo'shilmoqda...</span>
+              </button>
+           </div>
+        </div>
 
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="border-b border-gray-100 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+              <th class="py-3 px-2">Foydalanuvchi</th>
+              <th class="py-3 px-2">Rol</th>
+              <th class="py-3 px-2 text-right">Amallar</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50 text-gray-900 dark:text-gray-100">
+            <tr v-for="u in systemUsers" :key="u.id" class="hover:bg-gray-50 transition-colors">
+              <td class="py-3 px-2 font-bold">{{ u.username }}</td>
+              <td class="py-3 px-2">
+                <select 
+                  v-model="u.role" 
+                  class="rounded border border-gray-200 bg-white dark:bg-slate-800 px-2 py-1 text-xs font-semibold focus:border-sky-500 focus:outline-none"
+                  @change="updateUserRole(u.id, u.role)"
+                >
+                  <option value="admin">Admin</option>
+                  <option value="manager">Menejer</option>
+                  <option value="reception">Reception</option>
+                </select>
+              </td>
+              <td class="py-3 px-2 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <span v-if="u.id === currentUser?.id" class="text-[10px] font-black text-sky-600 bg-sky-50 px-2 py-1 rounded-full uppercase">Siz</span>
+                  <button 
+                    v-else
+                    @click="deleteUser(u)"
+                    class="p-1.5 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
+                    title="Foydalanuvchini o'chirish"
+                  >
+                    <TrashIcon class="h-4 w-4" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div v-if="usersLoading" class="mt-4 text-center text-sm text-gray-400 italic">Yuklanmoqda...</div>
+      </div>
+    </div>
+
+    <!-- Audit Logs (Admin Only) -->
+    <div v-if="userRole === 'admin'" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+      <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+           <ClipboardDocumentListIcon class="h-5 w-5 text-sky-600" />
+           <h3 class="text-lg font-semibold text-gray-900">Audit Loglari</h3>
+        </div>
+        <button @click="loadAuditLogs" class="text-xs font-bold text-sky-600 hover:text-sky-700 transition-colors">Yangilash</button>
+      </div>
+      <div class="px-6 py-6 overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="border-b border-gray-100 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+              <th class="py-3 px-2">Sana</th>
+              <th class="py-3 px-2">Foydalanuvchi</th>
+              <th class="py-3 px-2">Amal</th>
+              <th class="py-3 px-2">Target ID</th>
+              <th class="py-3 px-2">Tafsilotlar</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50 text-gray-900 dark:text-gray-100">
+            <tr v-for="log in auditLogs" :key="log.id" class="hover:bg-gray-50 transition-colors">
+              <td class="py-3 px-2 whitespace-nowrap text-gray-500">{{ new Date(log.created_at).toLocaleString() }}</td>
+              <td class="py-3 px-2 font-medium">{{ log.performer_name || 'System' }}</td>
+              <td class="py-3 px-2 font-bold">{{ log.action }}</td>
+              <td class="py-3 px-2 text-gray-500">{{ log.target_id || '—' }}</td>
+              <td class="py-3 px-2 max-w-xs truncate">{{ log.details || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div v-if="logsLoading" class="mt-4 text-center text-sm text-gray-400 italic">Yuklanmoqda...</div>
+        <div v-else-if="auditLogs.length === 0" class="py-6 text-center text-sm text-gray-400">Loglar yo‘q</div>
+      </div>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { GlobeAltIcon } from '@heroicons/vue/24/outline'
+import { GlobeAltIcon, UserGroupIcon, ClipboardDocumentListIcon, UserPlusIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import { supabase } from '../lib/supabase'
+import { auditLogsService, authService } from '../services/supabaseService'
 
 const { locale } = useI18n()
 const currentLocale = computed(() => locale.value)
@@ -165,6 +284,88 @@ const creatingRoom = ref(false)
 const newStaffName = ref('')
 const newStaffRole = ref('')
 const newRoomName = ref('')
+
+// RBAC
+const currentUser = computed(() => {
+  const userStr = localStorage.getItem('user')
+  return userStr ? JSON.parse(userStr) : null
+})
+const userRole = computed(() => currentUser.value?.role || 'reception')
+
+const systemUsers = ref<any[]>([])
+const usersLoading = ref(false)
+const creatingUser = ref(false)
+const newUser = reactive({
+  username: '',
+  password: '',
+  role: 'reception'
+})
+
+const loadSystemUsers = async () => {
+  if (userRole.value !== 'admin') return
+  usersLoading.value = true
+  try {
+    const { data, error } = await supabase.from('users').select('id, username, role').order('username')
+    if (error) throw error
+    systemUsers.value = data || []
+  } finally {
+    usersLoading.value = false
+  }
+}
+
+const updateUserRole = async (userId: string, newRole: string) => {
+  const { error } = await supabase.from('users').update({ role: newRole }).eq('id', userId)
+  if (!error) {
+    await auditLogsService.log('USER_ROLE_UPDATE', userId, { newRole })
+  }
+}
+
+const createUser = async () => {
+  if (!newUser.username || !newUser.password) return
+  creatingUser.value = true
+  try {
+    await authService.createUser({
+      username: newUser.username,
+      password: newUser.password,
+      role: newUser.role
+    })
+    newUser.username = ''
+    newUser.password = ''
+    newUser.role = 'reception'
+    await loadSystemUsers()
+    await loadAuditLogs() // Refresh logs too
+  } catch (err: any) {
+    alert('Foydalanuvchi qo\'shishda xatolik: ' + err.message)
+  } finally {
+    creatingUser.value = false
+  }
+}
+
+const deleteUser = async (u: any) => {
+  if (u.id === currentUser.value?.id) return
+  if (!confirm(`Haqiqatan ham "${u.username}" foydalanuvchisini o'chirmoqchimisiz?`)) return
+  
+  try {
+    await authService.deleteUser(u.id)
+    await loadSystemUsers()
+    await loadAuditLogs()
+  } catch (err: any) {
+    alert('Xatolik: ' + err.message)
+  }
+}
+
+const auditLogs = ref<any[]>([])
+const logsLoading = ref(false)
+
+const loadAuditLogs = async () => {
+  if (userRole.value !== 'admin') return
+  logsLoading.value = true
+  try {
+    auditLogs.value = await auditLogsService.getAll()
+  } finally {
+    logsLoading.value = false
+  }
+}
 
 const loadStaff = async () => {
   staffLoading.value = true
@@ -243,5 +444,7 @@ const deleteRoom = async (id: number) => {
 onMounted(() => {
   loadStaff()
   loadRooms()
+  loadSystemUsers()
+  loadAuditLogs()
 })
 </script>
