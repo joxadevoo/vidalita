@@ -370,7 +370,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink, useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
-import { membersService, gymMembershipsService, generateQrCodeId, storageService, supabase } from '../services/supabaseService'
+import { membersService, gymMembershipsService, generateQrCodeId, storageService } from '../services/supabaseService'
 import { getCurrentDateInput } from '../lib/dateUtils'
 
 const { t } = useI18n()
@@ -486,14 +486,9 @@ const checkPhoneExists = async (phone: string) => {
   phoneConflict.value = null
   
   try {
-    const { data } = await supabase
-      .from('members')
-      .select('fullname')
-      .eq('phone', phone)
-      .maybeSingle()
-    
-    if (data) {
-      phoneConflict.value = t('errorPhoneExists', { name: data.fullname }) || `Bu raqam band: ${data.fullname}`
+    const existingName = await membersService.checkPhoneExists(phone)
+    if (existingName) {
+      phoneConflict.value = t('errorPhoneExists', { name: existingName }) || `Bu raqam band: ${existingName}`
     }
   } catch (err) {
     console.error('Phone check failed:', err)

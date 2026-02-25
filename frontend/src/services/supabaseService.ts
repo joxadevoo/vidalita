@@ -31,6 +31,17 @@ export const membersService = {
         return mappings.mapMemberToCamelCase(data);
     },
 
+    async checkPhoneExists(phone: string) {
+        const { data, error } = await supabase
+            .from('members')
+            .select('fullname')
+            .eq('phone', phone)
+            .maybeSingle();
+
+        if (error) throw error;
+        return data ? data.fullname : null;
+    },
+
     async create(memberData: any) {
         // Validation: Check if phone already exists
         const { data: existing } = await supabase
