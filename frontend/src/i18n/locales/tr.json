@@ -52,7 +52,9 @@
     "expand": "Kenar çubuğunu genişlet",
     "collapse": "Kenar çubuğunu küçült",
     "logout": "Çıkış",
-    "copyright": "© {year} Vidalita"
+    "copyright": "© {year} Vidalita",
+    "scanner": "Barkod Okuyucu",
+    "sales": "Satış Geçmişi"
   },
   "topbar": {
     "notifications": "Bildirimler",
@@ -227,7 +229,8 @@
     "beautyQuestionCrowns": "Dişlerinizde kaplama veya protez var mı?",
     "beautyQuestionSurgery": "Ameliyat geçirdiniz mi?",
     "beautyQuestionSurgeryDetails": "Ameliyat detayları",
-    "beautyQuestionSmoking": "Sigara kullanımı"
+    "beautyQuestionSmoking": "Sigara kullanımı",
+    "errorPhoneExists": "Bu telefon numarasına sahip bir üye zaten mevcut"
   },
   "memberDetail": {
     "title": "Üye Tam Bilgileri",
@@ -289,7 +292,8 @@
     "allTime": "Tüm zamanlar",
     "moreItems": "+ {count} ürün daha",
     "activePackages": "Aktif Paketler (Seanslar)",
-    "noActivePackages": "Yok"
+    "noActivePackages": "Yok",
+    "other": "Diğer"
   },
   "checkins": {
     "title": "Girişler",
@@ -332,7 +336,14 @@
     "memberInfo": "Üye Bilgileri",
     "allCheckins": "Tüm Girişler",
     "totalCheckins": "Toplam Girişler",
-    "dateRange": "Tarih Aralığı"
+    "dateRange": "Tarih Aralığı",
+    "addToList": "Listeye Ekle",
+    "selectedServices": "Seçilen Hizmetler/Ürünler",
+    "reportDate": "Rapor Tarihi",
+    "from": "Başlangıç",
+    "to": "Bitiş",
+    "items": "Öğeler",
+    "memberNotFound": "Üye bulunamadı"
   },
   "beautyServices": {
     "title": "Güzellik Hizmetleri",
@@ -349,7 +360,9 @@
       "name": "İsim",
       "service": "Hizmet",
       "date": "Tarih",
-      "note": "Not"
+      "note": "Not",
+      "serviceType": "Tür",
+      "price": "Fiyat"
     },
     "modalTitle": "Yeni Hizmet Ekle",
     "addToList": "Listeye Ekle",
@@ -399,7 +412,13 @@
     "successUsed": "Seans başarıyla kullanıldı",
     "successPackageAdded": "Paket başarıyla eklendi",
     "packageType": "Paket Türü",
-    "sessionAction": "İşlem"
+    "sessionAction": "İşlem",
+    "serviceTypeLabel": "Hizmet Türü",
+    "serviceTypeSelect": "Tür seçin",
+    "serviceTypeHint": "Tek seferlik hizmet veya paket seçimi",
+    "totalSessions": "Toplam {count} seans",
+    "remainingSessions": "Kalan seans",
+    "sessionsCount": "{count} seans"
   },
   "barcode": {
     "title": "Barkod",
@@ -424,7 +443,32 @@
   },
   "settings": {
     "title": "Ayarlar",
-    "apiUrl": "API"
+    "apiUrl": "API",
+    "languageSelect": "Dil Seçin",
+    "staff": "Personel",
+    "rooms": "Odalar",
+    "staffName": "Personel Adı",
+    "roleOptional": "Rol (isteğe bağlı)",
+    "add": "Ekle",
+    "noStaff": "Personel bulunamadı",
+    "roomName": "Oda Adı",
+    "noRooms": "Oda bulunamadı",
+    "usersAndRoles": "Sistem Kullanıcıları ve Roller",
+    "addNewUser": "Yeni Kullanıcı Ekle",
+    "username": "Kullanıcı Adı",
+    "password": "Şifre",
+    "adding": "Ekleniyor...",
+    "user": "Kullanıcı",
+    "role": "Rol",
+    "you": "Sen",
+    "deleteUserTitle": "Kullanıcıyı Sil",
+    "auditLogs": "Denetim Günlükleri",
+    "targetId": "Hedef ID",
+    "details": "Detaylar",
+    "noLogs": "Günlük bulunamadı",
+    "deleteConfirm": "\"{name}\" kullanıcısını silmek istediğinize emin misiniz?",
+    "addError": "Kullanıcı eklenirken hata oluştu",
+    "system": "Sistem"
   },
   "scanner": {
     "manual": "Manuel",
@@ -435,7 +479,32 @@
     "expiredDays": "{days} gün önce dolmuş",
     "expiringToday": "Bugün doluyor",
     "oneDayRemaining": "1 gün kaldı",
-    "daysRemaining": "{days} gün kaldı"
+    "daysRemaining": "{days} gün kaldı",
+    "title": "Karekod ile Ara",
+    "subtitle": "Üyelik kartındaki karekodu okutun",
+    "cameraScanner": "Kamera ile Okut",
+    "cameraScannerSubtitle": "Cihazın kamerasını kullanarak karekod okutun",
+    "selectCamera": "Kamera Seçimi",
+    "errorStarting": "Kamera başlatılırken hata oluştu",
+    "manualInput": "Manuel Giriş",
+    "manualInputSubtitle": "Üye ID'sini manuel olarak girin",
+    "memberId": "Üye ID",
+    "memberIdPlaceholder": "Örn: TGC123456",
+    "search": "Ara",
+    "searching": "Aranıyor...",
+    "memberInfo": "Üye Bilgileri",
+    "memberNotFound": "Bu ID ile üye bulunamadı.",
+    "errorSearching": "Üye aranırken bir hata oluştu.",
+    "gymMembership": "Spor Salonu Üyeliği",
+    "startDate": "Başlangıç Tarihi",
+    "endDate": "Bitiş Tarihi",
+    "expired": "Süresi Doldu",
+    "expiringSoon": "Süresi Yakında Doluyor",
+    "viewProfile": "Profili Görüntüle",
+    "quickCheckin": "Hızlı Giriş Yap",
+    "checkingIn": "Giriş Yapılıyor...",
+    "checkinSuccess": "Giriş Başarılı",
+    "errorCheckin": "Giriş yapılırken hata oluştu"
   },
   "login": {
     "title": "Giriş",
@@ -547,7 +616,10 @@
     "processing": "İşleniyor...",
     "errorOutOfStock": "Ürün stokta yok!",
     "errorNoMoreStock": "Stokta bitti!",
-    "errorNotEnoughStock": "Yetersiz stok!"
+    "errorNotEnoughStock": "Yetersiz stok!",
+    "mixed": "KARIŞIK",
+    "cashAmount": "Nakit Tutarı",
+    "cardAmount": "Kart Tutarı"
   },
   "invoice": {
     "title": "Fatura",
@@ -570,7 +642,8 @@
     "close": "Kapat",
     "thankYou": "Alışverişiniz için teşekkürler!",
     "returnPolicy": "İade için 3 gün içinde bizimle iletişime geçin.",
-    "viewInvoice": "Faturayı Görüntüle"
+    "viewInvoice": "Faturayı Görüntüle",
+    "total": "Toplam"
   },
   "appointments": {
     "title": "Randevular",
@@ -610,7 +683,19 @@
     },
     "book": "Rezerve Et",
     "booking": "Rezerve Ediliyor...",
-    "details": "Randevu Detayları"
+    "details": "Randevu Detayları",
+    "member": "Üye",
+    "guest": "Misafir",
+    "noRoom": "Oda Seçilmedi",
+    "stats": {
+      "today": "Bugün",
+      "pending": "Bekleyen"
+    },
+    "dateFrom": "Başlangıç Tarihi",
+    "dateTo": "Bitiş Tarihi",
+    "todayOnly": "Sadece Bugün",
+    "resetFilters": "Filtreleri Sıfırla",
+    "searchPlaceholder": "Üye ara..."
   },
   "cashier": {
     "title": "Kasa",
@@ -632,6 +717,85 @@
     "selectRange": "Tarih Aralığı Seçin",
     "breakdownPOS": "Mağaza Satışları",
     "breakdownBeauty": "Hizmetler",
-    "breakdownPackages": "Paket Satışları"
+    "breakdownPackages": "Paket Satışları",
+    "xReport": "X-Raporu (Güncel Durum)",
+    "zReport": "Z-Raporu (Gün Sonu)",
+    "zReportWarning": "Z-Raporu alındıktan sonra kasa sıfırlanır ve gün sonlandırılır. Onaylıyor musunuz?"
+  },
+  "sales": {
+    "title": "Satış Geçmişi",
+    "subtitle": "Kasiyer, ürün satışları ve hizmet işlemlerinin tam listesi",
+    "stats": {
+      "totalPeriod": "Dönem Toplamı",
+      "posSales": "POS (Ürünler)",
+      "servicesSales": "Hizmetler",
+      "cash": "Nakit",
+      "card": "Kart",
+      "mixed": "Karışık",
+      "totalProfit": "Net Kar"
+    },
+    "filters": {
+      "allTime": "Tüm Zamanlar",
+      "today": "Bugün",
+      "thisMonth": "Bu Ay",
+      "range": "Tarih Aralığı",
+      "selectMonth": "Ay Seçin",
+      "dateFrom": "Başlangıç",
+      "dateTo": "Bitiş"
+    },
+    "tabs": {
+      "combined": "Birleştirilmiş Görünüm",
+      "pos": "POS (Ürünler)",
+      "services": "Hizmetler & Paketler",
+      "all": "Tümü",
+      "beauty": "Güzellik"
+    },
+    "columns": {
+      "id": "İşlem ID",
+      "date": "Tarih",
+      "type": "Tür",
+      "client": "Müşteri / Üye",
+      "item": "Öğe / Hizmet",
+      "amount": "Tutar",
+      "method": "Ödeme Yöntemi",
+      "cashier": "Kasiyer / Personel",
+      "customer": "Müşteri",
+      "items": "Öğeler",
+      "total": "Toplam",
+      "status": "Durum",
+      "actions": "İşlemler"
+    },
+    "types": {
+      "pos": "POS Ürün",
+      "service": "Tek Seferlik Hizmet",
+      "package": "Hizmet Paketi"
+    },
+    "paymentMethods": {
+      "cash": "Nakit",
+      "card": "Kart",
+      "mixed": "Karışık",
+      "other": "Diğer"
+    },
+    "exportPDF": "PDF Olarak Kaydet",
+    "noData": "Bu dönem için satış bulunamadı",
+    "typePos": "POS Satışı",
+    "typeService": "Hizmet/Paket",
+    "filter": "Filtre",
+    "searchPlaceholder": "Fiş no, müşteri...",
+    "noSales": "Satış bulunamadı",
+    "noInvoice": "Fatura yok",
+    "summary": "Özet",
+    "cashTotal": "Nakit Toplamı",
+    "cardTotal": "Kart Toplamı",
+    "posTotal": "POS Toplamı",
+    "serviceTotal": "Hizmet Toplamı",
+    "totalVolume": "Toplam Hacim",
+    "exportPdf": "PDF'e Aktar",
+    "month": "Ay"
+  },
+  "roles": {
+    "admin": "Yönetici",
+    "manager": "Yönetici",
+    "reception": "Resepsiyon"
   }
 }

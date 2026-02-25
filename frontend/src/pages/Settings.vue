@@ -5,7 +5,7 @@
     <!-- Language Selector -->
     <div class="rounded-xl border border-gray-200 bg-white shadow-sm">
       <div class="border-b border-gray-100 px-6 py-4">
-        <h3 class="text-lg font-semibold text-gray-900">Tilni tanlang / Select Language / Выберите язык / Dil Seçin</h3>
+        <h3 class="text-lg font-semibold text-gray-900">{{ $t('settings.languageSelect') }}</h3>
       </div>
       <div class="px-6 py-6">
         <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -32,20 +32,20 @@
       <!-- Staff -->
       <div class="rounded-xl border border-gray-200 bg-white shadow-sm">
         <div class="border-b border-gray-100 px-6 py-4">
-          <h3 class="text-lg font-semibold text-gray-900">Xodimlar</h3>
+          <h3 class="text-lg font-semibold text-gray-900">{{ $t('settings.staff') }}</h3>
         </div>
         <div class="px-6 py-6 space-y-4">
           <div class="flex flex-col gap-3 sm:flex-row">
             <input
               v-model="newStaffName"
               type="text"
-              placeholder="Xodim ismi"
+              :placeholder="$t('settings.staffName')"
               class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
             />
             <input
               v-model="newStaffRole"
               type="text"
-              placeholder="Lavozim (ixtiyoriy)"
+              :placeholder="$t('settings.roleOptional')"
               class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
             />
             <button
@@ -53,11 +53,11 @@
               :disabled="creatingStaff"
               class="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 disabled:opacity-60"
             >
-              Qo‘shish
+              {{ $t('settings.add') }}
             </button>
           </div>
 
-          <div v-if="staffLoading" class="text-sm text-gray-500 italic">Yuklanmoqda...</div>
+          <div v-if="staffLoading" class="text-sm text-gray-500 italic">{{ $t('common.loading') }}</div>
           <div v-else class="divide-y divide-gray-100">
             <div v-for="s in staff" :key="s.id" class="flex items-center justify-between py-3">
               <div>
@@ -70,17 +70,17 @@
                   class="rounded-md border px-2 py-1 text-xs font-medium"
                   :class="s.is_active ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-200 bg-gray-50 text-gray-600'"
                 >
-                  {{ s.is_active ? 'Aktiv' : 'Nofaol' }}
+                  {{ s.is_active ? $t('common.active') : $t('common.inactive') }}
                 </button>
                 <button
                   @click="deleteStaff(s.id)"
                   class="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs font-medium text-red-700"
                 >
-                  O‘chirish
+                  {{ $t('common.delete') }}
                 </button>
               </div>
             </div>
-            <div v-if="staff.length === 0" class="py-6 text-center text-sm text-gray-400">Xodimlar yo‘q</div>
+            <div v-if="staff.length === 0" class="py-6 text-center text-sm text-gray-400">{{ $t('settings.noStaff') }}</div>
           </div>
         </div>
       </div>
@@ -88,14 +88,14 @@
       <!-- Rooms -->
       <div class="rounded-xl border border-gray-200 bg-white shadow-sm">
         <div class="border-b border-gray-100 px-6 py-4">
-          <h3 class="text-lg font-semibold text-gray-900">Xonalar</h3>
+          <h3 class="text-lg font-semibold text-gray-900">{{ $t('settings.rooms') }}</h3>
         </div>
         <div class="px-6 py-6 space-y-4">
           <div class="flex flex-col gap-3 sm:flex-row">
             <input
               v-model="newRoomName"
               type="text"
-              placeholder="Xona nomi"
+              :placeholder="$t('settings.roomName')"
               class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
             />
             <button
@@ -103,11 +103,11 @@
               :disabled="creatingRoom"
               class="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 disabled:opacity-60"
             >
-              Qo‘shish
+              {{ $t('settings.add') }}
             </button>
           </div>
 
-          <div v-if="roomsLoading" class="text-sm text-gray-500 italic">Yuklanmoqda...</div>
+          <div v-if="roomsLoading" class="text-sm text-gray-500 italic">{{ $t('common.loading') }}</div>
           <div v-else class="divide-y divide-gray-100">
             <div v-for="r in rooms" :key="r.id" class="flex items-center justify-between py-3">
               <div class="text-sm font-semibold text-gray-900">{{ r.name }}</div>
@@ -117,17 +117,17 @@
                   class="rounded-md border px-2 py-1 text-xs font-medium"
                   :class="r.is_active ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-200 bg-gray-50 text-gray-600'"
                 >
-                  {{ r.is_active ? 'Aktiv' : 'Nofaol' }}
+                  {{ r.is_active ? $t('common.active') : $t('common.inactive') }}
                 </button>
                 <button
                   @click="deleteRoom(r.id)"
                   class="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs font-medium text-red-700"
                 >
-                  O‘chirish
+                  {{ $t('common.delete') }}
                 </button>
               </div>
             </div>
-            <div v-if="rooms.length === 0" class="py-6 text-center text-sm text-gray-400">Xonalar yo‘q</div>
+            <div v-if="rooms.length === 0" class="py-6 text-center text-sm text-gray-400">{{ $t('settings.noRooms') }}</div>
           </div>
         </div>
       </div>
@@ -137,23 +137,23 @@
     <div v-if="userRole === 'admin'" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
       <div class="border-b border-gray-100 px-6 py-4 flex items-center gap-2">
         <UserGroupIcon class="h-5 w-5 text-sky-600" />
-        <h3 class="text-lg font-semibold text-gray-900">Tizim Foydalanuvchilari va Rollar</h3>
+        <h3 class="text-lg font-semibold text-gray-900">{{ $t('settings.usersAndRoles') }}</h3>
       </div>
       <div class="px-6 py-6 overflow-x-auto">
         <!-- New User Form -->
         <div class="mb-8 rounded-lg bg-gray-50 dark:bg-slate-800/50 p-4 border border-gray-100 dark:border-slate-700">
-           <h4 class="text-xs font-black uppercase text-gray-400 mb-4 tracking-widest">Yangi Foydalanuvchi Qo'shish</h4>
+           <h4 class="text-xs font-black uppercase text-gray-400 mb-4 tracking-widest">{{ $t('settings.addNewUser') }}</h4>
            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
               <input 
                 v-model="newUser.username" 
                 type="text" 
-                placeholder="Username" 
+                :placeholder="$t('settings.username')" 
                 class="rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
               />
               <input 
                 v-model="newUser.password" 
                 type="text" 
-                placeholder="Parol" 
+                :placeholder="$t('settings.password')" 
                 class="rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
               />
               <select 
@@ -161,7 +161,7 @@
                 class="rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
               >
                 <option value="reception">Reception</option>
-                <option value="manager">Menejer</option>
+                <option value="manager">Manager</option>
                 <option value="admin">Admin</option>
               </select>
               <button 
@@ -169,8 +169,8 @@
                 :disabled="creatingUser || !newUser.username || !newUser.password"
                 class="rounded-lg bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 disabled:opacity-50 transition-colors shadow-lg shadow-sky-600/20"
               >
-                <span v-if="!creatingUser">Qo'shish</span>
-                <span v-else>Qo'shilmoqda...</span>
+                <span v-if="!creatingUser">{{ $t('settings.add') }}</span>
+                <span v-else>{{ $t('settings.adding') }}</span>
               </button>
            </div>
         </div>
@@ -178,9 +178,9 @@
         <table class="w-full text-left text-sm">
           <thead>
             <tr class="border-b border-gray-100 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-              <th class="py-3 px-2">Foydalanuvchi</th>
-              <th class="py-3 px-2">Rol</th>
-              <th class="py-3 px-2 text-right">Amallar</th>
+              <th class="py-3 px-2">{{ $t('settings.user') }}</th>
+              <th class="py-3 px-2">{{ $t('settings.role') }}</th>
+              <th class="py-3 px-2 text-right">{{ $t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-50 text-gray-900 dark:text-gray-100">
@@ -199,12 +199,12 @@
               </td>
               <td class="py-3 px-2 text-right">
                 <div class="flex items-center justify-end gap-2">
-                  <span v-if="u.id === currentUser?.id" class="text-[10px] font-black text-sky-600 bg-sky-50 px-2 py-1 rounded-full uppercase">Siz</span>
+                  <span v-if="u.id === currentUser?.id" class="text-[10px] font-black text-sky-600 bg-sky-50 px-2 py-1 rounded-full uppercase">{{ $t('settings.you') }}</span>
                   <button 
                     v-else
                     @click="deleteUser(u)"
                     class="p-1.5 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
-                    title="Foydalanuvchini o'chirish"
+                    :title="$t('settings.deleteUserTitle')"
                   >
                     <TrashIcon class="h-4 w-4" />
                   </button>
@@ -213,7 +213,7 @@
             </tr>
           </tbody>
         </table>
-        <div v-if="usersLoading" class="mt-4 text-center text-sm text-gray-400 italic">Yuklanmoqda...</div>
+        <div v-if="usersLoading" class="mt-4 text-center text-sm text-gray-400 italic">{{ $t('common.loading') }}</div>
       </div>
     </div>
 
@@ -222,19 +222,19 @@
       <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-2">
            <ClipboardDocumentListIcon class="h-5 w-5 text-sky-600" />
-           <h3 class="text-lg font-semibold text-gray-900">Audit Loglari</h3>
+           <h3 class="text-lg font-semibold text-gray-900">{{ $t('settings.auditLogs') }}</h3>
         </div>
-        <button @click="loadAuditLogs" class="text-xs font-bold text-sky-600 hover:text-sky-700 transition-colors">Yangilash</button>
+        <button @click="loadAuditLogs" class="text-xs font-bold text-sky-600 hover:text-sky-700 transition-colors">{{ $t('common.refresh') }}</button>
       </div>
       <div class="px-6 py-6 overflow-x-auto">
         <table class="w-full text-left text-xs">
           <thead>
             <tr class="border-b border-gray-100 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-              <th class="py-3 px-2">Sana</th>
-              <th class="py-3 px-2">Foydalanuvchi</th>
-              <th class="py-3 px-2">Amal</th>
-              <th class="py-3 px-2">Target ID</th>
-              <th class="py-3 px-2">Tafsilotlar</th>
+              <th class="py-3 px-2">{{ $t('common.date') }}</th>
+              <th class="py-3 px-2">{{ $t('settings.user') }}</th>
+              <th class="py-3 px-2">{{ $t('common.actions') }}</th>
+              <th class="py-3 px-2">{{ $t('settings.targetId') }}</th>
+              <th class="py-3 px-2">{{ $t('settings.details') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-50 text-gray-900 dark:text-gray-100">
@@ -247,8 +247,8 @@
             </tr>
           </tbody>
         </table>
-        <div v-if="logsLoading" class="mt-4 text-center text-sm text-gray-400 italic">Yuklanmoqda...</div>
-        <div v-else-if="auditLogs.length === 0" class="py-6 text-center text-sm text-gray-400">Loglar yo‘q</div>
+        <div v-if="logsLoading" class="mt-4 text-center text-sm text-gray-400 italic">{{ $t('common.loading') }}</div>
+        <div v-else-if="auditLogs.length === 0" class="py-6 text-center text-sm text-gray-400">{{ $t('settings.noLogs') }}</div>
       </div>
     </div>
   </div>
@@ -260,7 +260,7 @@ import { GlobeAltIcon, UserGroupIcon, ClipboardDocumentListIcon, UserPlusIcon, T
 import { supabase } from '../lib/supabase'
 import { auditLogsService, authService } from '../services/supabaseService'
 
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const currentLocale = computed(() => locale.value)
 
 const languages = [
@@ -335,7 +335,7 @@ const createUser = async () => {
     await loadSystemUsers()
     await loadAuditLogs() // Refresh logs too
   } catch (err: any) {
-    alert('Foydalanuvchi qo\'shishda xatolik: ' + err.message)
+    alert(t('settings.addError') + ': ' + err.message)
   } finally {
     creatingUser.value = false
   }
@@ -343,14 +343,14 @@ const createUser = async () => {
 
 const deleteUser = async (u: any) => {
   if (u.id === currentUser.value?.id) return
-  if (!confirm(`Haqiqatan ham "${u.username}" foydalanuvchisini o'chirmoqchimisiz?`)) return
+  if (!confirm(t('settings.deleteConfirm', { name: u.username }) || `Haqiqatan ham "${u.username}" foydalanuvchisini o'chirmoqchimisiz?`)) return
   
   try {
     await authService.deleteUser(u.id)
     await loadSystemUsers()
     await loadAuditLogs()
   } catch (err: any) {
-    alert('Xatolik: ' + err.message)
+    alert(t('common.error') + ': ' + err.message)
   }
 }
 

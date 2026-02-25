@@ -52,7 +52,8 @@
     "expand": "Развернуть боковую панель",
     "collapse": "Свернуть боковую панель",
     "logout": "Выйти",
-    "copyright": "© {year} Vidalita"
+    "copyright": "© {year} Vidalita",
+    "scanner": "Сканер Штрих-кода"
   },
   "topbar": {
     "notifications": "Уведомления",
@@ -89,7 +90,9 @@
     "lowStock": "Мало товаров",
     "lowStockSubtext": "Рекомендуется пополнение",
     "lowSessionPackages": "Заканчивающиеся сеансы",
-    "noLowSessions": "У всех клиентов достаточно сеансов"
+    "noLowSessions": "У всех клиентов достаточно сеансов",
+    "lowStockProducts": "Товары с низким запасом",
+    "total": "Всего"
   },
   "members": {
     "title": "Участники",
@@ -222,7 +225,8 @@
     "beautyQuestionCrowns": "Есть ли коронки или протезы в зубах?",
     "beautyQuestionSurgery": "Были ли операции?",
     "beautyQuestionSurgeryDetails": "Детали операции",
-    "beautyQuestionSmoking": "Курение"
+    "beautyQuestionSmoking": "Курение",
+    "errorPhoneExists": "Участник с таким номером телефона уже существует"
   },
   "memberDetail": {
     "title": "Полная информация об участнике",
@@ -283,7 +287,9 @@
     "allTime": "Все время",
     "moreItems": "+ {count} тов.",
     "activePackages": "Активные пакеты (Сеансы)",
-    "noActivePackages": "Нет активных пакетов"
+    "noActivePackages": "Нет активных пакетов",
+    "loading": "Загрузка данных участника...",
+    "other": "Другое"
   },
   "checkins": {
     "title": "Входы",
@@ -328,7 +334,12 @@
     "totalCheckins": "Всего входов",
     "from": "с",
     "to": "по",
-    "dateRange": "Диапазон дат"
+    "dateRange": "Диапазон дат",
+    "addToList": "Добавить в список",
+    "selectedServices": "Выбранные услуги/товары",
+    "reportDate": "Дата отчета",
+    "items": "Позиции",
+    "memberNotFound": "Участник не найден"
   },
   "beautyServices": {
     "title": "Услуги красоты",
@@ -346,7 +357,8 @@
       "service": "Услуга",
       "price": "Цена",
       "date": "Дата",
-      "note": "Примечание"
+      "note": "Примечание",
+      "serviceType": "Тип"
     },
     "price": "Цена",
     "originalPrice": "Исходная цена",
@@ -396,7 +408,13 @@
     "successUsed": "Сеанс успешно использован",
     "successPackageAdded": "Пакет успешно добавлен",
     "packageType": "Тип пакета",
-    "sessionAction": "Действие"
+    "sessionAction": "Действие",
+    "serviceTypeLabel": "Тип Услуги",
+    "serviceTypeSelect": "Выберите Тип",
+    "serviceTypeHint": "Одноразовая услуга или пакет",
+    "totalSessions": "Всего {count} сеансов",
+    "remainingSessions": "Осталось сеансов",
+    "sessionsCount": "{count} сеансов"
   },
   "barcode": {
     "title": "Штрих-код",
@@ -421,6 +439,31 @@
   },
   "settings": {
     "title": "Настройки",
+    "languageSelect": "Tilni tanlang / Select Language / Выберите язык / Dil Seçin",
+    "staff": "Сотрудники",
+    "rooms": "Комнаты",
+    "staffName": "Имя сотрудника",
+    "roleOptional": "Должность (необязательно)",
+    "add": "Добавить",
+    "noStaff": "Нет сотрудников",
+    "roomName": "Название комнаты",
+    "noRooms": "Нет комнат",
+    "usersAndRoles": "Пользователи системы и роли",
+    "addNewUser": "Добавить нового пользователя",
+    "username": "Имя пользователя",
+    "password": "Пароль",
+    "adding": "Добавление...",
+    "user": "Пользователь",
+    "role": "Роль",
+    "you": "Вы",
+    "deleteUserTitle": "Удалить пользователя",
+    "auditLogs": "Журналы аудита",
+    "targetId": "Target ID",
+    "details": "Детали",
+    "noLogs": "Нет журналов",
+    "deleteConfirm": "Вы уверены, что хотите удалить пользователя \"{name}\"?",
+    "addError": "Ошибка добавления пользователя",
+    "system": "System",
     "apiUrl": "API"
   },
   "login": {
@@ -480,7 +523,9 @@
     "discountPlaceholder": "0-100",
     "discountHint": "Процент скидки (0-100)",
     "originalPrice": "Исходная цена",
-    "discountedPrice": "Цена со скидкой"
+    "discountedPrice": "Цена со скидкой",
+    "currentStock": "Текущий Запас",
+    "reorderLevelHint": "Уведомить о запасе ниже этого уровня"
   },
   "inventory": {
     "title": "Складской учет",
@@ -532,7 +577,10 @@
     "processing": "Обработка...",
     "errorOutOfStock": "Товара нет в наличии!",
     "errorNoMoreStock": "Больше нет на складе!",
-    "errorNotEnoughStock": "Недостаточно на складе!"
+    "errorNotEnoughStock": "Недостаточно на складе!",
+    "mixed": "СМЕШАННЫЙ",
+    "cashAmount": "Сумма Наличными",
+    "cardAmount": "Сумма Картой"
   },
   "invoice": {
     "title": "Счёт",
@@ -555,7 +603,8 @@
     "close": "Закрыть",
     "thankYou": "Спасибо за покупку!",
     "returnPolicy": "Для возврата обратитесь к нам в течение 3 дней.",
-    "viewInvoice": "Просмотр счёта"
+    "viewInvoice": "Просмотр счёта",
+    "total": "Итого"
   },
   "sales": {
     "title": "История продаж",
@@ -575,7 +624,19 @@
     "filter": "Фильтр",
     "searchPlaceholder": "Поиск по имени клиента...",
     "noSales": "Продаж пока нет",
-    "noInvoice": "Нет счета"
+    "noInvoice": "Нет счета",
+    "summary": "Сводка",
+    "cashTotal": "Итого Наличными",
+    "cardTotal": "Итого Картой",
+    "posTotal": "Итого POS",
+    "serviceTotal": "Итого Услуги",
+    "totalVolume": "Общий Объем",
+    "tabs": {
+      "all": "Все",
+      "beauty": "Красота"
+    },
+    "exportPdf": "Экспорт PDF",
+    "month": "Месяц"
   },
   "appointments": {
     "title": "Записи",
@@ -615,7 +676,19 @@
     },
     "book": "Записаться",
     "booking": "Запись...",
-    "details": "Детали записи"
+    "details": "Детали записи",
+    "member": "Участник",
+    "guest": "Гость",
+    "noRoom": "Комната не выбрана",
+    "stats": {
+      "today": "Сегодня",
+      "pending": "В ожидании"
+    },
+    "dateFrom": "С Даты",
+    "dateTo": "По Дату",
+    "todayOnly": "Только Сегодня",
+    "resetFilters": "Сброс Фильтров",
+    "searchPlaceholder": "Поиск участника..."
   },
   "cashier": {
     "title": "Касса",
@@ -637,6 +710,42 @@
     "selectRange": "Выберите диапазон дат",
     "breakdownPOS": "Продажи магазина",
     "breakdownBeauty": "Услуги",
-    "breakdownPackages": "Курсы (Пакеты)"
+    "breakdownPackages": "Курсы (Пакеты)",
+    "xReport": "X-Отчет (Текущий статус)",
+    "zReport": "Z-Отчет (Конец дня)",
+    "zReportWarning": "После Z-Отчета касса будет сброшена, а день закрыт. Подтверждаете?"
+  },
+  "scanner": {
+    "title": "Сканировать QR-код",
+    "subtitle": "Отсканируйте QR-код на карте участника",
+    "cameraScanner": "Сканировать Камерой",
+    "cameraScannerSubtitle": "Используйте камеру устройства для сканирования QR-кода",
+    "selectCamera": "Выбрать Камеру",
+    "errorStarting": "Ошибка при запуске камеры",
+    "manualInput": "Ручной Ввод",
+    "manualInputSubtitle": "Введите ID участника вручную",
+    "memberId": "ID Участника",
+    "memberIdPlaceholder": "Напр: TGC123456",
+    "search": "Поиск",
+    "searching": "Поиск...",
+    "memberInfo": "Информация об Участнике",
+    "memberNotFound": "Участник с таким ID не найден.",
+    "errorSearching": "Ошибка при поиске участника.",
+    "gymMembership": "Членство в Спортзале",
+    "startDate": "Дата Начала",
+    "endDate": "Дата Окончания",
+    "expired": "Истекший",
+    "expiringSoon": "Скоро Истекает",
+    "viewProfile": "Профиль Участника",
+    "quickCheckin": "Быстрый Вход",
+    "checkingIn": "Вход...",
+    "checkinSuccess": "Вход Успешен",
+    "errorCheckin": "Ошибка при входе",
+    "camera": "Камера"
+  },
+  "roles": {
+    "admin": "Админ",
+    "manager": "Менеджер",
+    "reception": "Рецепция"
   }
 }

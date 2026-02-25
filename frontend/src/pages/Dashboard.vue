@@ -116,14 +116,14 @@
       <!-- Low Session Packages Report -->
       <div class="glass animate-fade-in-scale overflow-hidden transition-all duration-300 hover:shadow-lg border-purple-500/20" style="animation-delay: 400ms">
         <div class="flex items-center justify-between border-b border-purple-500/10 px-6 py-4">
-          <h3 class="text-lg font-bold text-purple-900 dark:text-purple-400">{{ $t('dashboard.lowSessionPackages') || 'Seanslari kam paketlar' }}</h3>
+          <h3 class="text-lg font-bold text-purple-900 dark:text-purple-400">{{ $t('dashboard.lowSessionPackages') }}</h3>
           <span class="rounded-full bg-purple-500/10 px-2.5 py-0.5 text-xs font-black text-purple-600">
             {{ lowSessionPackages.length }}
           </span>
         </div>
         <div class="p-6 h-[220px] overflow-y-auto">
           <div v-if="lowSessionPackages.length === 0" class="flex h-full items-center justify-center text-sm text-gray-500 italic">
-            {{ $t('dashboard.noLowSessions') || 'Hammasi joyida' }}
+            {{ $t('dashboard.noLowSessions') }}
           </div>
           <ul v-else class="space-y-3">
             <li v-for="pkg in lowSessionPackages.slice(0, 5)" :key="pkg.id" 

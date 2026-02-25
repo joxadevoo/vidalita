@@ -52,7 +52,8 @@
     "expand": "Expand sidebar",
     "collapse": "Collapse sidebar",
     "logout": "Logout",
-    "copyright": "© {year} Vidalita"
+    "copyright": "© {year} Vidalita",
+    "scanner": "Barcode Scanner"
   },
   "topbar": {
     "notifications": "Notifications",
@@ -92,7 +93,9 @@
     "noActivePackages": "No active packages",
     "errorLoading": "Error loading member data",
     "todaySales": "Today's Sales",
-    "todayAppointments": "Today's Appointments"
+    "todayAppointments": "Today's Appointments",
+    "lowStockProducts": "Low Stock Products",
+    "total": "Total"
   },
   "members": {
     "title": "Members",
@@ -225,7 +228,8 @@
     "beautyQuestionCrowns": "Do you have crowns or dental prostheses?",
     "beautyQuestionSurgery": "Have you had surgery?",
     "beautyQuestionSurgeryDetails": "Surgery details",
-    "beautyQuestionSmoking": "Smoking"
+    "beautyQuestionSmoking": "Smoking",
+    "errorPhoneExists": "A member with this phone number already exists"
   },
   "memberDetail": {
     "title": "Member Full Information",
@@ -287,7 +291,8 @@
     "allTime": "All time",
     "moreItems": "+ {count} more items",
     "activePackages": "Active Packages (Sessions)",
-    "noActivePackages": "None"
+    "noActivePackages": "None",
+    "other": "Other"
   },
   "checkins": {
     "title": "Check-ins",
@@ -328,7 +333,16 @@
     "daysRemainingToday": "Expires today",
     "noName": "No Name",
     "from": "from",
-    "to": "to"
+    "to": "to",
+    "addToList": "Add to List",
+    "selectedServices": "Selected Services/Products",
+    "dateRange": "Date Range",
+    "totalCheckins": "Total Check-ins",
+    "reportDate": "Report Date",
+    "allCheckins": "All Check-ins",
+    "items": "Items",
+    "memberInfo": "Member Info",
+    "memberNotFound": "Member not found"
   },
   "beautyServices": {
     "title": "Beauty Services",
@@ -346,7 +360,8 @@
       "service": "Service",
       "price": "Price",
       "date": "Date",
-      "note": "Note"
+      "note": "Note",
+      "serviceType": "Type"
     },
     "price": "Price",
     "originalPrice": "Original Price",
@@ -396,7 +411,13 @@
     "successUsed": "Session successfully used",
     "successPackageAdded": "Package successfully added",
     "packageType": "Package Type",
-    "sessionAction": "Action"
+    "sessionAction": "Action",
+    "serviceTypeLabel": "Service Type",
+    "serviceTypeSelect": "Select Type",
+    "serviceTypeHint": "One-time service or package selection",
+    "totalSessions": "Total {count} sessions",
+    "remainingSessions": "Remaining sessions",
+    "sessionsCount": "{count} sessions"
   },
   "barcode": {
     "title": "Barcode",
@@ -421,6 +442,31 @@
   },
   "settings": {
     "title": "Settings",
+    "languageSelect": "Tilni tanlang / Select Language / Выберите язык / Выберите язык / Dil Seçin",
+    "staff": "Staff",
+    "rooms": "Rooms",
+    "staffName": "Staff Name",
+    "roleOptional": "Role (optional)",
+    "add": "Add",
+    "noStaff": "No staff",
+    "roomName": "Room Name",
+    "noRooms": "No rooms",
+    "usersAndRoles": "System Users and Roles",
+    "addNewUser": "Add New User",
+    "username": "Username",
+    "password": "Password",
+    "adding": "Adding...",
+    "user": "User",
+    "role": "Role",
+    "you": "You",
+    "deleteUserTitle": "Delete user",
+    "auditLogs": "Audit Logs",
+    "targetId": "Target ID",
+    "details": "Details",
+    "noLogs": "No logs",
+    "deleteConfirm": "Are you sure you want to delete user \"{name}\"?",
+    "addError": "Error adding user",
+    "system": "System",
     "apiUrl": "API"
   },
   "scanner": {
@@ -432,7 +478,32 @@
     "expiredDays": "Expired {days} days ago",
     "expiringToday": "Expiring today",
     "oneDayRemaining": "1 day remaining",
-    "daysRemaining": "{days} days remaining"
+    "daysRemaining": "{days} days remaining",
+    "title": "Scan QR Code",
+    "subtitle": "Scan the QR code on the membership card",
+    "cameraScanner": "Scan with Camera",
+    "cameraScannerSubtitle": "Use device camera to scan QR code",
+    "selectCamera": "Select Camera",
+    "errorStarting": "Error starting camera",
+    "manualInput": "Manual Input",
+    "manualInputSubtitle": "Enter member ID manually",
+    "memberId": "Member ID",
+    "memberIdPlaceholder": "e.g. TGC123456",
+    "search": "Search",
+    "searching": "Searching...",
+    "memberInfo": "Member Information",
+    "memberNotFound": "No member found with this ID.",
+    "errorSearching": "An error occurred while searching member.",
+    "gymMembership": "Gym Membership",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "expired": "Expired",
+    "expiringSoon": "Expiring Soon",
+    "viewProfile": "View Profile",
+    "quickCheckin": "Quick Check-in",
+    "checkingIn": "Checking in...",
+    "checkinSuccess": "Check-in Successful",
+    "errorCheckin": "Error making check-in"
   },
   "login": {
     "title": "Login",
@@ -491,7 +562,9 @@
     "discountPlaceholder": "0-100",
     "discountHint": "Percentage (0-100)",
     "originalPrice": "Original price",
-    "discountedPrice": "Discounted price"
+    "discountedPrice": "Discounted price",
+    "currentStock": "Current Stock",
+    "reorderLevelHint": "Notify when stock is below this level"
   },
   "inventory": {
     "title": "Inventory Control",
@@ -543,7 +616,10 @@
     "processing": "Processing...",
     "errorOutOfStock": "Product is out of stock!",
     "errorNoMoreStock": "No more stock available!",
-    "errorNotEnoughStock": "Not enough stock!"
+    "errorNotEnoughStock": "Not enough stock!",
+    "mixed": "MIXED",
+    "cashAmount": "Cash Amount",
+    "cardAmount": "Card Amount"
   },
   "invoice": {
     "title": "Invoice",
@@ -566,7 +642,8 @@
     "close": "Close",
     "thankYou": "Thank you for your purchase!",
     "returnPolicy": "For returns, please contact us within 3 days.",
-    "viewInvoice": "View Invoice"
+    "viewInvoice": "View Invoice",
+    "total": "Total"
   },
   "sales": {
     "title": "Sales History",
@@ -586,7 +663,19 @@
     "filter": "Filter",
     "searchPlaceholder": "Search by customer name...",
     "noSales": "No sales yet",
-    "noInvoice": "No invoice"
+    "noInvoice": "No invoice",
+    "summary": "Summary",
+    "cashTotal": "Cash Total",
+    "cardTotal": "Card Total",
+    "posTotal": "POS Total",
+    "serviceTotal": "Service Total",
+    "totalVolume": "Total Volume",
+    "tabs": {
+      "all": "All",
+      "beauty": "Beauty"
+    },
+    "exportPdf": "Export PDF",
+    "month": "Month"
   },
   "appointments": {
     "title": "Appointments",
@@ -635,7 +724,10 @@
     },
     "book": "Book",
     "booking": "Booking...",
-    "details": "Appointment Details"
+    "details": "Appointment Details",
+    "member": "Member",
+    "guest": "Guest",
+    "noRoom": "No Room Selected"
   },
   "cashier": {
     "title": "Cashier",
@@ -661,5 +753,10 @@
     "breakdownPOS": "POS Sales",
     "breakdownBeauty": "Beauty Services",
     "breakdownPackages": "Service Packages"
+  },
+  "roles": {
+    "admin": "Admin",
+    "manager": "Manager",
+    "reception": "Reception"
   }
 }

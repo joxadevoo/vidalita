@@ -1033,8 +1033,8 @@ const getDaysRemaining = (endDate: string): number => {
 const getDaysRemainingText = (endDate: string): string => {
   const days = getDaysRemaining(endDate)
   if (days < 0) return ''
-  if (days === 0) return t('checkins.daysRemainingToday') || 'Bugun tugaydi'
-  if (days === 1) return t('checkins.daysRemainingOne') || '1 kun qoldi'
+  if (days === 0) return t('checkins.daysRemainingToday')
+  if (days === 1) return t('checkins.daysRemainingOne')
   return t('checkins.daysRemaining', { days }) || `${days} kun qoldi`
 }
 

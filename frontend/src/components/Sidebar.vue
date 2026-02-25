@@ -53,7 +53,7 @@
             </div>
             <div class="flex-1 min-w-0">
                <p class="text-sm font-black text-black dark:text-white truncate">{{ user?.username }}</p>
-               <p class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">{{ user?.role }}</p>
+               <p class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">{{ $t('roles.' + (user?.role || 'reception')) }}</p>
             </div>
           </div>
           <button @click="handleLogout" class="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-xs font-bold text-red-600 dark:text-red-400 bg-red-500/5 hover:bg-red-500/10 rounded-xl transition-colors">
@@ -144,7 +144,7 @@
         </div>
         <div v-if="!collapsed" class="flex-1 min-w-0">
            <p class="text-sm font-black text-gray-900 dark:text-white truncate">{{ user?.username }}</p>
-           <p class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">{{ user?.role }}</p>
+           <p class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">{{ $t('roles.' + (user?.role || 'reception')) }}</p>
         </div>
       </div>
       <button @click="handleLogout" :class="[

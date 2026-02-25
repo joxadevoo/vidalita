@@ -475,12 +475,36 @@
   },
   "settings": {
     "title": "Sozlamalar",
+    "languageSelect": "Tilni tanlang / Select Language / Выберите язык / Dil Seçin",
+    "staff": "Xodimlar",
+    "rooms": "Xonalar",
+    "staffName": "Xodim ismi",
+    "roleOptional": "Lavozim (ixtiyoriy)",
+    "add": "Qo‘shish",
+    "noStaff": "Xodimlar yo‘q",
+    "roomName": "Xona nomi",
+    "noRooms": "Xonalar yo‘q",
+    "usersAndRoles": "Tizim Foydalanuvchilari va Rollar",
+    "addNewUser": "Yangi Foydalanuvchi Qo'shish",
+    "username": "Username",
+    "password": "Parol",
+    "adding": "Qo'shilmoqda...",
+    "user": "Foydalanuvchi",
+    "role": "Rol",
+    "you": "Siz",
+    "deleteUserTitle": "Foydalanuvchini o'chirish",
+    "auditLogs": "Audit Loglari",
+    "targetId": "Target ID",
+    "details": "Tafsilotlar",
+    "noLogs": "Loglar yo‘q",
+    "deleteConfirm": "Haqiqatan ham \"{name}\" foydalanuvchisini o'chirmoqchimisiz?",
+    "addError": "Foydalanuvchi qo'shishda xatolik",
+    "system": "System",
     "apiUrl": "API"
   },
   "login": {
     "title": "Tizimga kirish",
     "subtitle": "Ma'lumotlaringizni kiriting",
-    "username": "Foydalanuvchi nomi",
     "usernamePlaceholder": "Username kiriting",
     "password": "Parol",
     "passwordPlaceholder": "Parol kiriting",
@@ -715,5 +739,10 @@
     "breakdownPOS": "Magazin sotuvi",
     "breakdownBeauty": "Xizmatlar",
     "breakdownPackages": "Kurslar (Paketlar)"
+  },
+  "roles": {
+    "admin": "Admin",
+    "manager": "Menejer",
+    "reception": "Reception"
   }
 }
