@@ -35,26 +35,55 @@ body {
   background-color: var(--app-bg);
   color: var(--app-text);
   min-height: 100vh;
+  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dark {
-  --app-bg: #0b1220;
+  --app-bg: #030712;
+  /* Deeper dark blue-black */
   --app-surface: #0f172a;
   --app-surface-2: #111827;
   --app-surface-3: #1f2937;
-  --app-text: #e5e7eb;
+  --app-text: #f9fafb;
   --app-text-muted: #94a3b8;
-  --app-border: #334155;
-  --app-input-bg: #0b1220;
-  --app-input-text: #e5e7eb;
+  --app-border: #1e293b;
+  --app-input-bg: #111827;
+  --app-input-text: #f9fafb;
   --app-input-border: #334155;
   color-scheme: dark;
-  --glass-bg: rgba(15, 23, 42, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.05);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-  --mesh-1: hsla(220, 100%, 5%, 1);
-  --mesh-2: hsla(210, 100%, 8%, 1);
-  --mesh-3: hsla(220, 100%, 5%, 1);
+  --glass-bg: rgba(15, 23, 42, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.6);
+  --mesh-1: hsla(220, 100%, 10%, 1);
+  --mesh-2: hsla(210, 100%, 15%, 1);
+  --mesh-3: hsla(220, 100%, 10%, 1);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
 
 .dark input,
@@ -203,6 +232,26 @@ body {
 
 .animate-float {
   animation: float 6s ease-in-out infinite;
+}
+
+/* Transition Groups */
+.cart-list-enter-active,
+.cart-list-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cart-list-enter-from {
+  opacity: 0;
+  transform: translateX(30px) scale(0.9);
+}
+
+.cart-list-leave-to {
+  opacity: 0;
+  transform: translateX(-30px) scale(0.9);
+}
+
+.cart-list-move {
+  transition: transform 0.3s ease;
 }
 
 @media print {

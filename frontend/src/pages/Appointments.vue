@@ -68,7 +68,7 @@
     </div>
 
     <!-- Calendar/List View -->
-    <div v-if="viewType === 'calendar'" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm min-h-[600px] no-print">
+    <div v-if="viewType === 'calendar'" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm min-h-[700px] overflow-hidden no-print calendar-container">
         <FullCalendar :options="calendarOptions" />
     </div>
 
@@ -115,7 +115,7 @@
                             <option value="BOOKED">{{ $t('appointments.status.booked') }}</option>
                             <option value="CONFIRMED">{{ $t('appointments.status.confirmed') }}</option>
                             <option value="IN_PROGRESS">{{ $t('appointments.status.inProgress') }}</option>
-                            <option value="COMPLETED" :disabled="app.status === 'COMPLETED'">{{ $t('appointments.status.completed') }}</option>
+                            <option value="COMPLETED" :disabled="app.status === 'COMPLETED' || new Date(app.startTime) > new Date()">{{ $t('appointments.status.completed') }}</option>
                             <option value="CANCELLED">{{ $t('appointments.status.cancelled') }}</option>
                             <option value="NO_SHOW">{{ $t('appointments.status.noShow') }}</option>
                         </select>
@@ -187,14 +187,33 @@
                         </select>
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('beautyServices.serviceNameLabel') }}</label>
-                        <select v-model="form.serviceName" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400">
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('beautyServices.serviceNameLabel') }}</label>
+                            <button v-if="form.memberId" type="button" @click="showAllServices = !showAllServices" class="text-xs text-sky-600 hover:text-sky-700 font-medium bg-sky-50 px-2 py-0.5 rounded">
+                                {{ showAllServices ? "Faqat mijozning paketlarini ko'rsatish" : "Barcha xizmatlarni ko'rsatish" }}
+                            </button>
+                        </div>
+                        <select v-model="form.serviceName" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400">
                             <option value="">{{ $t('beautyServices.serviceNameSelect') }}</option>
-                            <optgroup v-for="(cat, key) in serviceData.categories" :key="key" :label="cat.label">
-                                <option v-for="sKey in cat.services" :key="sKey" :value="serviceData.labels[sKey]">
-                                    {{ serviceData.labels[sKey] }}
-                                </option>
-                            </optgroup>
+                            
+                            <template v-if="form.memberId && !showAllServices">
+                                <optgroup v-if="activePackages.length > 0" label="Mijozning Aktiv Paketlari" class="text-sky-600 font-bold">
+                                    <option v-for="pkg in activePackages" :key="'active-'+pkg.id" :value="pkg.serviceName" class="text-black font-semibold">
+                                        {{ pkg.serviceName }} ({{ pkg.remainingSessions }} ta qoldi)
+                                    </option>
+                                </optgroup>
+                                <optgroup v-else label="Ushbu mijozda aktiv paketlar topilmadi">
+                                    <option disabled :value="null">Uchrashuv belgilash uchun avval paket sotib oling yoki "Barcha xizmatlar"ni oching</option>
+                                </optgroup>
+                            </template>
+
+                            <template v-if="!form.memberId || showAllServices">
+                                <optgroup v-for="(cat, key) in serviceData.categories" :key="key" :label="cat.label">
+                                    <option v-for="sKey in cat.services" :key="sKey" :value="serviceData.labels[sKey]">
+                                        {{ serviceData.labels[sKey] }}
+                                    </option>
+                                </optgroup>
+                            </template>
                         </select>
                     </div>
                     <div v-if="form.memberId && activePackages.length > 0" class="sm:col-span-2">
@@ -292,8 +311,12 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import * as XLSX from 'xlsx';
 import { useI18n } from 'vue-i18n';
+import { useToast } from '../composables/useToast';
+import { useConfirm } from '../composables/useConfirm';
 
 const { t } = useI18n();
+const toast = useToast();
+const { confirm } = useConfirm();
 
 const appointments = ref<any[]>([]);
 const staff = ref<any[]>([]);
@@ -303,6 +326,7 @@ const loading = ref(false);
 const submitting = ref(false);
 const showModal = ref(false);
 const showDetailModal = ref(false);
+const showAllServices = ref(false);
 const selectedEvent = ref<any>(null);
 const viewType = ref<'calendar' | 'list'>('calendar');
 const activePackages = ref<any[]>([]);
@@ -342,6 +366,7 @@ watch(() => form.value.memberId, async (newId) => {
         activePackages.value = [];
         form.value.servicePackageId = null;
     }
+    showAllServices.value = false;
 });
 
 watch(() => form.value.serviceName, (newName) => {
@@ -400,6 +425,16 @@ const getStatusClass = (status: string) => {
     }
 };
 
+const getStatusIconClass = (status: string) => {
+    switch (status) {
+        case 'COMPLETED': return 'bg-white shadow-[0_0_4px_rgba(255,255,255,0.8)]';
+        case 'CONFIRMED': return 'bg-indigo-300';
+        case 'IN_PROGRESS': return 'bg-amber-300 animate-pulse';
+        case 'CANCELLED': return 'bg-red-300';
+        default: return 'bg-sky-300';
+    }
+};
+
 const translateStatus = (status: string) => {
     switch (status) {
         case 'BOOKED': return t('appointments.status.booked');
@@ -416,31 +451,43 @@ const updateStatus = async (id: string, newStatus: string) => {
     try {
         if (newStatus === 'COMPLETED') {
             const app = appointments.value.find(a => a.id === id);
+            if (app && new Date(app.startTime) > new Date()) {
+                toast.error(t('common.error') + ": Siz hali kelajakdagi uchrashuvni yakunlayolmaysiz!");
+                await fetchAppointments(); // reset select
+                return;
+            }
             if (app && app.servicePackageId) {
-                if (confirm(t('appointments.confirmComplete') + "?")) {
+                const confirmed = await confirm(t('appointments.confirmComplete') + "?");
+                if (confirmed) {
                     await appointmentsService.completeAppointment(id, app.servicePackageId);
+                    toast.success(t('appointments.status.completed'));
                 } else {
+                    await fetchAppointments(); // reset select
                     return;
                 }
             } else {
                 await appointmentsService.updateStatus(id, newStatus);
+                toast.success(t('common.success'));
             }
         } else {
             await appointmentsService.updateStatus(id, newStatus);
+            toast.success(t('common.success'));
         }
         await fetchAppointments();
     } catch (err: any) {
-        alert(t('common.error') + ": " + err.message);
+        toast.error(err.message || t('common.error'));
     }
 };
 
 const deleteAppointment = async (id: string) => {
-    if (!confirm(t('common.deleteConfirm'))) return;
+    const confirmed = await confirm(t('common.deleteConfirm'));
+    if (!confirmed) return;
     try {
         await appointmentsService.deleteAppointment(id);
+        toast.success(t('common.success'));
         await fetchAppointments();
     } catch (err: any) {
-        alert(t('common.error') + ": " + err.message);
+        toast.error(err.message || t('common.error'));
     }
 };
 
@@ -499,7 +546,7 @@ const submitBooking = async () => {
     if (form.value.servicePackageId) {
         const pkg = activePackages.value.find(p => p.id === form.value.servicePackageId);
         if (pkg && pkg.remainingSessions <= 0) {
-            alert(t('beautyServices.errorNoSessions'));
+            toast.warning(t('beautyServices.errorNoSessions'));
             return;
         }
     }
@@ -514,14 +561,19 @@ const submitBooking = async () => {
         showModal.value = false;
         await fetchAppointments();
         form.value = { memberId: null, guestName: '', guestPhone: '', serviceName: '', staffId: null, roomId: null, startTime: '', endTime: '', price: 0, notes: '', servicePackageId: null };
+        toast.success(t('common.success'));
     } catch (err: any) {
-        alert(t('common.error') + ": " + err.message);
+        toast.error(err.message || t('common.error'));
     } finally {
         submitting.value = false;
     }
 };
 
 const openModal = (start?: string, end?: string) => {
+    // start string is like 2026-02-19 from fullcalendar if time isn't selected
+    if (start && start.length === 10) start += 'T09:00';
+    if (end && end.length === 10) end += 'T10:00';
+    
     form.value.startTime = start || '';
     form.value.endTime = end || '';
     showModal.value = true;
@@ -540,13 +592,27 @@ const calendarOptions = computed(() => ({
     selectMirror: true,
     dayMaxEvents: true,
     weekends: true,
+    nowIndicator: true,
+    displayEventTime: true,
+    nextDayThreshold: '09:00:00',
+    eventTimeFormat: {
+        hour: '2-digit' as '2-digit',
+        minute: '2-digit' as '2-digit',
+        meridiem: false,
+        hour12: false
+    },
     slotMinTime: '07:00:00',
     slotMaxTime: '22:00:00',
+    height: '700px',
+    contentHeight: 'auto',
+    handleWindowResize: true,
+    eventClassNames: 'rounded shadow-sm cursor-pointer',
     events: appointments.value.map(app => ({
         id: app.id,
         title: (app.member?.fullName || app.guestName) + ' - ' + (app.serviceName || ''),
         start: app.startTime,
         end: app.endTime,
+        allDay: false,
         backgroundColor: getEventColor(app.status),
         borderColor: getEventColor(app.status),
         extendedProps: app
@@ -565,9 +631,10 @@ const calendarOptions = computed(() => ({
                 info.event.startStr.slice(0, 16), 
                 info.event.endStr?.slice(0, 16) || info.event.startStr.slice(0, 16)
             );
+            toast.success(t('common.success'));
             await fetchAppointments();
         } catch (err: any) {
-            alert(t('common.error') + ": " + err.message);
+            toast.error(err.message || t('common.error'));
             info.revert();
         }
     }
@@ -602,3 +669,82 @@ const exportToExcel = () => {
     XLSX.writeFile(wb, `appointments_${new Date().toISOString().slice(0,10)}.xlsx`);
 };
 </script>
+
+<style>
+/* FullCalendar Sharp Overrides */
+.fc {
+    --fc-border-color: #64748b; /* Stronger gray for clear borders */
+    --fc-today-bg-color: rgba(245, 158, 11, 0.08);
+    font-family: inherit;
+}
+
+.fc .fc-toolbar-title {
+    font-size: 1.1rem !important;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.fc .fc-button {
+    background: #ffffff !important;
+    border: 1px solid #64748b !important;
+    color: #1e293b !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    border-radius: 4px !important;
+}
+
+.fc .fc-button-active {
+    background: #0ea5e9 !important;
+    color: #ffffff !important;
+    border-color: #0284c7 !important;
+}
+
+.fc th {
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    padding: 10px 0 !important;
+    background: #f1f5f9;
+    border: 1px solid #64748b !important;
+}
+
+.fc td {
+    border: 1px solid #64748b !important; /* Extremely visible borders */
+}
+
+/* Day cell number */
+.fc .fc-daygrid-day-number {
+    font-size: 0.85rem;
+    color: #000000;
+    font-weight: 700;
+    padding: 6px 10px;
+}
+
+/* Prevent overflow bleeding into next cells */
+.fc-daygrid-event {
+    z-index: 5 !important;
+    margin: 2px 6px !important; /* Significant margin to stay inside borders */
+    border-radius: 4px !important;
+}
+
+.fc-v-event {
+    border-radius: 4px !important;
+    margin: 1px 2px !important;
+}
+
+.fc-event-main {
+    padding: 2px 6px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+}
+
+.fc .fc-timegrid-slot {
+    height: 45px !important;
+    border-bottom: 1px solid #94a3b8 !important;
+}
+
+.fc .fc-timegrid-now-indicator-line {
+    border-color: #ef4444 !important;
+    border-width: 2px !important;
+}
+</style>

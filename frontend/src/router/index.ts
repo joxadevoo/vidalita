@@ -16,6 +16,7 @@ const POS = () => import('../pages/POS.vue')
 const Cashier = () => import('../pages/Cashier.vue')
 const Appointments = () => import('../pages/Appointments.vue')
 const Sales = () => import('../pages/Sales.vue')
+const AuditLogs = () => import('../pages/AuditLogs.vue')
 
 const routes: RouteRecordRaw[] = [
   { path: '/login', component: Login, meta: { requiresAuth: false } },
@@ -34,6 +35,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/cashier', component: Cashier, meta: { requiresAuth: true, allowedRoles: ['admin', 'reception'] } },
   { path: '/appointments', component: Appointments, meta: { requiresAuth: true, allowedRoles: ['admin', 'manager', 'reception'] } },
   { path: '/sales', component: Sales, meta: { requiresAuth: true, allowedRoles: ['admin', 'manager', 'reception'] } },
+  { path: '/auditlogs', component: AuditLogs, meta: { requiresAuth: true, allowedRoles: ['admin'] } },
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ]
 

@@ -4,6 +4,8 @@ import router from './router'
 import i18n from './i18n'
 import './index.css'
 
+import VueApexCharts from "vue3-apexcharts";
+
 const getInitialTheme = () => {
   const saved = localStorage.getItem('theme')
   if (saved === 'dark' || saved === 'light') {
@@ -18,7 +20,11 @@ const getInitialTheme = () => {
 const initialTheme = getInitialTheme()
 document.documentElement.classList.toggle('dark', initialTheme === 'dark')
 
-createApp(App).use(router).use(i18n).mount('#app')
+createApp(App)
+  .use(router)
+  .use(i18n)
+  .use(VueApexCharts)
+  .mount('#app')
 
 
 

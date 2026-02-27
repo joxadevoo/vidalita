@@ -7,6 +7,7 @@
     "cancel": "Bekor qilish",
     "tryAgain": "Qayta urinish",
     "delete": "O'chirish",
+    "deleteConfirm": "Haqiqatan ham ushbu ma'lumotni o'chirmoqchimisiz?",
     "edit": "Tahrirlash",
     "search": "Qidirish",
     "filter": "Filtr",
@@ -20,6 +21,9 @@
     "name": "Ism",
     "phone": "Telefon",
     "date": "Sana",
+    "client": "Mijoz",
+    "amount": "Summa",
+    "currency": "so'm",
     "time": "Vaqt",
     "status": "Holat",
     "actions": "Harakatlar",
@@ -33,7 +37,8 @@
     "noData": "Ma'lumot yo'q",
     "exportExcel": "Excel",
     "import": "Import",
-    "total": "Jami"
+    "total": "Jami",
+    "items": "ta"
   },
   "locale": "uz-UZ",
   "sidebar": {
@@ -53,7 +58,9 @@
     "expand": "Sidebar'ni kengaytirish",
     "collapse": "Sidebar'ni kichiklashtirish",
     "logout": "Chiqish",
-    "copyright": "© {year} Vidalita"
+    "auditLogs": "Audit Loglari",
+    "copyright": "© {year} Vidalita",
+    "developer": "Dasturchi:"
   },
   "topbar": {
     "notifications": "Bildirishnomalar",
@@ -92,7 +99,14 @@
     "lowSessionPackages": "Seanslari kam paketlar",
     "noLowSessions": "Hamma mijozlarda seanslar yetarli",
     "lowStockProducts": "Kam qolgan mahsulotlar",
-    "total": "Jami"
+    "total": "Jami",
+    "recentServices": "Oxirgi xizmatlar",
+    "activePackages": "Faol paketlar",
+    "noActivePackages": "Mavjud emas",
+    "salesTrend": "Savdo dinamikasi",
+    "visitsTrend": "Mijozlar tashrifi",
+    "revenue": "Daromad",
+    "visits": "Tashriflar"
   },
   "members": {
     "title": "A'zolar",
@@ -115,7 +129,10 @@
     "errorLoading": "A'zolarni yuklashda xatolik yuz berdi",
     "deleteConfirm": "A'zoni o'chirishni tasdiqlaysizmi? Bog'liq yozuvlar bo'lsa o'chirishga ruxsat berilmaydi.",
     "deleteError": "A'zoni o'chirishda xatolik yuz berdi",
-    "noResults": "Mos keluvchi natija topilmadi"
+    "noResults": "Mos keluvchi natija topilmadi",
+    "expired": "Tugagan",
+    "daysLeft": "kun qoldi",
+    "noMembership": "Obuna yo'q"
   },
   "memberCreate": {
     "title": "Yangi a'zo qo'shish",
@@ -414,7 +431,16 @@
     "successUsed": "Seans muvaffaqiyatli ishlatildi",
     "successPackageAdded": "Paket muvaffaqiyatli qo'shildi",
     "packageType": "Paket turi",
-    "sessionAction": "Harakat"
+    "sessionAction": "Harakat",
+    "viewHistory": "Tarixni ko'rish",
+    "noUsageHistory": "Hali tarix yo'q",
+    "noUsageHistoryDesc": "Ushbu paketdan hali seanslar ishlatilmagan.",
+    "usageHistory": "Seanslar tarixi",
+    "sessionNumber": "Seans #",
+    "appointmentTime": "Uchrashuv vaqti",
+    "soldViaCashier": "Kassa orqali sotildi",
+    "staff": "Xodim",
+    "errorLoadingHistory": "Tarixni yuklashda xatolik yuz berdi"
   },
   "barcode": {
     "title": "Barcode",
@@ -504,8 +530,9 @@
   },
   "login": {
     "title": "Tizimga kirish",
-    "subtitle": "Ma'lumotlaringizni kiriting",
-    "usernamePlaceholder": "Username kiriting",
+    "subtitle": "Kirish ma'lumotlarini kiriting",
+    "username": "Foydalanuvchi nomi",
+    "usernamePlaceholder": "Foydalanuvchi nomini kiriting",
     "password": "Parol",
     "passwordPlaceholder": "Parol kiriting",
     "loginButton": "Kirish",
@@ -531,7 +558,7 @@
     "searchPlaceholder": "Nomi, SKU yoki Barcode bo'yicha qidirish...",
     "columns": {
       "name": "Nomi",
-      "sku": "SKU / Barcode",
+      "sku": "SKU / Barkod",
       "category": "Kategoriya",
       "price": "Narxi",
       "stock": "Qoldiq",
@@ -539,13 +566,27 @@
     },
     "brand": "Brend",
     "sku": "SKU",
-    "barcode": "Barcode",
+    "barcode": "Shtrix-kod",
     "noSku": "SKU yo'q",
-    "noBarcode": "Barcode yo'q",
+    "noBarcode": "Shtrix-kod yo'q",
+    "salePrice": "Sotish narxi",
+    "costPrice": "Tannarx",
+    "addProduct": "Mahsulot qo'shish",
+    "editProduct": "Mahsulotni tahrirlash",
+    "saveError": "Saqlashda xatolik",
+    "deleteError": "O'chirishda xatolik",
+    "deleteConfirm": "Haqiqatan ham ushbu mahsulotni o'chirmoqchimisiz?",
+    "saving": "Saqlanmoqda...",
+    "errorLoading": "Yuklashda xatolik",
+    "discountPercent": "Chegirma %",
+    "discountPlaceholder": "0-100",
+    "discountHint": "Foizda (0-100)",
+    "originalPrice": "Asosiy narx",
     "discountedPrice": "Chegirmali narx",
-    "currentStock": "Joriy stok",
-    "reorderLevel": "Minimal stok",
-    "reorderLevelHint": "Stok bu darajadan past tushganda ogohlantirish",
+    "currentStock": "Joriy zaxira",
+    "reorderLevel": "Minimal zaxira",
+    "reorderLevelHint": "Zaxira bu darajadan past bo'lsa ogohlantirish ber",
+    "lowStock": "Kam qolgan!",
     "unit": "dona"
   },
   "inventory": {
@@ -601,7 +642,9 @@
     "processing": "Bajarilmoqda...",
     "errorOutOfStock": "Mahsulot qoldig'i yo'q!",
     "errorNoMoreStock": "Omborda boshqa qolmagan!",
-    "errorNotEnoughStock": "Omborda yetarli emas!"
+    "errorNotEnoughStock": "Omborda yetarli emas!",
+    "debt": "Qarz (Taksit)",
+    "dueDate": "To'lov muddati"
   },
   "invoice": {
     "title": "Faktura",
@@ -715,6 +758,20 @@
       "lastMonth": "O'tgan oy"
     }
   },
+  "auditLogs": {
+    "title": "Audit Loglari",
+    "subtitle": "Tizimdagi barcha harakatlar qisqacha tarixi",
+    "columns": {
+      "date": "Sana",
+      "user": "Foydalanuvchi",
+      "action": "Harakat",
+      "target": "Target ID",
+      "details": "Tafsilotlar"
+    },
+    "noLogs": "Loglar topilmadi",
+    "errorLoading": "Loglarni yuklashda xatolik yuz berdi",
+    "system": "Tizim"
+  },
   "cashier": {
     "title": "Kassa",
     "subtitle": "Kassa sessiyalari va kunlik hisobotlar",
@@ -738,7 +795,11 @@
     "zReportWarning": "Ishonchingiz komilmi? Smena yopiladi va ma'lumotlar nolga tushiriladi!",
     "breakdownPOS": "Magazin sotuvi",
     "breakdownBeauty": "Xizmatlar",
-    "breakdownPackages": "Kurslar (Paketlar)"
+    "breakdownPackages": "Kurslar (Paketlar)",
+    "pendingDebts": "Kutilayotgan Qarzlar",
+    "noPendingDebts": "Faol qarzlar yo'q",
+    "payDebt": "Qarzni To'lash",
+    "pay": "To'lash"
   },
   "roles": {
     "admin": "Admin",

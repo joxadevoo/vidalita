@@ -108,10 +108,13 @@ import { useI18n } from 'vue-i18n'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
 import { membersService } from '../services/supabaseService'
 import { formatDate } from '../lib/dateUtils'
+import { useToast } from '../composables/useToast'
+import { useConfirm } from '../composables/useConfirm'
 
 const { t } = useI18n()
-
 const router = useRouter()
+const toast = useToast()
+const { confirm } = useConfirm()
 
 type Member = {
   id: number
@@ -193,14 +196,15 @@ const isExpiringSoon = (dateStr: string | undefined) => {
 }
 
 const onDeleteMember = async (id: number) => {
-  const ok = window.confirm(t('members.deleteConfirm'))
+  const ok = await confirm(t('members.deleteConfirm'))
   if (!ok) return
   try {
     await membersService.delete(id)
+    toast.success(t('common.success'))
     members.value = members.value.filter((m) => m.id !== id)
   } catch (err: any) {
     console.error(err)
-    window.alert(err.message || t('members.deleteError'))
+    toast.error(err.message || t('members.deleteError'))
   }
 }
 </script>

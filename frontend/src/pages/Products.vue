@@ -163,8 +163,12 @@ import { ref, computed, onMounted } from 'vue';
 import { productsService } from '../services/supabaseService';
 import * as XLSX from 'xlsx';
 import { useI18n } from 'vue-i18n';
+import { useToast } from '../composables/useToast';
+import { useConfirm } from '../composables/useConfirm';
 
 const { t } = useI18n();
+const toast = useToast();
+const { confirm } = useConfirm();
 
 const products = ref<any[]>([]);
 const categories = ref<any[]>([]);
@@ -246,21 +250,24 @@ const saveProduct = async () => {
             await productsService.create(form.value);
         }
         await fetchProducts();
+        toast.success(t('common.success'));
         closeModal();
     } catch (err: any) {
-        alert(t('products.saveError') + ": " + err.message);
+        toast.error(t('products.saveError') + ": " + err.message);
     } finally {
         saving.value = false;
     }
 };
 
 const deleteProduct = async (id: number) => {
-    if (!confirm(t('products.deleteConfirm'))) return;
+    const confirmed = await confirm(t('products.deleteConfirm'));
+    if (!confirmed) return;
     try {
         await productsService.delete(id);
+        toast.success(t('common.success'));
         await fetchProducts();
     } catch (err: any) {
-        alert(t('products.deleteError') + ": " + err.message);
+        toast.error(t('products.deleteError') + ": " + err.message);
     }
 };
 

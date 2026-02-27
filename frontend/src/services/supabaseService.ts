@@ -233,16 +233,16 @@ export const checkinsService = {
             }
         }
 
-        const today = new Date().toISOString().slice(0, 10);
-        const { data: existing } = await supabase
-            .from('checkins')
-            .select('id')
-            .eq('memberid', member.id)
-            .gte('date', today)
-            .lt('date', new Date(new Date(today).getTime() + 86400000).toISOString())
-            .maybeSingle();
+        // const today = new Date().toISOString().slice(0, 10);
+        // const { data: existing } = await supabase
+        //     .from('checkins')
+        //     .select('id')
+        //     .eq('memberid', member.id)
+        //     .gte('date', today)
+        //     .lt('date', new Date(new Date(today).getTime() + 86400000).toISOString())
+        //     .maybeSingle();
 
-        if (existing) throw new Error('Bugun allaqachon kirish qayd etilgan');
+        // if (existing) throw new Error('Bugun allaqachon kirish qayd etilgan');
 
         const { data, error } = await supabase
             .from('checkins')
@@ -266,22 +266,49 @@ export const checkinsService = {
 
 export const beautyService = {
     async getAll() {
-        const { data, error } = await supabase
-            .from('beauty_services')
-            .select('*, members(fullname, phone)')
-            .order('servicedate', { ascending: false });
-        if (error) throw error;
-        return (data || []).map(mappings.mapBeautyServiceToCamelCase);
+        const [{ data: services, error: sErr }, { data: packages, error: pErr }] = await Promise.all([
+            supabase.from('beauty_services').select('*, members(fullname, phone)').order('servicedate', { ascending: false }),
+            supabase.from('service_packages').select('*, members(fullname, phone)').order('purchase_date', { ascending: false })
+        ]);
+
+        if (sErr) throw sErr;
+        if (pErr) throw pErr;
+
+        const mappedServices = (services || []).map(mappings.mapBeautyServiceToCamelCase);
+        const mappedPackages = (packages || []).map(p => ({
+            ...mappings.mapServicePackageToCamelCase(p),
+            serviceDate: p.purchase_date,
+            amount: p.price,
+            fullName: p.members?.fullname || null,
+            phone: p.members?.phone || null,
+            isPackage: true
+        }));
+
+        return [...mappedServices, ...mappedPackages].sort((a, b) =>
+            new Date(b.serviceDate).getTime() - new Date(a.serviceDate).getTime()
+        );
     },
 
     async getByMemberId(memberId: number | string) {
-        const { data, error } = await supabase
-            .from('beauty_services')
-            .select('*')
-            .eq('memberid', memberId)
-            .order('servicedate', { ascending: false });
-        if (error) throw error;
-        return (data || []).map(mappings.mapBeautyServiceToCamelCase);
+        const [{ data: services, error: sErr }, { data: packages, error: pErr }] = await Promise.all([
+            supabase.from('beauty_services').select('*').eq('memberid', memberId).order('servicedate', { ascending: false }),
+            supabase.from('service_packages').select('*').eq('member_id', memberId).order('purchase_date', { ascending: false })
+        ]);
+
+        if (sErr) throw sErr;
+        if (pErr) throw pErr;
+
+        const mappedServices = (services || []).map(mappings.mapBeautyServiceToCamelCase);
+        const mappedPackages = (packages || []).map(p => ({
+            ...mappings.mapServicePackageToCamelCase(p),
+            serviceDate: p.purchase_date,
+            amount: p.price,
+            isPackage: true
+        }));
+
+        return [...mappedServices, ...mappedPackages].sort((a, b) =>
+            new Date(b.serviceDate).getTime() - new Date(a.serviceDate).getTime()
+        );
     },
 
     async add(payload: any) {
@@ -354,7 +381,7 @@ export const beautyService = {
         return result;
     },
 
-    async usePackageSession(packageId: number | string, serviceDate?: string, appointmentId?: number | string, cashSessionId?: number) {
+    async usePackageSession(packageId: number | string, serviceDate?: string, appointmentId?: string, cashSessionId?: number) {
         const { data, error } = await supabase.rpc('use_package_session_atomic', {
             p_package_id: packageId,
             p_appointment_id: appointmentId || null,
@@ -372,6 +399,32 @@ export const beautyService = {
         }
 
         return data.service_record;
+    },
+
+    async getPackageUsages(packageId: number | string) {
+        const { data, error } = await supabase
+            .from('package_session_usages')
+            .select('*, appointments(id, start_time)')
+            .eq('package_id', packageId)
+            .order('service_date', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching package usages:', error);
+            throw error;
+        }
+
+        return (data || []).map((usage: any) => ({
+            id: usage.id,
+            packageId: usage.package_id,
+            memberId: usage.member_id,
+            serviceName: usage.service_name,
+            serviceDate: usage.service_date,
+            appointmentId: usage.appointment_id,
+            appointmentStartTime: usage.appointments?.start_time,
+            cashSessionId: usage.cash_session_id,
+            staffName: usage.staff_name,
+            createdAt: usage.created_at
+        }));
     },
 
     async getServiceTypes() {
@@ -640,6 +693,59 @@ export const statsService = {
                 today: todayAppointments || 0
             }
         };
+    },
+    async getWeeklyStats() {
+        const today = new Date();
+        const dates = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date(today);
+            d.setDate(d.getDate() - i);
+            dates.push(d.toISOString().slice(0, 10));
+        }
+
+        const startDate = dates[0];
+        const endDate = new Date(new Date(dates[6]).getTime() + 86400000).toISOString().slice(0, 10);
+
+        const [salesRes, checkinsRes, beautyRes] = await Promise.all([
+            supabase.from('sales').select('total_amount, created_at').gte('created_at', startDate).lt('created_at', endDate),
+            supabase.from('checkins').select('date').gte('date', startDate).lt('date', endDate),
+            supabase.from('beauty_services').select('amount, servicedate').gte('servicedate', startDate).lt('servicedate', endDate).not('amount', 'eq', 0)
+        ]);
+
+        const salesByDate: Record<string, number> = {};
+        const checkinsByDate: Record<string, number> = {};
+
+        dates.forEach(date => {
+            salesByDate[date] = 0;
+            checkinsByDate[date] = 0;
+        });
+
+        salesRes.data?.forEach(s => {
+            const date = s.created_at.slice(0, 10);
+            if (salesByDate[date] !== undefined) {
+                salesByDate[date] += parseFloat(s.total_amount);
+            }
+        });
+
+        beautyRes.data?.forEach(b => {
+            const date = b.servicedate.slice(0, 10);
+            if (salesByDate[date] !== undefined) {
+                salesByDate[date] += parseFloat(b.amount);
+            }
+        });
+
+        checkinsRes.data?.forEach(c => {
+            const date = c.date.slice(0, 10);
+            if (checkinsByDate[date] !== undefined) {
+                checkinsByDate[date]++;
+            }
+        });
+
+        return {
+            dates,
+            sales: dates.map(d => salesByDate[d]),
+            checkins: dates.map(d => checkinsByDate[d])
+        };
     }
 };
 
@@ -697,7 +803,23 @@ export const cashSessionsService = {
             .eq('cash_session_id', sessionId);
         if (beautyError) throw beautyError;
 
-        return { sales, beauty };
+        let debtPayments: any[] = [];
+        const { data: dp, error: debtError } = await supabase
+            .from('debt_payments')
+            .select('*')
+            .eq('cash_session_id', sessionId);
+
+        if (debtError) {
+            if (debtError.code === 'PGRST205') {
+                console.warn('debt_payments table not found in schema cache');
+            } else {
+                throw debtError;
+            }
+        } else {
+            debtPayments = dp || [];
+        }
+
+        return { sales, beauty, debtPayments };
     },
 
     async getPeriodReport(from: string, to: string) {
@@ -705,15 +827,26 @@ export const cashSessionsService = {
         const fromDate = `${from}T00:00:00.000Z`;
         const toDate = `${to}T23:59:59.999Z`;
 
-        const [{ data: sales }, { data: beauty }, { data: packages }] = await Promise.all([
+        const [salesRes, beautyRes, packagesRes, debtPaymentsRes] = await Promise.all([
             supabase.from('sales').select('*').gte('created_at', fromDate).lte('created_at', toDate),
             supabase.from('beauty_services').select('*').gte('servicedate', fromDate).lte('servicedate', toDate).not('amount', 'eq', 0),
-            supabase.from('service_packages').select('*').gte('purchase_date', fromDate).lte('purchase_date', toDate)
+            supabase.from('service_packages').select('*').gte('purchase_date', fromDate).lte('purchase_date', toDate),
+            supabase.from('debt_payments').select('*').gte('payment_date', fromDate).lte('payment_date', toDate)
         ]);
 
-        const totalSales = (sales || []).reduce((acc, s) => acc + (s.total_amount || 0), 0);
-        const totalBeauty = (beauty || []).reduce((acc, b) => acc + (b.amount || 0), 0);
-        const totalPackages = (packages || []).reduce((acc, p) => acc + (p.price || 0), 0);
+        const sales = salesRes.data || [];
+        const beauty = beautyRes.data || [];
+        const packages = packagesRes.data || [];
+        let debtPayments = debtPaymentsRes.data || [];
+
+        if (debtPaymentsRes.error && debtPaymentsRes.error.code !== 'PGRST205') {
+            throw debtPaymentsRes.error;
+        }
+
+        const totalSales = sales.reduce((acc: number, s: any) => acc + (s.total_amount || 0), 0);
+        const totalBeauty = beauty.reduce((acc: number, b: any) => acc + (b.amount || 0), 0);
+        const totalPackages = packages.reduce((acc: number, p: any) => acc + (p.price || 0), 0);
+        const totalDebtPayments = debtPayments.reduce((acc: number, dp: any) => acc + (dp.amount || 0), 0);
 
         const byMethod: Record<string, number> = {};
 
@@ -722,20 +855,23 @@ export const cashSessionsService = {
             byMethod[m] = (byMethod[m] || 0) + amount;
         };
 
-        (sales || []).forEach(s => normalizeAndAdd(s.payment_method, s.total_amount || 0));
-        (beauty || []).forEach(b => normalizeAndAdd(b.payment_method, b.amount || 0));
-        (packages || []).forEach(p => normalizeAndAdd(p.payment_method, p.price || 0));
+        (sales || []).forEach((s: any) => normalizeAndAdd(s.payment_method, s.total_amount || 0));
+        (beauty || []).forEach((b: any) => normalizeAndAdd(b.payment_method, b.amount || 0));
+        (packages || []).forEach((p: any) => normalizeAndAdd(p.payment_method, p.price || 0));
+        (debtPayments || []).forEach((dp: any) => normalizeAndAdd(dp.payment_method, dp.amount || 0));
 
         return {
-            total: totalSales + totalBeauty + totalPackages,
+            total: totalSales + totalBeauty + totalPackages + totalDebtPayments,
             byMethod,
             salesCount: (sales || []).length,
             beautyCount: (beauty || []).length,
             packageCount: (packages || []).length,
+            debtPaymentCount: (debtPayments || []).length,
             breakdown: {
                 pos: totalSales,
                 beauty: totalBeauty,
-                packages: totalPackages
+                packages: totalPackages,
+                debts: totalDebtPayments
             }
         };
     }
@@ -1055,6 +1191,8 @@ export const inventoryService = {
 export const salesService = {
     async createSale(saleData: any) {
         const customerName = saleData.customerName ? String(saleData.customerName).trim() : '';
+        const isDebt = saleData.paymentMethod && String(saleData.paymentMethod).toUpperCase() === 'DEBT';
+
         const { data: sale, error: saleError } = await supabase
             .from('sales')
             .insert({
@@ -1064,13 +1202,27 @@ export const salesService = {
                 card_amount: saleData.cardAmount || 0,
                 discount_amount: saleData.discountAmount || 0,
                 payment_method: saleData.paymentMethod,
-                payment_status: saleData.paymentStatus || 'PAID',
+                payment_status: isDebt ? 'UNPAID' : (saleData.paymentStatus || 'PAID'),
                 cash_session_id: saleData.cashSessionId || null,
                 notes: customerName || null
             })
             .select()
             .single();
         if (saleError) throw saleError;
+
+        // If it's a debt sale, create a debt record
+        if (isDebt) {
+            await debtsService.createDebt({
+                member_id: saleData.memberId,
+                source_type: 'POS',
+                source_id: sale.id,
+                total_amount: saleData.totalAmount,
+                remaining_amount: saleData.totalAmount,
+                due_date: saleData.dueDate,
+                status: 'pending',
+                notes: `POS sale #${sale.id.toString().slice(-8)}`
+            });
+        }
 
         for (const item of saleData.items) {
             await supabase.from('sale_items').insert({
@@ -1212,7 +1364,7 @@ export const appointmentsService = {
     async completeAppointment(id: string, packageId?: number | string) {
         const { data, error } = await supabase
             .from('appointments')
-            .update({ status: 'completed', updated_at: new Date().toISOString() })
+            .update({ status: 'COMPLETED', updated_at: new Date().toISOString() })
             .eq('id', id)
             .select()
             .single();
@@ -1246,3 +1398,38 @@ export const appointmentsService = {
         return mappings.mapAppointmentToCamelCase(data);
     }
 };
+
+export const debtsService = {
+    async createDebt(debtData: { member_id: number | string, source_type: 'POS' | 'BEAUTY', source_id?: number | string, total_amount: number, remaining_amount: number, due_date?: string, status?: string, notes?: string }) {
+        const { data, error } = await supabase.from('debts').insert([debtData]).select().single();
+        if (error) throw error;
+        return data;
+    },
+    async getMemberDebts(memberId: number | string) {
+        const { data, error } = await supabase.from('debts').select('*').eq('member_id', memberId).order('created_at', { ascending: false });
+        if (error) throw error;
+        return data;
+    },
+    async getAllPendingDebts() {
+        const { data, error } = await supabase.from('debts').select('*, members(fullname, phone)').in('status', ['pending', 'overdue']).order('due_date', { ascending: true });
+        if (error) throw error;
+        return data;
+    },
+    async payDebt(paymentData: { debt_id: number | string, amount: number, payment_method: 'CASH' | 'CARD' | 'TRANSFER', cash_session_id?: number, processed_by?: string, notes?: string }) {
+        const { data: debt, error: fetchError } = await supabase.from('debts').select('remaining_amount').eq('id', paymentData.debt_id).single();
+        if (fetchError) throw fetchError;
+
+        const { data: payment, error: payError } = await supabase.from('debt_payments').insert([paymentData]).select().single();
+        if (payError) throw payError;
+
+        const newRemaining = debt.remaining_amount - paymentData.amount;
+        const { data: updatedDebt, error: updateError } = await supabase.from('debts').update({ remaining_amount: newRemaining }).eq('id', paymentData.debt_id).select().single();
+        if (updateError) throw updateError;
+
+        return { payment, updatedDebt };
+    }
+};
+
+
+
+

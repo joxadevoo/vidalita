@@ -60,6 +60,18 @@
             <ArrowRightOnRectangleIcon class="h-4 w-4" />
             {{ $t('sidebar.logout') }}
           </button>
+          <div class="mt-2 text-center pb-2 flex flex-col items-center gap-1">
+            <span class="block text-[9px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em] mb-1.5">&copy; {{ currentYear }} Vidalita</span>
+            <div class="flex items-center gap-3">
+              <a href="https://t.me/jaxongirtoshpolatov" target="_blank" class="inline-flex items-center justify-center gap-1 text-[10px] font-bold text-gray-400 dark:text-gray-500 hover:text-sky-500 transition-colors">
+                <CodeBracketIcon class="h-3 w-3" />
+                <span>{{ $t('sidebar.developer') }}</span>
+              </a>
+              <a href="https://github.com/joxadevoo" target="_blank" class="inline-flex items-center text-[10px] font-bold text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+                joxadevoo
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </aside>
@@ -154,8 +166,17 @@
         <ArrowRightOnRectangleIcon class="h-5 w-5" />
         <span v-if="!collapsed">{{ $t('sidebar.logout') }}</span>
       </button>
-      <div v-if="!collapsed" class="text-center">
+      <div v-if="!collapsed" class="text-center flex flex-col items-center gap-1.5 mt-2">
         <span class="text-[9px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em]">&copy; {{ currentYear }} Vidalita</span>
+        <div class="flex items-center gap-3">
+          <a href="https://t.me/jaxongirtoshpolatov" target="_blank" class="flex items-center gap-1 text-[10px] font-bold text-gray-400 dark:text-gray-500 hover:text-sky-500 transition-colors">
+            <CodeBracketIcon class="h-3 w-3" />
+            <span>{{ $t('sidebar.developer') }}</span>
+          </a>
+          <a href="https://github.com/joxadevoo" target="_blank" class="flex items-center gap-1 text-[10px] font-bold text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+            joxadevoo
+          </a>
+        </div>
       </div>
     </div>
   </aside>
@@ -178,7 +199,9 @@ import {
   CalendarDaysIcon,
   BanknotesIcon,
   ClipboardDocumentListIcon,
-  ArrowRightOnRectangleIcon
+  ShieldCheckIcon,
+  ArrowRightOnRectangleIcon,
+  CodeBracketIcon
 } from '@heroicons/vue/24/outline'
 
 defineProps<{ isOpen: boolean; collapsed?: boolean }>()
@@ -209,7 +232,8 @@ const navItems = computed(() => {
     { name: t('sidebar.products'), href: '/products', icon: ShoppingBagIcon, roles: ['admin', 'manager'] },
     { name: t('sidebar.inventory'), href: '/inventory', icon: ArchiveBoxIcon, roles: ['admin', 'manager'] },
     { name: t('sidebar.barcode'), href: '/barcode', icon: QrCodeIcon, roles: ['admin', 'manager', 'reception'] },
-    { name: t('sidebar.settings'), href: '/settings', icon: Cog6ToothIcon, roles: ['admin'] }
+    { name: t('sidebar.settings'), href: '/settings', icon: Cog6ToothIcon, roles: ['admin'] },
+    { name: t('sidebar.auditLogs'), href: '/auditlogs', icon: ShieldCheckIcon, roles: ['admin'] }
   ]
 
   return allItems.filter(item => item.roles.includes(userRole))

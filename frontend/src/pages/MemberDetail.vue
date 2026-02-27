@@ -139,7 +139,21 @@
                 <td class="px-6 py-4 text-sm font-bold" :class="pkg.remainingSessions <= 1 ? 'text-red-600' : 'text-green-600'">
                   {{ pkg.remainingSessions }}
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-600">{{ formatDate(pkg.purchaseDate) }}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">
+                  <div class="flex items-center gap-2">
+                    <span>{{ formatDate(pkg.purchaseDate) }}</span>
+                    <button 
+                      @click="openPackageTracker(pkg.id, pkg.serviceName)"
+                      class="ml-2 rounded p-1.5 text-sky-600 hover:bg-sky-50 transition-colors"
+                      :title="$t('beautyServices.viewHistory')"
+                    >
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
               </tr>
               <tr v-if="activePackages.length === 0">
                 <td colspan="4" class="px-6 py-6 text-center text-sm text-gray-500">{{ $t('memberDetail.noActivePackages') }}</td>
@@ -296,11 +310,18 @@
     </div>
   </div>
 
-  <!-- Invoice Modal -->
   <InvoiceModal
     :show="showInvoice"
     :sale-id="selectedSaleId"
     @close="showInvoice = false"
+  />
+
+  <PackageTrackerModal
+    :show="showPackageTracker"
+    :package-id="selectedPackageId"
+    :service-name="selectedPackageName"
+    :title="$t('beautyServices.usageHistory')"
+    @close="showPackageTracker = false"
   />
 </template>
 
@@ -310,12 +331,18 @@ import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
 import InvoiceModal from '../components/InvoiceModal.vue'
+import ContractModal from '../components/ContractModal.vue'
+import PackageTrackerModal from '../components/PackageTrackerModal.vue'
 import { membersService, checkinsService, beautyService, storageService, salesService, appointmentsService } from '../services/supabaseService'
 import { formatDate, formatDateTime } from '../lib/dateUtils'
+import { useToast } from '../composables/useToast'
+import { useConfirm } from '../composables/useConfirm'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
+const toast = useToast()
+const { confirm } = useConfirm()
 const memberId = computed(() => Number(route.params.id))
 
 const member = ref<any>(null)
@@ -333,9 +360,20 @@ const error = ref<string | null>(null)
 const showInvoice = ref(false)
 const selectedSaleId = ref<number | null>(null)
 
+// Package Tracker modal state
+const showPackageTracker = ref(false)
+const selectedPackageId = ref<number | undefined>(undefined)
+const selectedPackageName = ref<string>('')
+
 const openInvoice = (saleId: number) => {
   selectedSaleId.value = saleId;
   showInvoice.value = true;
+};
+
+const openPackageTracker = (packageId: number, serviceName: string) => {
+  selectedPackageId.value = packageId;
+  selectedPackageName.value = serviceName;
+  showPackageTracker.value = true;
 };
 
 const beautyQuestions = [
@@ -473,14 +511,21 @@ const fetchMember = async () => {
 }
 
 const onDeleteMember = async () => {
-  if (!window.confirm(t('memberDetail.deleteConfirm'))) return
+  const confirmed = await confirm(t('memberDetail.deleteConfirm'))
+  if (!confirmed) return
   try {
     await membersService.delete(memberId.value)
+    toast.success(t('common.success'))
     router.push('/members')
   } catch (err: any) {
-    window.alert(err.message || t('memberDetail.deleteError'))
+    toast.error(err.message || t('memberDetail.deleteError'))
   }
 }
 
 onMounted(fetchMember)
 </script>
+
+
+
+
+

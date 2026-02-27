@@ -475,8 +475,12 @@ import * as XLSX from 'xlsx'
 import { TableCellsIcon, DocumentTextIcon } from '@heroicons/vue/24/outline'
 import { formatDate, formatDateTime, getCurrentDateTime } from '../lib/dateUtils'
 import { Html5Qrcode } from 'html5-qrcode'
+import { useToast } from '../composables/useToast'
+import { useConfirm } from '../composables/useConfirm'
 
 const { t } = useI18n()
+const toast = useToast()
+const { confirm } = useConfirm()
 
 type Checkin = {
   id: number
@@ -626,7 +630,7 @@ const resetFilters = () => {
 const exportToExcel = () => {
   const data = filteredCheckins.value
   if (data.length === 0) {
-    alert(t('common.noData'))
+    toast.warning(t('common.noData'))
     return
   }
 
@@ -666,7 +670,7 @@ const exportToExcel = () => {
 const exportToPDF = () => {
   const data = filteredCheckins.value
   if (data.length === 0) {
-    alert(t('common.noData'))
+    toast.warning(t('common.noData'))
     return
   }
 
@@ -773,27 +777,29 @@ const exportToPDF = () => {
 // formatDateTime va formatDate funksiyalari utility'dan import qilingan
 
 const onDeleteCheckin = async (id: number) => {
-  const ok = window.confirm(t('checkins.deleteCheckinConfirm'))
+  const ok = await confirm(t('checkins.deleteCheckinConfirm'))
   if (!ok) return
   try {
     await checkinsService.delete(id)
+    toast.success(t('common.success'))
     checkins.value = checkins.value.filter(c => c.id !== id)
   } catch (err: any) {
     console.error(err)
-    window.alert(err.message || t('checkins.deleteCheckinError'))
+    toast.error(err.message || t('checkins.deleteCheckinError'))
   }
 }
 
 const onDeleteMember = async (memberId: number) => {
-  const ok = window.confirm(t('checkins.deleteMemberConfirm'))
+  const ok = await confirm(t('checkins.deleteMemberConfirm'))
   if (!ok) return
   try {
     await membersService.delete(memberId)
+    toast.success(t('common.success'))
     // A'zosi o'chirilgan yozuvlarni ham ro'yxatdan olib tashlaymiz
     checkins.value = checkins.value.filter(c => c.memberId !== memberId)
   } catch (err: any) {
     console.error(err)
-    window.alert(err.message || t('checkins.deleteMemberError'))
+    toast.error(err.message || t('checkins.deleteMemberError'))
   }
 }
 
@@ -960,7 +966,7 @@ const handleBarcodeScan = async () => {
     }, 3000)
   } catch (err: any) {
     console.error(err)
-    const errorMsg = err?.response?.data?.error || t('checkins.errorCheckin')
+    const errorMsg = err.message || err?.response?.data?.error || t('checkins.errorCheckin')
     error.value = errorMsg
     
     // 5 soniyadan keyin xatolik xabarni yashirish

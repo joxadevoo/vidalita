@@ -33,6 +33,8 @@
       </div>
     </div>
   </div>
+  <ToastContainer />
+  <ConfirmDialog />
 </template>
 
 <script setup lang="ts">
@@ -40,6 +42,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
 import TopBar from './components/TopBar.vue'
+import ToastContainer from './components/ToastContainer.vue'
+import ConfirmDialog from './components/ConfirmDialog.vue'
 
 const route = useRoute()
 const isLoginPage = computed(() => route.path === '/login')

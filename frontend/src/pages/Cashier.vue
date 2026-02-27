@@ -64,6 +64,47 @@
         </div>
       </div>
 
+      <!-- Pending Debts Card -->
+      <div v-if="currentSession" class="col-span-1 md:col-span-2 lg:col-span-3 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex justify-between items-center">
+          <h3 class="font-semibold text-gray-900 flex items-center gap-2">
+            <CreditCardIcon class="h-5 w-5 text-red-500" />
+            {{ $t('cashier.pendingDebts', 'Kutilayotgan Qarzlar') }}
+          </h3>
+        </div>
+        <div class="p-6">
+          <div v-if="pendingDebts.length === 0" class="text-center py-6 text-gray-500">
+            {{ $t('cashier.noPendingDebts', 'Faol qarzlar yuq') }}
+          </div>
+          <div v-else class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="border-b border-gray-200 bg-gray-50/50 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th class="px-4 py-3">{{ $t('common.date') }}</th>
+                  <th class="px-4 py-3">{{ $t('common.client') }}</th>
+                  <th class="px-4 py-3">{{ $t('pos.dueDate', 'Muddat') }}</th>
+                  <th class="px-4 py-3">{{ $t('common.amount') }}</th>
+                  <th class="px-4 py-3 text-right">{{ $t('common.actions') }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <tr v-for="debt in pendingDebts" :key="debt.id" class="hover:bg-gray-50/50">
+                  <td class="px-4 py-3 text-sm text-gray-900">{{ formatDate(debt.created_at) }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-900 font-medium">{{ debt.members?.fullname }}</td>
+                  <td class="px-4 py-3 text-sm" :class="isOverdue(debt.due_date) ? 'text-red-600 font-bold' : 'text-gray-500'">{{ debt.due_date ? formatDate(debt.due_date) : '-' }}</td>
+                  <td class="px-4 py-3 text-sm font-semibold text-gray-900">{{ formatPrice(debt.remaining_amount) }}</td>
+                  <td class="px-4 py-3 text-right">
+                    <button @click="openDebtPaymentModal(debt)" class="text-xs font-semibold text-sky-600 hover:text-sky-700 bg-sky-50 px-3 py-1.5 rounded-lg">
+                      {{ $t('cashier.pay', 'To\'lash') }}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- Quick Stats Card -->
       <div v-if="currentSession" class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
@@ -118,6 +159,43 @@
             :disabled="submitting"
             class="w-full rounded-lg bg-sky-600 px-4 py-3 text-sm font-semibold text-white hover:bg-sky-500 disabled:opacity-50 shadow-sm transition-all active:scale-[0.98]"
           >
+            {{ submitting ? $t('common.loading') : $t('common.confirm') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pay Debt Modal -->
+    <div v-if="showDebtModal" class="fixed inset-0 z-[150] flex items-center justify-center p-4 no-print">
+      <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" @click="closeDebtModal"></div>
+      <div class="relative w-full max-w-sm rounded-xl border border-gray-200 bg-white shadow-xl z-[151] overflow-hidden">
+        <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50/50">
+          <h3 class="text-lg font-bold text-gray-900">{{ $t('cashier.payDebt', 'Qarzni To\'lash') }}</h3>
+          <button @click="closeDebtModal" class="text-gray-400 hover:text-gray-500">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('common.amount') }}</label>
+            <input v-model.number="debtPaymentAmount" type="number" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('pos.paymentMethod') }}</label>
+            <select v-model="debtPaymentMethod" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500">
+              <option value="CASH">{{ $t('pos.cash') }}</option>
+              <option value="CARD">{{ $t('pos.card') }}</option>
+              <option value="TRANSFER">{{ $t('pos.transfer', 'O\'tkazma') }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="border-t border-gray-200 bg-gray-50/50 px-6 py-4 flex justify-end gap-3">
+          <button @click="closeDebtModal" class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            {{ $t('common.cancel') }}
+          </button>
+          <button @click="submitDebtPayment" :disabled="submitting" class="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500 disabled:opacity-50">
             {{ submitting ? $t('common.loading') : $t('common.confirm') }}
           </button>
         </div>
@@ -356,6 +434,12 @@ const stats = ref({
   other: 0
 })
 
+const pendingDebts = ref<any[]>([])
+const showDebtModal = ref(false)
+const activeDebt = ref<any>(null)
+const debtPaymentAmount = ref(0)
+const debtPaymentMethod = ref('CASH')
+
 const isPrintingPeriodReport = ref(false)
 const lastClosedSession = ref<any>(null)
 
@@ -382,6 +466,17 @@ const fetchCurrentSession = async () => {
     if (session) {
       const report = await cashSessionsService.getReport(session.id)
       processReport(report)
+    }
+    const { debtsService } = await import('../services/supabaseService');
+    try {
+      pendingDebts.value = await debtsService.getAllPendingDebts();
+    } catch (debtErr: any) {
+      if (debtErr.code === 'PGRST205') {
+        console.warn('debts table not found yet');
+        pendingDebts.value = [];
+      } else {
+        throw debtErr;
+      }
     }
   } catch (err) {
     console.error('Failed to fetch session:', err)
@@ -488,6 +583,50 @@ const printPeriodReport = () => {
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('uz-UZ', { style: 'currency', currency: 'UZS' }).format(price)
 }
+
+const isOverdue = (dateStr: string) => {
+  if (!dateStr) return false;
+  return new Date(dateStr) < new Date(new Date().setHours(0,0,0,0));
+};
+
+const openDebtPaymentModal = (debt: any) => {
+  activeDebt.value = debt;
+  debtPaymentAmount.value = debt.remaining_amount;
+  debtPaymentMethod.value = 'CASH';
+  showDebtModal.value = true;
+};
+
+const closeDebtModal = () => {
+  showDebtModal.value = false;
+  activeDebt.value = null;
+};
+
+const submitDebtPayment = async () => {
+  if (!activeDebt.value || debtPaymentAmount.value <= 0 || debtPaymentAmount.value > activeDebt.value.remaining_amount) {
+      alert('Miqdor notugri');
+      return;
+  }
+  submitting.value = true;
+  try {
+      const { debtsService } = await import('../services/supabaseService');
+      const userJson = localStorage.getItem('user');
+      const user = userJson ? JSON.parse(userJson) : null;
+      await debtsService.payDebt({
+          debt_id: activeDebt.value.id,
+          amount: debtPaymentAmount.value,
+          payment_method: debtPaymentMethod.value as any,
+          cash_session_id: currentSession.value.id,
+          processed_by: user?.id
+      });
+      closeDebtModal();
+      await fetchCurrentSession();
+  } catch (err: any) {
+      console.error(err);
+      alert('Xatolik: ' + err.message);
+  } finally {
+      submitting.value = false;
+  }
+};
 
 const printCurrentSession = () => {
     isPrintingPeriodReport.value = false

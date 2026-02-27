@@ -7,6 +7,7 @@
     "cancel": "İptal",
     "tryAgain": "Tekrar Dene",
     "delete": "Sil",
+    "deleteConfirm": "Silmek istediğinizden emin misiniz?",
     "edit": "Düzenle",
     "search": "Ara",
     "filter": "Filtre",
@@ -21,6 +22,9 @@
     "name": "İsim",
     "phone": "Telefon",
     "date": "Tarih",
+    "client": "Müşteri",
+    "amount": "Miktar",
+    "currency": "som",
     "time": "Saat",
     "status": "Durum",
     "actions": "İşlemler",
@@ -52,9 +56,11 @@
     "expand": "Kenar çubuğunu genişlet",
     "collapse": "Kenar çubuğunu küçült",
     "logout": "Çıkış",
+    "auditLogs": "Denetim Günlükleri",
     "copyright": "© {year} Vidalita",
     "scanner": "Barkod Okuyucu",
-    "sales": "Satış Geçmişi"
+    "sales": "Satış Geçmişi",
+    "developer": "Geliştirici:"
   },
   "topbar": {
     "notifications": "Bildirimler",
@@ -85,6 +91,9 @@
     "days": "gün",
     "view": "Görüntüle",
     "noData": "Henüz veri yok",
+    "recentServices": "Son Hizmetler",
+    "activePackages": "Aktif Paketler (Seanslar)",
+    "noActivePackages": "Aktif paket yok",
     "errorLoading": "Veriler yüklenirken hata oluştu",
     "todaySales": "Bugünkü Satışlar",
     "todayAppointments": "Bugünkü Randevular",
@@ -93,7 +102,11 @@
     "lowSessionPackages": "Azalan Seanslı Paketler",
     "noLowSessions": "Tüm paketlerde yeterli seans var",
     "lowStockProducts": "Azalan Stoklu Ürünler",
-    "total": "Toplam"
+    "total": "Toplam",
+    "salesTrend": "Satış Dinamiği",
+    "visitsTrend": "Müşteri Trafiği",
+    "revenue": "Gelir",
+    "visits": "Ziyaretler"
   },
   "members": {
     "title": "Üyeler",
@@ -418,7 +431,16 @@
     "serviceTypeHint": "Tek seferlik hizmet veya paket seçimi",
     "totalSessions": "Toplam {count} seans",
     "remainingSessions": "Kalan seans",
-    "sessionsCount": "{count} seans"
+    "sessionsCount": "{count} seans",
+    "viewHistory": "Geçmişi Görüntüle",
+    "noUsageHistory": "Henüz kullanım geçmişi yok",
+    "noUsageHistoryDesc": "Bu paketten henüz hiçbir seans kullanılmadı.",
+    "usageHistory": "Seans Geçmişi",
+    "sessionNumber": "Seans #",
+    "appointmentTime": "Randevu zamanı",
+    "soldViaCashier": "Kasa üzerinden satıldı",
+    "staff": "Personel",
+    "errorLoadingHistory": "Geçmiş yüklenirken hata oluştu"
   },
   "barcode": {
     "title": "Barkod",
@@ -556,7 +578,6 @@
     "deleteConfirm": "Silmek istediğinizden emin misiniz?",
     "saving": "Kaydediliyor...",
     "errorLoading": "Yükleme Hatası",
-    "unit": "Birim",
     "discountPercent": "İndirim %",
     "discountPlaceholder": "0-100",
     "discountHint": "Yüzde olarak (0-100)",
@@ -564,7 +585,9 @@
     "discountedPrice": "İndirimli fiyat",
     "currentStock": "Mevcut Stok",
     "reorderLevel": "Minimum Stok",
-    "reorderLevelHint": "Stok bu seviyenin altına düştüğünde uyarı ver"
+    "reorderLevelHint": "Stok bu seviyenin altına düştüğünde uyarı ver",
+    "lowStock": "Düşük Stok!",
+    "unit": "Birim"
   },
   "inventory": {
     "title": "Stok Kontrolü",
@@ -619,7 +642,9 @@
     "errorNotEnoughStock": "Yetersiz stok!",
     "mixed": "KARIŞIK",
     "cashAmount": "Nakit Tutarı",
-    "cardAmount": "Kart Tutarı"
+    "cardAmount": "Kart Tutarı",
+    "debt": "Borç (Taksit)",
+    "dueDate": "Ödeme Tarihi"
   },
   "invoice": {
     "title": "Fatura",
@@ -697,6 +722,20 @@
     "resetFilters": "Filtreleri Sıfırla",
     "searchPlaceholder": "Üye ara..."
   },
+  "auditLogs": {
+    "title": "Denetim Günlükleri",
+    "subtitle": "Sistemdeki tüm eylemlerin geçmişi",
+    "columns": {
+      "date": "Tarih",
+      "user": "Kullanıcı",
+      "action": "Eylem",
+      "target": "Hedef ID",
+      "details": "Detaylar"
+    },
+    "noLogs": "Günlük bulunamadı",
+    "errorLoading": "Günlükler yüklenirken hata oluştu",
+    "system": "Sistem"
+  },
   "cashier": {
     "title": "Kasa",
     "subtitle": "Kasiyer oturumları ve günlük raporlar",
@@ -720,68 +759,29 @@
     "breakdownPackages": "Paket Satışları",
     "xReport": "X-Raporu (Güncel Durum)",
     "zReport": "Z-Raporu (Gün Sonu)",
-    "zReportWarning": "Z-Raporu alındıktan sonra kasa sıfırlanır ve gün sonlandırılır. Onaylıyor musunuz?"
+    "zReportWarning": "Z-Raporu alındıktan sonra kasa sıfırlanır ve gün sonlandırılır. Onaylıyor musunuz?",
+    "pendingDebts": "Bekleyen Borçlar",
+    "noPendingDebts": "Aktif borç yok",
+    "payDebt": "Borç Öde",
+    "pay": "Öde"
   },
   "sales": {
     "title": "Satış Geçmişi",
-    "subtitle": "Kasiyer, ürün satışları ve hizmet işlemlerinin tam listesi",
-    "stats": {
-      "totalPeriod": "Dönem Toplamı",
-      "posSales": "POS (Ürünler)",
-      "servicesSales": "Hizmetler",
-      "cash": "Nakit",
-      "card": "Kart",
-      "mixed": "Karışık",
-      "totalProfit": "Net Kar"
-    },
-    "filters": {
-      "allTime": "Tüm Zamanlar",
-      "today": "Bugün",
-      "thisMonth": "Bu Ay",
-      "range": "Tarih Aralığı",
-      "selectMonth": "Ay Seçin",
-      "dateFrom": "Başlangıç",
-      "dateTo": "Bitiş"
-    },
-    "tabs": {
-      "combined": "Birleştirilmiş Görünüm",
-      "pos": "POS (Ürünler)",
-      "services": "Hizmetler & Paketler",
-      "all": "Tümü",
-      "beauty": "Güzellik"
-    },
+    "subtitle": "Ürün satışları ve hizmet işlemlerinin tam listesi",
     "columns": {
-      "id": "İşlem ID",
       "date": "Tarih",
       "type": "Tür",
-      "client": "Müşteri / Üye",
-      "item": "Öğe / Hizmet",
-      "amount": "Tutar",
-      "method": "Ödeme Yöntemi",
-      "cashier": "Kasiyer / Personel",
       "customer": "Müşteri",
-      "items": "Öğeler",
+      "items": "Öğeler / Hizmetler",
       "total": "Toplam",
+      "method": "Ödeme",
       "status": "Durum",
       "actions": "İşlemler"
     },
-    "types": {
-      "pos": "POS Ürün",
-      "service": "Tek Seferlik Hizmet",
-      "package": "Hizmet Paketi"
-    },
-    "paymentMethods": {
-      "cash": "Nakit",
-      "card": "Kart",
-      "mixed": "Karışık",
-      "other": "Diğer"
-    },
-    "exportPDF": "PDF Olarak Kaydet",
-    "noData": "Bu dönem için satış bulunamadı",
     "typePos": "POS Satışı",
     "typeService": "Hizmet/Paket",
     "filter": "Filtre",
-    "searchPlaceholder": "Fiş no, müşteri...",
+    "searchPlaceholder": "Müşteri ile ara...",
     "noSales": "Satış bulunamadı",
     "noInvoice": "Fatura yok",
     "summary": "Özet",
@@ -790,8 +790,16 @@
     "posTotal": "POS Toplamı",
     "serviceTotal": "Hizmet Toplamı",
     "totalVolume": "Toplam Hacim",
+    "tabs": {
+      "all": "Tümü",
+      "pos": "POS Satışları",
+      "beauty": "Güzellik"
+    },
     "exportPdf": "PDF'e Aktar",
-    "month": "Ay"
+    "month": {
+      "thisMonth": "Bu Ay",
+      "lastMonth": "Geçen Ay"
+    }
   },
   "roles": {
     "admin": "Yönetici",

@@ -97,6 +97,7 @@ export const mapSaleToCamelCase = (s: any) => {
         cashSessionId: s.cash_session_id,
         notes: s.notes,
         createdAt: s.created_at,
+        debts: s.debts || [],
         items: s.sale_items ? s.sale_items.map(mapSaleItemToCamelCase) : []
     };
 };

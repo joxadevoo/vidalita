@@ -153,8 +153,10 @@ import { ref, onMounted, watch, computed } from 'vue';
 import { inventoryService, productsService } from '../services/supabaseService';
 import * as XLSX from 'xlsx';
 import { useI18n } from 'vue-i18n';
+import { useToast } from '../composables/useToast';
 
 const { t } = useI18n();
+const toast = useToast();
 
 const activeTab = ref<'stock' | 'movements'>('stock');
 const loading = ref(false);
@@ -238,8 +240,9 @@ const submitStockIn = async () => {
         await fetchData();
         showStockInModal.value = false;
         stockInForm.value = { productId: null, qty: 0, unitCost: 0, reason: '' };
+        toast.success(t('common.success'));
     } catch (err: any) {
-        alert(t('common.error') + ": " + err.message);
+        toast.error(t('common.error') + ": " + err.message);
     } finally {
         submitting.value = false;
     }

@@ -76,15 +76,25 @@
               <tr>
                 <td class="border border-black px-3 py-2 bg-gray-50 font-bold uppercase text-[10px] tracking-tight">{{ $t('invoice.paymentMethod') }}</td>
                 <td class="border border-black px-3 py-2">
-                  {{ sale.paymentMethod === 'CASH' ? $t('pos.cash') : (sale.paymentMethod === 'CARD' ? $t('pos.card') : $t('pos.mixed')) }}
+                  {{ sale.paymentMethod === 'CASH' ? $t('pos.cash') : (sale.paymentMethod === 'CARD' ? $t('pos.card') : (sale.paymentMethod === 'MIXED' ? $t('pos.mixed') : $t('pos.debt'))) }}
                   <span v-if="sale.paymentMethod === 'MIXED'" class="ml-2 font-normal text-xs text-gray-600">
                     ({{ formatCurrency(sale.cashAmount) }} + {{ formatCurrency(sale.cardAmount) }})
                   </span>
                 </td>
               </tr>
+              <tr v-if="sale.paymentStatus === 'PENDING' && debtData?.due_date">
+                <td class="border border-black px-3 py-2 bg-gray-50 font-bold uppercase text-[10px] tracking-tight">{{ $t('pos.dueDate') }}</td>
+                <td class="border border-black px-3 py-2 font-bold text-red-600">
+                  {{ formatDate(debtData.due_date).split(' ')[0] }}
+                </td>
+              </tr>
               <tr>
-                <td class="border border-black px-3 py-2 bg-gray-50 font-bold uppercase text-[10px] tracking-tight">Status</td>
-                <td class="border border-black px-3 py-2 font-bold uppercase text-[10px]">Paid / To'langan</td>
+                <td class="border border-black px-3 py-2 bg-gray-50 font-bold uppercase text-[10px] tracking-tight">{{ $t('invoice.status') }}</td>
+                <td class="border border-black px-3 py-2 font-bold uppercase text-[10px]">
+                   <span :class="sale.paymentStatus === 'PAID' ? 'text-green-600' : 'text-red-600'">
+                    {{ sale.paymentStatus === 'PAID' ? 'Paid / To\'langan' : 'Pending / To\'lanmagan' }}
+                   </span>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -157,11 +167,13 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { salesService } from '../services/supabaseService';
+import { salesService, debtsService } from '../services/supabaseService';
 import { useI18n } from 'vue-i18n';
+import { useToast } from '../composables/useToast';
 
 
 const { t } = useI18n();
+const toast = useToast();
 
 const props = defineProps<{
   show: boolean;
@@ -173,6 +185,7 @@ const emit = defineEmits<{
 }>();
 
 const sale = ref<any>(null);
+const debtData = ref<any>(null);
 const loading = ref(false);
 const pdfLoading = ref(false);
 
@@ -182,14 +195,25 @@ watch(() => props.show, async (val) => {
     loading.value = true;
     try {
       sale.value = await salesService.getById(props.saleId);
+      
+      // Fetch debt data separately if it's a debt sale
+      if (sale.value?.paymentMethod === 'DEBT') {
+        const debts = await debtsService.getMemberDebts(sale.value.memberId);
+        // Find the specific debt for this sale
+        debtData.value = debts.find((d: any) => String(d.source_id) === String(props.saleId));
+      } else {
+        debtData.value = null;
+      }
     } catch (err) {
       console.error('Invoice load error:', err);
       sale.value = null;
+      debtData.value = null;
     } finally {
       loading.value = false;
     }
   } else if (!val) {
     sale.value = null;
+    debtData.value = null;
   }
 });
 
@@ -342,7 +366,7 @@ const downloadPdf = async () => {
     pdf.save(`tgc-faktura-${sale.value?.id || 'invoice'}.pdf`);
   } catch (err) {
     console.error('PDF error:', err);
-    alert('PDF yaratishda xatolik. Iltimos, "Chop etish" tugmasidan foydalaning.');
+    toast.error('PDF yaratishda xatolik. Iltimos, "Chop etish" tugmasidan foydalaning.');
   } finally {
     pdfLoading.value = false;
   }

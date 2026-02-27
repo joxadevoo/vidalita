@@ -7,6 +7,7 @@
     "cancel": "Отмена",
     "tryAgain": "Попробовать снова",
     "delete": "Удалить",
+    "deleteConfirm": "Вы действительно хотите удалить?",
     "edit": "Редактировать",
     "search": "Поиск",
     "filter": "Фильтр",
@@ -20,6 +21,9 @@
     "name": "Имя",
     "phone": "Телефон",
     "date": "Дата",
+    "client": "Клиент",
+    "amount": "Сумма",
+    "currency": "сум",
     "time": "Время",
     "status": "Статус",
     "actions": "Действия",
@@ -33,7 +37,8 @@
     "noData": "Нет данных",
     "exportExcel": "Excel",
     "import": "Импорт",
-    "total": "Всего"
+    "total": "Всего",
+    "items": "шт"
   },
   "locale": "ru-RU",
   "sidebar": {
@@ -52,8 +57,10 @@
     "expand": "Развернуть боковую панель",
     "collapse": "Свернуть боковую панель",
     "logout": "Выйти",
+    "auditLogs": "Журналы аудита",
     "copyright": "© {year} Vidalita",
-    "scanner": "Сканер Штрих-кода"
+    "scanner": "Сканер Штрих-кода",
+    "developer": "Разработчик:"
   },
   "topbar": {
     "notifications": "Уведомления",
@@ -92,7 +99,14 @@
     "lowSessionPackages": "Заканчивающиеся сеансы",
     "noLowSessions": "У всех клиентов достаточно сеансов",
     "lowStockProducts": "Товары с низким запасом",
-    "total": "Всего"
+    "total": "Всего",
+    "recentServices": "История процедур",
+    "activePackages": "Активные пакеты (сеансы)",
+    "noActivePackages": "Нет активных пакетов",
+    "salesTrend": "Динамика продаж",
+    "visitsTrend": "Посещаемость",
+    "revenue": "Доход",
+    "visits": "Визиты"
   },
   "members": {
     "title": "Участники",
@@ -115,7 +129,10 @@
     "errorLoading": "Ошибка при загрузке участников",
     "deleteConfirm": "Вы подтверждаете удаление участника? Если есть связанные записи, удаление запрещено.",
     "deleteError": "Ошибка при удалении участника",
-    "noResults": "Совпадений не найдено"
+    "noResults": "Совпадений не найдено",
+    "expired": "Истекло",
+    "daysLeft": "дней осталось",
+    "noMembership": "Нет подписки"
   },
   "memberCreate": {
     "title": "Добавить нового участника",
@@ -414,7 +431,16 @@
     "serviceTypeHint": "Одноразовая услуга или пакет",
     "totalSessions": "Всего {count} сеансов",
     "remainingSessions": "Осталось сеансов",
-    "sessionsCount": "{count} сеансов"
+    "sessionsCount": "{count} сеансов",
+    "viewHistory": "История сеансов",
+    "noUsageHistory": "Пока нет истории",
+    "noUsageHistoryDesc": "Сеансы из этого пакета еще не использовались.",
+    "usageHistory": "История сеансов",
+    "sessionNumber": "Сеанс #",
+    "appointmentTime": "Время записи",
+    "soldViaCashier": "Продано через кассу",
+    "staff": "Сотрудник",
+    "errorLoadingHistory": "Ошибка при загрузке истории"
   },
   "barcode": {
     "title": "Штрих-код",
@@ -495,21 +521,20 @@
     "allCategories": "Все категории",
     "searchPlaceholder": "Поиск по названию, артикулу или штрих-коду...",
     "columns": {
-      "name": "Название",
-      "sku": "Артикул / Штрих-код",
+      "name": "Наименование",
+      "sku": "SKU / Штрих-код",
       "category": "Категория",
       "price": "Цена",
-      "stock": "Остаток",
+      "stock": "Запас",
       "actions": "Действия"
     },
     "brand": "Бренд",
-    "sku": "Артикул",
+    "sku": "SKU",
     "barcode": "Штрих-код",
-    "noSku": "Нет артикула",
+    "noSku": "Нет SKU",
     "noBarcode": "Нет штрих-кода",
     "salePrice": "Цена продажи",
     "costPrice": "Себестоимость",
-    "reorderLevel": "Мин. остаток",
     "lowStock": "Мало на складе!",
     "addProduct": "Добавить товар",
     "editProduct": "Редактировать товар",
@@ -525,6 +550,7 @@
     "originalPrice": "Исходная цена",
     "discountedPrice": "Цена со скидкой",
     "currentStock": "Текущий Запас",
+    "reorderLevel": "Минимальный запас",
     "reorderLevelHint": "Уведомить о запасе ниже этого уровня"
   },
   "inventory": {
@@ -580,7 +606,9 @@
     "errorNotEnoughStock": "Недостаточно на складе!",
     "mixed": "СМЕШАННЫЙ",
     "cashAmount": "Сумма Наличными",
-    "cardAmount": "Сумма Картой"
+    "cardAmount": "Сумма Картой",
+    "debt": "Долг (Рассрочка)",
+    "dueDate": "Срок оплаты"
   },
   "invoice": {
     "title": "Счёт",
@@ -633,10 +661,14 @@
     "totalVolume": "Общий Объем",
     "tabs": {
       "all": "Все",
+      "pos": "Счета (POS)",
       "beauty": "Красота"
     },
     "exportPdf": "Экспорт PDF",
-    "month": "Месяц"
+    "month": {
+      "thisMonth": "В этом месяце",
+      "lastMonth": "В прошлом месяце"
+    }
   },
   "appointments": {
     "title": "Записи",
@@ -690,6 +722,20 @@
     "resetFilters": "Сброс Фильтров",
     "searchPlaceholder": "Поиск участника..."
   },
+  "auditLogs": {
+    "title": "Журналы аудита",
+    "subtitle": "История всех действий в системе",
+    "columns": {
+      "date": "Дата",
+      "user": "Пользователь",
+      "action": "Действие",
+      "target": "Идентификатор",
+      "details": "Детали"
+    },
+    "noLogs": "Журналы не найдены",
+    "errorLoading": "Ошибка при загрузке журналов",
+    "system": "Система"
+  },
   "cashier": {
     "title": "Касса",
     "subtitle": "Сессии кассира и ежедневные отчеты",
@@ -713,7 +759,11 @@
     "breakdownPackages": "Курсы (Пакеты)",
     "xReport": "X-Отчет (Текущий статус)",
     "zReport": "Z-Отчет (Конец дня)",
-    "zReportWarning": "После Z-Отчета касса будет сброшена, а день закрыт. Подтверждаете?"
+    "zReportWarning": "После Z-Отчета касса будет сброшена, а день закрыт. Подтверждаете?",
+    "pendingDebts": "Ожидающие долги",
+    "noPendingDebts": "Нет активных долгов",
+    "payDebt": "Оплатить долг",
+    "pay": "Оплатить"
   },
   "scanner": {
     "title": "Сканировать QR-код",
@@ -722,6 +772,7 @@
     "cameraScannerSubtitle": "Используйте камеру устройства для сканирования QR-кода",
     "selectCamera": "Выбрать Камеру",
     "errorStarting": "Ошибка при запуске камеры",
+    "manual": "Вручную",
     "manualInput": "Ручной Ввод",
     "manualInputSubtitle": "Введите ID участника вручную",
     "memberId": "ID Участника",
@@ -741,7 +792,14 @@
     "checkingIn": "Вход...",
     "checkinSuccess": "Вход Успешен",
     "errorCheckin": "Ошибка при входе",
-    "camera": "Камера"
+    "camera": "Камера",
+    "cameraNotStarted": "Камера не запущена",
+    "startScanning": "Начать сканирование",
+    "stopScanning": "Остановить сканирование",
+    "daysRemaining": "{days} дней осталось",
+    "oneDayRemaining": "Остался 1 день",
+    "expiringToday": "Истекает сегодня",
+    "expiredDays": "Истекло {days} дней назад"
   },
   "roles": {
     "admin": "Админ",

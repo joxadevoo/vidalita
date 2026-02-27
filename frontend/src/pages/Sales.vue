@@ -218,8 +218,10 @@ import { useI18n } from 'vue-i18n'
 import { salesService, beautyService } from '../services/supabaseService'
 import { formatDateTime } from '../lib/dateUtils'
 import InvoiceModal from '../components/InvoiceModal.vue'
+import { useToast } from '../composables/useToast'
 
 const { t } = useI18n()
+const toast = useToast()
 const loading = ref(true)
 const error = ref<string | null>(null)
 const combinedData = ref<any[]>([])
@@ -348,7 +350,7 @@ const formatCurrency = (val: number) => {
 const exportToPDF = () => {
   const data = filteredSales.value
   if (data.length === 0) {
-    alert(t('common.noData'))
+    toast.warning(t('common.noData'))
     return
   }
 

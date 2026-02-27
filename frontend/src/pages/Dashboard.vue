@@ -52,6 +52,9 @@
       </div>
     </div>
 
+    <!-- Analytics Charts -->
+    <DashboardCharts v-if="!loading" ref="chartsRef" />
+
     <!-- Reports Section -->
     <div v-if="!loading" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <!-- Daily Check-ins Report -->
@@ -221,6 +224,7 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
+import DashboardCharts from '../components/DashboardCharts.vue'
 import { statsService, membersService, checkinsService, productsService } from '../services/supabaseService'
 import { supabase } from '../lib/supabase'
 import * as mappings from '../lib/mappings'

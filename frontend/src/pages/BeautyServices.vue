@@ -78,10 +78,10 @@
               <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">{{ s.fullName || $t('beautyServices.noName') }}</td>
               <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ s.serviceName }}</td>
               <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                <span v-if="s.amount && s.amount > 0" class="font-medium text-green-700">
+                <span v-if="s.amount !== null && s.amount !== undefined" class="font-medium text-green-700">
                   {{ formatPrice(s.amount) }}
                 </span>
-                <span v-else-if="s.serviceType && serviceTypes?.prices?.[s.serviceType]" class="font-medium text-green-700">
+                <span v-else-if="s.serviceType && serviceTypes?.prices?.[s.serviceType] !== undefined" class="font-medium text-green-700">
                   {{ formatPrice(serviceTypes.prices[s.serviceType]) }}
                 </span>
                 <span v-else class="text-gray-400">—</span>
@@ -389,8 +389,12 @@ import { beautyService, membersService, cashSessionsService } from '../services/
 import * as XLSX from 'xlsx'
 import { TableCellsIcon, DocumentTextIcon } from '@heroicons/vue/24/outline'
 import { formatDate, getCurrentDateTimeISO } from '../lib/dateUtils'
+import { useToast } from '../composables/useToast'
+import { useConfirm } from '../composables/useConfirm'
 
 const { t } = useI18n()
+const toast = useToast()
+const { confirm } = useConfirm()
 
 type Service = {
   id: number
@@ -745,6 +749,34 @@ watch(calculatedPrice, (newTotal) => {
     }
 });
 
+watch(() => form.value.serviceName, (newServiceKey) => {
+  if (!newServiceKey || !serviceTypes.value?.labels) return;
+  const label = serviceTypes.value.labels[newServiceKey];
+  if (!label) return;
+
+  // Qavs ichida nechta seans borligini aniqlash (Masalan: "(3 Сеанса)" yoki "(8 Сеансов)")
+  const match = label.match(/\((\d+)\s*(Сеанс|сеанс|Сеанса|сеанса|Сеансов|сеансов|Занятие|Занятий)/i);
+  if (match && match[1]) {
+      const num = parseInt(match[1]);
+      if (num > 1) {
+          form.value.actionType = 'package';
+          form.value.totalSessions = num;
+      } else {
+          form.value.actionType = 'service';
+          form.value.totalSessions = 1;
+      }
+  } else {
+      // Agar "Абонемент" so'zi bo'lsa uni ham e'tiborga olish mumkin
+      if (label.toLowerCase().includes('абонемент')) {
+          form.value.actionType = 'package';
+          form.value.totalSessions = 12; // Default 12 deb beramiz (yoki oyiga farqli)
+      } else {
+          form.value.actionType = 'service';
+          form.value.totalSessions = 1;
+      }
+  }
+});
+
 // Member selection
 const members = ref<Member[]>([])
 const memberSearch = ref('')
@@ -924,7 +956,7 @@ const handleSubmit = async () => {
           serviceType: item.serviceName || undefined,
           serviceName: item.serviceNameLabel,
           serviceDate: item.serviceDate ? new Date(item.serviceDate).toISOString() : undefined,
-          amount: item.finalAmount > 0 ? item.finalAmount : undefined,
+          amount: (item.finalAmount !== null && item.finalAmount !== undefined) ? item.finalAmount : 0,
           cashAmount: item.cashAmount,
           cardAmount: item.cardAmount,
           discountPercent: item.discountPercent > 0 ? item.discountPercent : undefined,
@@ -1079,7 +1111,8 @@ const resetFilters = () => {
 
 // Narxni formatlash funksiyasi
 const formatPrice = (price: number | null | undefined): string => {
-  if (!price || price === 0) return '—'
+  if (price === null || price === undefined) return '—'
+  if (price === 0) return `0 ${t('common.currency') || 'so\'m'}`
   // So'm formatida ko'rsatish (1000 -> 1 000 so'm)
   return new Intl.NumberFormat(t('locale') || 'uz-UZ', {
     style: 'decimal',
@@ -1093,7 +1126,7 @@ const formatPrice = (price: number | null | undefined): string => {
 const exportToExcel = () => {
   const data = filteredServices.value
   if (data.length === 0) {
-    alert(t('common.noData'))
+    toast.warning(t('common.noData'))
     return
   }
 
@@ -1133,7 +1166,7 @@ const exportToExcel = () => {
 const exportToPDF = () => {
   const data = filteredServices.value
   if (data.length === 0) {
-    alert(t('common.noData'))
+    toast.warning(t('common.noData'))
     return
   }
 
@@ -1238,14 +1271,15 @@ const exportToPDF = () => {
 }
 
 const onDeleteService = async (id: number) => {
-  const ok = window.confirm(t('beautyServices.deleteConfirm'))
+  const ok = await confirm(t('beautyServices.deleteConfirm'))
   if (!ok) return
   try {
     await beautyService.delete(id)
+    toast.success(t('common.success'))
     services.value = services.value.filter((s) => s.id !== id)
   } catch (err: any) {
     console.error(err)
-    window.alert(err.message || t('beautyServices.deleteError'))
+    toast.error(err.message || t('beautyServices.deleteError'))
   }
 }
 </script>

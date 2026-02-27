@@ -7,6 +7,7 @@
     "cancel": "Cancel",
     "tryAgain": "Try Again",
     "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete this?",
     "edit": "Edit",
     "search": "Search",
     "filter": "Filter",
@@ -20,6 +21,9 @@
     "name": "Name",
     "phone": "Phone",
     "date": "Date",
+    "client": "Client",
+    "amount": "Amount",
+    "currency": "so'm",
     "time": "Time",
     "status": "Status",
     "actions": "Actions",
@@ -33,7 +37,8 @@
     "noData": "No Data",
     "exportExcel": "Excel",
     "import": "Import",
-    "total": "Total"
+    "total": "Total",
+    "items": "items"
   },
   "locale": "en-US",
   "sidebar": {
@@ -52,8 +57,10 @@
     "expand": "Expand sidebar",
     "collapse": "Collapse sidebar",
     "logout": "Logout",
+    "auditLogs": "Audit Logs",
     "copyright": "© {year} Vidalita",
-    "scanner": "Barcode Scanner"
+    "scanner": "Barcode Scanner",
+    "developer": "Developer:"
   },
   "topbar": {
     "notifications": "Notifications",
@@ -95,7 +102,11 @@
     "todaySales": "Today's Sales",
     "todayAppointments": "Today's Appointments",
     "lowStockProducts": "Low Stock Products",
-    "total": "Total"
+    "total": "Total",
+    "salesTrend": "Sales Trend",
+    "visitsTrend": "Client Traffic",
+    "revenue": "Revenue",
+    "visits": "Visits"
   },
   "members": {
     "title": "Members",
@@ -118,7 +129,10 @@
     "errorLoading": "Error loading members",
     "deleteConfirm": "Do you confirm deleting the member? If there are related records, deletion is not allowed.",
     "deleteError": "Error deleting member",
-    "noResults": "No matching results found"
+    "noResults": "No matching results found",
+    "expired": "Expired",
+    "daysLeft": "days left",
+    "noMembership": "No membership"
   },
   "memberCreate": {
     "title": "Add New Member",
@@ -417,7 +431,16 @@
     "serviceTypeHint": "One-time service or package selection",
     "totalSessions": "Total {count} sessions",
     "remainingSessions": "Remaining sessions",
-    "sessionsCount": "{count} sessions"
+    "sessionsCount": "{count} sessions",
+    "viewHistory": "View History",
+    "noUsageHistory": "No usage history",
+    "noUsageHistoryDesc": "No sessions have been used from this package yet.",
+    "usageHistory": "Session History",
+    "sessionNumber": "Session #",
+    "appointmentTime": "Appointment time",
+    "soldViaCashier": "Sold via cashier",
+    "staff": "Staff",
+    "errorLoadingHistory": "Error loading history"
   },
   "barcode": {
     "title": "Barcode",
@@ -619,7 +642,9 @@
     "errorNotEnoughStock": "Not enough stock!",
     "mixed": "MIXED",
     "cashAmount": "Cash Amount",
-    "cardAmount": "Card Amount"
+    "cardAmount": "Card Amount",
+    "debt": "Debt (Installment)",
+    "dueDate": "Due Date"
   },
   "invoice": {
     "title": "Invoice",
@@ -644,38 +669,6 @@
     "returnPolicy": "For returns, please contact us within 3 days.",
     "viewInvoice": "View Invoice",
     "total": "Total"
-  },
-  "sales": {
-    "title": "Sales History",
-    "subtitle": "History of all product and service sales",
-    "columns": {
-      "date": "Date",
-      "type": "Type",
-      "customer": "Customer",
-      "items": "Products/Services",
-      "total": "Total",
-      "method": "Method",
-      "status": "Status",
-      "actions": "Actions"
-    },
-    "typePos": "Product (POS)",
-    "typeService": "Service",
-    "filter": "Filter",
-    "searchPlaceholder": "Search by customer name...",
-    "noSales": "No sales yet",
-    "noInvoice": "No invoice",
-    "summary": "Summary",
-    "cashTotal": "Cash Total",
-    "cardTotal": "Card Total",
-    "posTotal": "POS Total",
-    "serviceTotal": "Service Total",
-    "totalVolume": "Total Volume",
-    "tabs": {
-      "all": "All",
-      "beauty": "Beauty"
-    },
-    "exportPdf": "Export PDF",
-    "month": "Month"
   },
   "appointments": {
     "title": "Appointments",
@@ -729,6 +722,56 @@
     "guest": "Guest",
     "noRoom": "No Room Selected"
   },
+  "sales": {
+    "title": "Sales History",
+    "subtitle": "Full record of product sales and service transactions",
+    "columns": {
+      "date": "Date",
+      "type": "Type",
+      "customer": "Customer",
+      "items": "Items / Services",
+      "total": "Total",
+      "method": "Payment",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "typePos": "Product (POS)",
+    "typeService": "Service",
+    "filter": "Filter",
+    "searchPlaceholder": "Search by customer...",
+    "noSales": "No sales found",
+    "noInvoice": "No invoice",
+    "summary": "Summary",
+    "cashTotal": "Cash",
+    "cardTotal": "Card",
+    "posTotal": "Products",
+    "serviceTotal": "Services",
+    "totalVolume": "Total Volume",
+    "tabs": {
+      "all": "All",
+      "pos": "Invoices (POS)",
+      "beauty": "Services"
+    },
+    "exportPdf": "Export PDF",
+    "month": {
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month"
+    }
+  },
+  "auditLogs": {
+    "title": "Audit Logs",
+    "subtitle": "History of all system actions",
+    "columns": {
+      "date": "Date",
+      "user": "User",
+      "action": "Action",
+      "target": "Target ID",
+      "details": "Details"
+    },
+    "noLogs": "No logs found",
+    "errorLoading": "Error loading logs",
+    "system": "System"
+  },
   "cashier": {
     "title": "Cashier",
     "subtitle": "Cashier sessions and daily reports",
@@ -752,7 +795,11 @@
     "zReportWarning": "Are you sure? This will close the shift and reset totals!",
     "breakdownPOS": "POS Sales",
     "breakdownBeauty": "Beauty Services",
-    "breakdownPackages": "Service Packages"
+    "breakdownPackages": "Service Packages",
+    "pendingDebts": "Pending Debts",
+    "noPendingDebts": "No active debts",
+    "payDebt": "Pay Debt",
+    "pay": "Pay"
   },
   "roles": {
     "admin": "Admin",

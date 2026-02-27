@@ -217,40 +217,7 @@
       </div>
     </div>
 
-    <!-- Audit Logs (Admin Only) -->
-    <div v-if="userRole === 'admin'" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-      <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-           <ClipboardDocumentListIcon class="h-5 w-5 text-sky-600" />
-           <h3 class="text-lg font-semibold text-gray-900">{{ $t('settings.auditLogs') }}</h3>
-        </div>
-        <button @click="loadAuditLogs" class="text-xs font-bold text-sky-600 hover:text-sky-700 transition-colors">{{ $t('common.refresh') }}</button>
-      </div>
-      <div class="px-6 py-6 overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead>
-            <tr class="border-b border-gray-100 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-              <th class="py-3 px-2">{{ $t('common.date') }}</th>
-              <th class="py-3 px-2">{{ $t('settings.user') }}</th>
-              <th class="py-3 px-2">{{ $t('common.actions') }}</th>
-              <th class="py-3 px-2">{{ $t('settings.targetId') }}</th>
-              <th class="py-3 px-2">{{ $t('settings.details') }}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-50 text-gray-900 dark:text-gray-100">
-            <tr v-for="log in auditLogs" :key="log.id" class="hover:bg-gray-50 transition-colors">
-              <td class="py-3 px-2 whitespace-nowrap text-gray-500">{{ new Date(log.created_at).toLocaleString() }}</td>
-              <td class="py-3 px-2 font-medium">{{ log.performer_name || 'System' }}</td>
-              <td class="py-3 px-2 font-bold">{{ log.action }}</td>
-              <td class="py-3 px-2 text-gray-500">{{ log.target_id || '—' }}</td>
-              <td class="py-3 px-2 max-w-xs truncate">{{ log.details || '—' }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div v-if="logsLoading" class="mt-4 text-center text-sm text-gray-400 italic">{{ $t('common.loading') }}</div>
-        <div v-else-if="auditLogs.length === 0" class="py-6 text-center text-sm text-gray-400">{{ $t('settings.noLogs') }}</div>
-      </div>
-    </div>
+
   </div>
 </template>
 <script setup lang="ts">
@@ -259,8 +226,12 @@ import { useI18n } from 'vue-i18n'
 import { GlobeAltIcon, UserGroupIcon, ClipboardDocumentListIcon, UserPlusIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import { supabase } from '../lib/supabase'
 import { auditLogsService, authService } from '../services/supabaseService'
+import { useToast } from '../composables/useToast'
+import { useConfirm } from '../composables/useConfirm'
 
 const { locale, t } = useI18n()
+const toast = useToast()
+const { confirm } = useConfirm()
 const currentLocale = computed(() => locale.value)
 
 const languages = [
@@ -333,9 +304,9 @@ const createUser = async () => {
     newUser.password = ''
     newUser.role = 'reception'
     await loadSystemUsers()
-    await loadAuditLogs() // Refresh logs too
+    toast.success(t('common.success'))
   } catch (err: any) {
-    alert(t('settings.addError') + ': ' + err.message)
+    toast.error(t('settings.addError') + ': ' + err.message)
   } finally {
     creatingUser.value = false
   }
@@ -343,27 +314,15 @@ const createUser = async () => {
 
 const deleteUser = async (u: any) => {
   if (u.id === currentUser.value?.id) return
-  if (!confirm(t('settings.deleteConfirm', { name: u.username }) || `Haqiqatan ham "${u.username}" foydalanuvchisini o'chirmoqchimisiz?`)) return
+  const confirmed = await confirm(t('settings.deleteConfirm', { name: u.username }) || `Haqiqatan ham "${u.username}" foydalanuvchisini o'chirmoqchimisiz?`)
+  if (!confirmed) return
   
   try {
     await authService.deleteUser(u.id)
+    toast.success(t('common.success'))
     await loadSystemUsers()
-    await loadAuditLogs()
   } catch (err: any) {
-    alert(t('common.error') + ': ' + err.message)
-  }
-}
-
-const auditLogs = ref<any[]>([])
-const logsLoading = ref(false)
-
-const loadAuditLogs = async () => {
-  if (userRole.value !== 'admin') return
-  logsLoading.value = true
-  try {
-    auditLogs.value = await auditLogsService.getAll()
-  } finally {
-    logsLoading.value = false
+    toast.error(t('common.error') + ': ' + err.message)
   }
 }
 
@@ -445,6 +404,5 @@ onMounted(() => {
   loadStaff()
   loadRooms()
   loadSystemUsers()
-  loadAuditLogs()
 })
 </script>

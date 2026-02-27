@@ -192,7 +192,7 @@
                     <label class="input-label text-emerald-800" for="medicalConditions">{{ $t('memberCreate.medicalConditions') }}</label>
                     <textarea id="medicalConditions" v-model="gymInfo.medicalConditions" rows="2" class="input bg-white" :placeholder="$t('memberCreate.medicalConditionsPlaceholder')"></textarea>
                   </div>
-                  <div>
+                  <div v-if="form.serviceType === 'gym'">
                     <label class="input-label text-emerald-800" for="gymMedications">{{ $t('memberCreate.medications') }}</label>
                     <textarea id="gymMedications" v-model="gymInfo.medications" rows="2" class="input bg-white" :placeholder="$t('memberCreate.medicationsPlaceholder')"></textarea>
                   </div>
@@ -722,13 +722,17 @@ const handleSubmit = async () => {
       email: form.email || null,
       region: form.region || null,
       district: form.district || null,
-      beautyHasRecord: showsBeautySection.value ? 1 : 0
+      beautyHasRecord: (form.serviceType === 'beauty' || form.serviceType === 'both') ? 1 : 0
+    }
+
+    if (form.serviceType === 'both') {
+      gymInfo.medications = beautyHealth.medications || ''
     }
 
     if (isEditMode.value && memberId.value) {
       await membersService.update(memberId.value, payload)
       if (form.serviceType !== 'beauty') await membersService.upsertGymInfo(memberId.value, gymInfo)
-      if (showsBeautySection.value) await membersService.upsertBeautyHealth(memberId.value, beautyHealth)
+      if (form.serviceType === 'beauty' || form.serviceType === 'both') await membersService.upsertBeautyHealth(memberId.value, beautyHealth)
       
       submitSuccess.value = t('memberCreate.updateSuccess')
       setTimeout(() => router.push(`/members/${memberId.value}`), 1500)
@@ -739,7 +743,7 @@ const handleSubmit = async () => {
         await gymMembershipsService.create({ memberId: newId, startDate: dateWithTime, endDate: gymEndDate, membershipType: gymInfo.membershipType })
         await membersService.upsertGymInfo(newId, gymInfo)
       }
-      if (showsBeautySection.value) await membersService.upsertBeautyHealth(newId, beautyHealth)
+      if (form.serviceType === 'beauty' || form.serviceType === 'both') await membersService.upsertBeautyHealth(newId, beautyHealth)
       
       submitSuccess.value = t('memberCreate.success') + '. ID: ' + member.qrCodeId
       setTimeout(() => router.push('/members'), 2000)

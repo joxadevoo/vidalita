@@ -2,8 +2,8 @@
   <div class="flex flex-col h-full gap-6 no-print">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h2 class="text-2xl font-bold text-gray-900">{{ $t('pos.title') }}</h2>
-        <p class="text-sm text-gray-500">{{ $t('pos.subtitle') }}</p>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('pos.title') }}</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('pos.subtitle') }}</p>
       </div>
       <!-- Invoice button after successful sale -->
       <button
@@ -26,7 +26,7 @@
                 v-model="searchTerm" 
                 type="text" 
                 :placeholder="$t('pos.searchProduct')" 
-                class="w-full rounded-xl border border-gray-200 px-4 py-3 shadow-sm focus:ring-2 focus:ring-sky-400 focus:outline-none"
+                class="w-full rounded-xl border border-gray-200 dark:border-gray-800 px-4 py-3 shadow-sm focus:ring-2 focus:ring-sky-400 focus:outline-none bg-white dark:bg-gray-900 dark:text-white"
                 ref="searchInput"
             />
         </div>
@@ -36,7 +36,7 @@
                 v-for="product in filteredProducts" 
                 :key="product.id"
                 @click="addToCart(product)"
-                class="group relative flex flex-col rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition-all hover:border-sky-400 hover:shadow-md cursor-pointer h-fit"
+                class="group relative flex flex-col rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 shadow-sm transition-all duration-300 hover:border-sky-400 dark:hover:border-sky-500 hover:shadow-md hover:scale-[1.02] active:scale-95 cursor-pointer h-fit"
             >
                 <div v-if="product.imageUrl" class="aspect-square mb-2 overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
                     <img :src="product.imageUrl" class="h-full w-full object-cover group-hover:scale-105 transition-transform" />
@@ -57,9 +57,9 @@
       </div>
 
       <!-- Cart & Checkout -->
-      <div class="rounded-2xl bg-white shadow-xl border border-gray-100 flex flex-col h-full overflow-hidden">
-        <div class="p-6 border-b border-gray-100">
-            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+      <div class="rounded-2xl bg-white dark:bg-gray-900 shadow-xl border border-gray-100 dark:border-gray-800 flex flex-col h-full overflow-hidden">
+        <div class="p-6 border-b border-gray-100 dark:border-gray-800">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <svg class="h-6 w-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
@@ -67,37 +67,46 @@
             </h3>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div class="flex-1 overflow-y-auto p-4">
             <div v-if="cart.length === 0" class="h-full flex flex-col items-center justify-center text-gray-400 italic">
                 {{ $t('pos.noItems') }}
             </div>
-            <div v-for="item in cart" :key="item.id" class="flex items-center justify-between border border-gray-200 rounded-lg p-3 bg-white shadow-sm">
-                <div class="flex-1">
-                    <div class="font-semibold text-sm text-gray-900">{{ item.name }}</div>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span class="text-xs text-gray-500">{{ formatCurrency(item.finalPrice) }} × {{ item.qty }}</span>
-                        <span v-if="item.discountPercent > 0" class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-700">
-                            -{{ item.discountPercent }}%
-                        </span>
+            <TransitionGroup 
+                name="cart-list" 
+                tag="div" 
+                class="space-y-4"
+            >
+                <div v-for="item in cart" :key="item.id" class="flex items-center justify-between border border-gray-200 dark:border-gray-800 rounded-xl p-3 bg-white dark:bg-gray-800/50 shadow-sm transition-all duration-300">
+                    <div class="flex-1">
+                        <div class="font-semibold text-sm text-gray-900 dark:text-white">{{ item.name }}</div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-xs text-gray-500">{{ formatCurrency(item.finalPrice) }} × {{ item.qty }}</span>
+                            <span v-if="item.discountPercent > 0" class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-[10px] font-semibold text-green-700 dark:text-green-400">
+                                -{{ item.discountPercent }}%
+                            </span>
+                        </div>
                     </div>
-                    <div v-if="item.discountPercent > 0" class="text-[10px] text-gray-400 line-through">
-                        {{ formatCurrency(item.salePrice) }}
+                    <div class="flex items-center gap-2 ml-4">
+                        <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-full p-1">
+                            <button @click="updateQty(item.id, -1)" class="h-6 w-6 rounded-full bg-white dark:bg-gray-600 text-gray-600 dark:text-gray-200 shadow-sm hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center text-sm font-bold">−</button>
+                            <span class="text-sm font-bold w-7 text-center dark:text-white">{{ item.qty }}</span>
+                            <button @click="updateQty(item.id, +1)" class="h-6 w-6 rounded-full bg-sky-600 text-white shadow-sm hover:bg-sky-500 active:scale-95 transition-all flex items-center justify-center text-sm font-bold">+</button>
+                        </div>
+                        <button @click="removeFromCart(item.id)" class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button @click="updateQty(item.id, -1)" class="h-7 w-7 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 flex items-center justify-center text-lg font-bold">−</button>
-                    <span class="text-sm font-bold w-8 text-center">{{ item.qty }}</span>
-                    <button @click="updateQty(item.id, +1)" class="h-7 w-7 rounded-full bg-sky-600 text-white hover:bg-sky-500 flex items-center justify-center text-lg font-bold">+</button>
-                    <button @click="removeFromCart(item.id)" class="text-[10px] text-red-500 hover:underline">{{ $t('common.delete') }}</button>
-                </div>
-            </div>
+            </TransitionGroup>
         </div>
 
-        <div class="p-6 bg-gray-50 border-t border-gray-200 space-y-4">
+        <div class="p-6 bg-gray-50 dark:bg-gray-800/30 border-t border-gray-200 dark:border-gray-800 space-y-4">
             <!-- Customer search (optional) -->
             <div>
                 <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.customer') }}</label>
-                <select v-model="selectedMemberId" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white">
+                <select v-model="selectedMemberId" class="mt-1 w-full rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white dark:bg-gray-900 dark:text-white">
                     <option :value="null">{{ $t('pos.customerSelectPlaceholder') }}</option>
                     <option v-for="m in members" :key="m.id" :value="m.id">{{ m.fullName }}</option>
                 </select>
@@ -105,7 +114,7 @@
                     v-model="customerName"
                     type="text"
                     :placeholder="$t('pos.customerNamePlaceholder')"
-                    class="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white"
+                    class="mt-2 w-full rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white dark:bg-gray-900 dark:text-white"
                 />
             </div>
             
@@ -119,7 +128,7 @@
                         min="0"
                         max="100"
                         step="0.1"
-                        class="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white"
+                        class="flex-1 rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white dark:bg-gray-900 dark:text-white"
                         :placeholder="$t('pos.discountPlaceholder')"
                     />
                     <span class="text-sm font-semibold text-gray-500">%</span>
@@ -130,67 +139,80 @@
             <!-- Payment Method -->
             <div>
                 <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.paymentMethod') }}</label>
-                <div class="mt-1 grid grid-cols-2 gap-2">
-                    <button 
-                        @click="paymentMethod = 'CASH'" 
-                        :class="paymentMethod === 'CASH' ? 'bg-sky-600 text-white' : 'bg-white text-gray-600 border border-gray-200'"
-                        class="px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm"
-                    >{{ $t('pos.cash') }}</button>
-                    <button 
-                        @click="paymentMethod = 'CARD'" 
-                        :class="paymentMethod === 'CARD' ? 'bg-sky-600 text-white' : 'bg-white text-gray-600 border border-gray-200'"
-                        class="px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm"
-                    >{{ $t('pos.card') }}</button>
-                    <button 
-                        @click="paymentMethod = 'MIXED'" 
-                        :class="paymentMethod === 'MIXED' ? 'bg-orange-500 text-white' : 'bg-white text-gray-600 border border-gray-200'"
-                        class="col-span-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm"
-                    >{{ $t('pos.mixed') }}</button>
-                </div>
+                <div class="mt-1 grid grid-cols-2 lg:grid-cols-4 gap-2">
+                      <button 
+                          @click="paymentMethod = 'CASH'" 
+                          :class="paymentMethod === 'CASH' ? 'bg-sky-600 text-white' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800'"
+                          class="px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm"
+                      >{{ $t('pos.cash') }}</button>
+                      <button 
+                          @click="paymentMethod = 'CARD'" 
+                          :class="paymentMethod === 'CARD' ? 'bg-sky-600 text-white' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800'"
+                          class="px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm"
+                      >{{ $t('pos.card') }}</button>
+                      <button 
+                          @click="paymentMethod = 'MIXED'" 
+                          :class="paymentMethod === 'MIXED' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800'"
+                          class="px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm"
+                      >{{ $t('pos.mixed') }}</button>
+                      <button 
+                          @click="paymentMethod = 'DEBT'" 
+                          :class="paymentMethod === 'DEBT' ? 'bg-red-500 text-white' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800'"
+                          class="px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm"
+                      >{{ $t('pos.debt') }}</button>
+                  </div>
             </div>
 
             <!-- Split Payment Details -->
             <div v-if="paymentMethod === 'MIXED'" class="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.cashAmount') }}</label>
-                    <input
-                        v-model.number="cashAmount"
-                        type="number"
-                        class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white font-bold"
-                        @input="updateSplit('CASH')"
-                    />
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.cardAmount') }}</label>
-                    <input
-                        v-model.number="cardAmount"
-                        type="number"
-                        class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white font-bold"
-                        @input="updateSplit('CARD')"
-                    />
-                </div>
-            </div>
+                  <div>
+                      <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.cashAmount') }}</label>
+                      <input
+                          v-model.number="cashAmount"
+                          type="number"
+                          class="mt-1 w-full rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white dark:bg-gray-900 dark:text-white font-bold"
+                          @input="updateSplit('CASH')"
+                      />
+                  </div>
+                  <div>
+                      <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.cardAmount') }}</label>
+                      <input
+                          v-model.number="cardAmount"
+                          type="number"
+                          class="mt-1 w-full rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white dark:bg-gray-900 dark:text-white font-bold"
+                          @input="updateSplit('CARD')"
+                      />
+                  </div>
+              </div>
+              <div v-if="paymentMethod === 'DEBT'" class="animate-in fade-in slide-in-from-top-2">
+                  <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.dueDate') }}</label>
+                  <input
+                      v-model="dueDate"
+                      type="date"
+                      class="mt-1 w-full rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white dark:bg-gray-900 dark:text-white"
+                  />
+              </div>
 
             <!-- Total Section -->
-            <div class="space-y-2 pt-2 border-t border-gray-200">
-                <div v-if="manualDiscountPercent > 0" class="flex justify-between items-center text-sm text-gray-600">
+            <div class="space-y-2 pt-2 border-t border-gray-200 dark:border-gray-800">
+                <div v-if="manualDiscountPercent > 0" class="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
                     <span>{{ $t('pos.subtotal') }}:</span>
                     <span>{{ formatCurrency(cartSubtotal) }}</span>
                 </div>
-                <div v-if="manualDiscountPercent > 0" class="flex justify-between items-center text-sm text-green-600">
+                <div v-if="manualDiscountPercent > 0" class="flex justify-between items-center text-sm text-green-600 dark:text-green-400">
                     <span>{{ $t('pos.discount') }} (-{{ manualDiscountPercent }}%):</span>
                     <span>-{{ formatCurrency(cartSubtotal - cartTotal) }}</span>
                 </div>
                 <div class="flex justify-between items-center pt-2">
-                    <span class="text-lg font-medium text-gray-600">{{ $t('pos.total') }}:</span>
-                    <span class="text-2xl font-black text-gray-900">{{ formatCurrency(cartTotal) }}</span>
+                    <span class="text-lg font-medium text-gray-600 dark:text-gray-400">{{ $t('pos.total') }}:</span>
+                    <span class="text-2xl font-black text-gray-900 dark:text-white">{{ formatCurrency(cartTotal) }}</span>
                 </div>
             </div>
 
             <button 
                 @click="checkout" 
                 :disabled="cart.length === 0 || processing"
-                class="w-full rounded-xl bg-sky-600 py-4 text-center font-bold text-white shadow-lg hover:bg-sky-500 disabled:bg-gray-300 disabled:shadow-none transition-all"
+                class="w-full rounded-xl bg-sky-600 py-4 text-center font-bold text-white shadow-lg hover:bg-sky-500 disabled:bg-gray-300 dark:disabled:bg-gray-800 disabled:shadow-none transition-all active:scale-[0.98]"
             >
                 {{ processing ? $t('pos.processing') : $t('pos.checkout') }}
             </button>
@@ -213,9 +235,13 @@ import { productsService, membersService, salesService, cashSessionsService } fr
 import { useI18n } from 'vue-i18n';
 import InvoiceModal from '../components/InvoiceModal.vue';
 import { useRouter } from 'vue-router';
+import { useToast } from '../composables/useToast';
+import { useConfirm } from '../composables/useConfirm';
 
 const { t } = useI18n();
 const router = useRouter();
+const toast = useToast();
+const { confirm } = useConfirm();
 
 const searchTerm = ref('');
 const products = ref<any[]>([]);
@@ -223,7 +249,8 @@ const members = ref<any[]>([]);
 const cart = ref<any[]>([]);
 const selectedMemberId = ref<number | null>(null);
 const customerName = ref('');
-const paymentMethod = ref<'CASH' | 'CARD' | 'MIXED'>('CASH');
+const paymentMethod = ref<'CASH' | 'CARD' | 'MIXED' | 'DEBT'>('CASH');
+const dueDate = ref('');
 const cashAmount = ref(0);
 const cardAmount = ref(0);
 const manualDiscountPercent = ref(0);  // Manual discount input
@@ -260,7 +287,7 @@ const getDiscountedPrice = (salePrice: number, discountPercent: number) => {
 
 const addToCart = (product: any) => {
     if (product.currentStock <= 0) {
-        alert(t('pos.errorOutOfStock'));
+        toast.warning(t('pos.errorOutOfStock'));
         return;
     }
     const existing = cart.value.find(i => i.id === product.id);
@@ -268,7 +295,7 @@ const addToCart = (product: any) => {
         if (existing.qty < product.currentStock) {
             existing.qty++;
         } else {
-            alert(t('pos.errorNoMoreStock'));
+            toast.warning(t('pos.errorNoMoreStock'));
         }
     } else {
         const discountedPrice = getDiscountedPrice(product.salePrice, product.discountPercent || 0);
@@ -293,7 +320,7 @@ const updateQty = (id: number, delta: number) => {
     if (newQty <= 0) {
         removeFromCart(id);
     } else if (newQty > product.currentStock) {
-        alert(t('pos.errorNotEnoughStock'));
+        toast.warning(t('pos.errorNotEnoughStock'));
     } else {
         item.qty = newQty;
     }
@@ -347,14 +374,20 @@ const checkout = async () => {
     if (cart.value.length === 0) return;
 
     if (!isSessionOpen.value) {
-        if (confirm(t('cashier.noActiveSession') + ". " + t('cashier.openSession') + "?")) {
+        const confirmed = await confirm(t('cashier.noActiveSession') + ". " + t('cashier.openSession') + "?");
+        if (confirmed) {
             router.push('/cashier');
         }
         return;
     }
 
     if (!selectedMemberId.value && !customerName.value.trim()) {
-        alert(t('pos.customerRequired'));
+        toast.warning(t('pos.customerRequired'));
+        return;
+    }
+
+    if (paymentMethod.value === 'DEBT' && !selectedMemberId.value) {
+        toast.warning(t('pos.memberRequiredForDebt', 'Qarz uchun a\'zo tanlanishi shart'));
         return;
     }
     processing.value = true;
@@ -366,6 +399,7 @@ const checkout = async () => {
             cashAmount: paymentMethod.value === 'MIXED' ? cashAmount.value : (paymentMethod.value === 'CASH' ? cartTotal.value : 0),
             cardAmount: paymentMethod.value === 'MIXED' ? cardAmount.value : (paymentMethod.value === 'CARD' ? cartTotal.value : 0),
             paymentMethod: paymentMethod.value,
+            dueDate: paymentMethod.value === 'DEBT' ? dueDate.value : null,
             cashSessionId: currentSession.value.id,
             items: cart.value.map(i => ({
                 productId: i.id,
@@ -377,7 +411,6 @@ const checkout = async () => {
 
         // Save last sale ID for invoice
         lastSaleId.value = sale.id;
-
         // Reset cart
         cart.value = [];
         selectedMemberId.value = null;
@@ -385,12 +418,19 @@ const checkout = async () => {
         manualDiscountPercent.value = 0;
         await fetchData();
 
+        toast.success(t('common.success'));
         // Auto-show invoice
         showInvoice.value = true;
     } catch (err: any) {
-        alert(t('common.error') + ": " + err.message);
+        toast.error(t('common.error') + ": " + err.message);
     } finally {
         processing.value = false;
     }
 };
 </script>
+
+
+
+
+
+
