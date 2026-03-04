@@ -161,7 +161,7 @@
                     <td class="py-3 pr-4 text-sm text-gray-500">{{ formatDate(debt.created_at) }}</td>
                     <td class="py-3 pr-4 text-sm font-semibold text-gray-900">{{ debt.members?.fullname }}</td>
                     <td class="py-3 pr-4 text-sm" :class="isOverdue(debt.due_date) ? 'text-red-600 font-bold' : 'text-gray-500'">
-                      {{ debt.due_date ? formatDate(debt.due_date) : '—' }}
+                      {{ debt.due_date ? formatDateOnly(debt.due_date) : '—' }}
                     </td>
                     <td class="py-3 pr-4 text-sm font-bold text-gray-900">{{ formatPrice(debt.remaining_amount) }}</td>
                     <td class="py-3 text-right">
@@ -463,6 +463,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { supabase } from '../lib/supabase'
 import { cashSessionsService } from '../services/supabaseService'
+import { formatDateTime, formatDateOnly } from '../lib/dateUtils'
 import { 
   CreditCardIcon,
   PrinterIcon
@@ -683,15 +684,7 @@ const printCurrentSession = () => {
     }, 100)
 };
 
-const formatDate = (iso: string) => {
-  return new Date(iso).toLocaleDateString('uz-UZ', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
+const formatDate = formatDateTime
 
 const printSummary = () => {
     window.print()
