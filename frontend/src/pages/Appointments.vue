@@ -542,6 +542,17 @@ const resetFilters = () => {
     onlyToday.value = false;
 };
 
+// datetime-local stringni Toshkent vaqt mintaqasi bilan ISO formatiga o'tkazish
+// Masalan: "2026-03-04T01:30" -> "2026-03-04T01:30:00+05:00"
+const localToISO = (datetimeLocal: string): string => {
+    if (!datetimeLocal) return '';
+    // Agar allaqachon timezone mavjud bo'lsa (+ yoki Z), o'zgartirmaymiz
+    if (datetimeLocal.includes('+') || datetimeLocal.includes('Z')) {
+        return datetimeLocal;
+    }
+    return datetimeLocal + ':00+05:00';
+};
+
 const submitBooking = async () => {
     if (form.value.servicePackageId) {
         const pkg = activePackages.value.find(p => p.id === form.value.servicePackageId);
@@ -555,6 +566,8 @@ const submitBooking = async () => {
     try {
         const payload = { 
             ...form.value,
+            startTime: localToISO(form.value.startTime),
+            endTime: localToISO(form.value.endTime),
             cashSessionId: currentSession.value?.id || null
         };
         await appointmentsService.create(payload);
@@ -590,6 +603,7 @@ const calendarOptions = computed(() => ({
     editable: true,
     selectable: true,
     selectMirror: true,
+    timeZone: 'local',
     dayMaxEvents: true,
     weekends: true,
     nowIndicator: true,
@@ -626,10 +640,11 @@ const calendarOptions = computed(() => ({
     },
     eventDrop: async (info: any) => {
         try {
+            // info.event.startStr si lokal timezone bilan keladi (timeZone:'local' tufayli)
             await appointmentsService.updateTime(
                 info.event.id, 
-                info.event.startStr.slice(0, 16), 
-                info.event.endStr?.slice(0, 16) || info.event.startStr.slice(0, 16)
+                localToISO(info.event.startStr.slice(0, 16)),
+                localToISO(info.event.endStr?.slice(0, 16) || info.event.startStr.slice(0, 16))
             );
             toast.success(t('common.success'));
             await fetchAppointments();

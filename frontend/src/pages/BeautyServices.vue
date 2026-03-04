@@ -74,7 +74,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 bg-white">
-            <tr v-for="s in filteredServices" :key="s.id" class="hover:bg-gray-50">
+            <tr v-for="s in filteredServices" :key="(s.isPackage ? 'p-' : 's-') + s.id" class="hover:bg-gray-50">
               <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">{{ s.fullName || $t('beautyServices.noName') }}</td>
               <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ s.serviceName }}</td>
               <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
@@ -91,7 +91,7 @@
               <td class="whitespace-nowrap px-3 py-4 text-sm text-right">
                 <button
                   class="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700 hover:bg-red-100"
-                  @click="onDeleteService(s.id)"
+                  @click="onDeleteService(s)"
                 >
                   {{ $t('common.delete') }}
                 </button>
@@ -405,6 +405,7 @@ type Service = {
   note?: string
   fullName?: string
   amount?: number
+  isPackage?: boolean
 }
 
 type Member = {
@@ -1270,13 +1271,19 @@ const exportToPDF = () => {
   }, 250)
 }
 
-const onDeleteService = async (id: number) => {
+const onDeleteService = async (service: any) => {
   const ok = await confirm(t('beautyServices.deleteConfirm'))
   if (!ok) return
   try {
-    await beautyService.delete(id)
+    if (service.isPackage) {
+      await beautyService.deletePackage(service.id)
+    } else {
+      await beautyService.delete(service.id)
+    }
     toast.success(t('common.success'))
-    services.value = services.value.filter((s) => s.id !== id)
+    services.value = services.value.filter(
+      (s) => !(s.id === service.id && s.isPackage === service.isPackage)
+    )
   } catch (err: any) {
     console.error(err)
     toast.error(err.message || t('beautyServices.deleteError'))

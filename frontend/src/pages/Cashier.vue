@@ -1,9 +1,19 @@
 <template>
   <div class="space-y-6">
+    <!-- Header -->
     <div class="flex items-center justify-between no-print">
       <div>
         <h2 class="text-2xl font-bold text-gray-900">{{ $t('cashier.title') }}</h2>
         <p class="text-sm text-gray-500">{{ $t('cashier.subtitle') }}</p>
+      </div>
+      <div v-if="currentSession" class="flex items-center gap-2">
+        <button @click="printCurrentSession" class="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm">
+          <PrinterIcon class="h-4 w-4" />
+          {{ $t('cashier.xReport') }}
+        </button>
+        <button @click="showCalendarReport = true" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm">
+          {{ $t('cashier.dailyReport') }}
+        </button>
       </div>
     </div>
 
@@ -11,124 +21,162 @@
       <div class="h-8 w-8 animate-spin rounded-full border-4 border-sky-600 border-t-transparent"></div>
     </div>
 
-    <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 no-print">
-      <!-- Session Status Card -->
-      <div class="col-span-1 md:col-span-2 lg:col-span-2 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-          <h3 class="font-semibold text-gray-900">{{ $t('cashier.status') }}</h3>
+    <div v-else class="space-y-5 no-print">
+
+      <!-- SESSION CLOSED STATE -->
+      <div v-if="!currentSession" class="flex flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white py-16 shadow-sm">
+        <CreditCardIcon class="h-14 w-14 text-gray-300 mb-4" />
+        <p class="text-lg font-semibold text-gray-500 mb-2">{{ $t('cashier.noActiveSession') }}</p>
+        <button @click="showOpenModal = true" class="mt-4 rounded-lg bg-sky-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-sky-500 shadow-sm">
+          {{ $t('cashier.openSession') }}
+        </button>
+      </div>
+
+      <!-- SESSION OPEN STATE -->
+      <template v-else>
+
+        <!-- Top Stat Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="rounded-xl bg-white border border-gray-200 shadow-sm p-5">
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{{ $t('cashier.cashSales') }}</div>
+            <div class="text-2xl font-black text-gray-800">{{ formatPrice(stats.cash) }}</div>
+            <div class="mt-2 inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">Naqd</div>
+          </div>
+          <div class="rounded-xl bg-white border border-gray-200 shadow-sm p-5">
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{{ $t('cashier.cardSales') }}</div>
+            <div class="text-2xl font-black text-gray-800">{{ formatPrice(stats.card) }}</div>
+            <div class="mt-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">Plastik</div>
+          </div>
+          <div class="rounded-xl bg-white border border-gray-200 shadow-sm p-5">
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{{ $t('cashier.otherSales') }}</div>
+            <div class="text-2xl font-black text-gray-800">{{ formatPrice(stats.other) }}</div>
+            <div class="mt-2 inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-xs font-semibold text-purple-700">Boshqa</div>
+          </div>
+          <div class="rounded-xl bg-sky-600 border border-sky-500 shadow-sm p-5">
+            <div class="text-[10px] font-bold text-sky-200 uppercase tracking-widest mb-1">{{ $t('cashier.totalSales') }}</div>
+            <div class="text-2xl font-black text-white">{{ formatPrice(sessionTotal) }}</div>
+            <div class="mt-2 inline-flex items-center rounded-full bg-sky-500 px-2 py-0.5 text-xs font-semibold text-white">Jami</div>
+          </div>
         </div>
-        <div class="p-6">
-          <div v-if="currentSession" class="space-y-4">
-            <div class="flex items-center gap-3">
-              <span class="flex h-3 w-3 rounded-full bg-green-500"></span>
-              <span class="text-lg font-medium text-green-700">{{ $t('cashier.sessionOpened') }}</span>
+
+        <!-- Middle: Session Control + Daily Breakdown -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+          <!-- Session Control - big card -->
+          <div class="lg:col-span-2 rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+            <div class="border-b border-gray-100 px-6 py-4 bg-gray-50/50">
+              <h3 class="font-semibold text-gray-900">{{ $t('cashier.status') }}</h3>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div class="rounded-lg bg-gray-50 p-4">
-                <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">{{ $t('cashier.openingBalance') }}</div>
-                <div class="text-xl font-bold text-gray-900">{{ formatPrice(currentSession.opening_balance) }}</div>
+            <div class="p-6">
+              <!-- Session Open Badge -->
+              <div class="flex items-center gap-3 mb-6">
+                <span class="flex h-2.5 w-2.5 rounded-full bg-green-500 ring-4 ring-green-100"></span>
+                <span class="text-base font-semibold text-green-700">{{ $t('cashier.sessionOpened') }}</span>
+                <span class="ml-auto text-xs text-gray-400">#{{ currentSession.id }}</span>
               </div>
-              <div class="rounded-lg bg-sky-50 p-4">
-                <div class="text-xs text-sky-600 uppercase tracking-wider mb-1">{{ $t('cashier.totalSales') }}</div>
-                <div class="text-xl font-bold text-sky-900">{{ formatPrice(sessionTotal) }}</div>
+              <!-- Balances -->
+              <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="rounded-xl bg-gray-50 border border-gray-100 p-4">
+                  <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">{{ $t('cashier.openingBalance') }}</div>
+                  <div class="text-xl font-bold text-gray-900">{{ formatPrice(currentSession.opening_balance) }}</div>
+                </div>
+                <div class="rounded-xl bg-sky-50 border border-sky-100 p-4">
+                  <div class="text-[10px] font-bold text-sky-500 uppercase tracking-widest mb-2">{{ $t('cashier.totalSales') }}</div>
+                  <div class="text-xl font-bold text-sky-700">{{ formatPrice(sessionTotal) }}</div>
+                </div>
               </div>
-            </div>
-            <div class="pt-4 border-t border-gray-100 flex gap-3">
-              <button 
+              <!-- Close Button -->
+              <button
                 @click="showCloseModal = true"
-                class="flex-1 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-500 shadow-sm"
+                class="w-full rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white hover:bg-red-500 shadow-sm transition-all active:scale-[0.98] tracking-wide"
               >
-                {{ $t('cashier.zReport') }}
+                🔒 {{ $t('cashier.zReport') }}
               </button>
-              <div class="flex items-center gap-3">
-            <button @click="printCurrentSession" v-if="currentSession" class="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-              <PrinterIcon class="h-4 w-4" />
-              {{ $t('cashier.xReport') }}
-            </button>
-            <button @click="showCalendarReport = true" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ $t('cashier.dailyReport') }}</button>
-          </div>
             </div>
           </div>
-          <div v-else class="text-center py-6">
-            <div class="mb-4 text-gray-400">
-              <CreditCardIcon class="mx-auto h-12 w-12 opacity-50" />
+
+          <!-- Daily Breakdown -->
+          <div class="rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+            <div class="border-b border-gray-100 px-6 py-4 bg-gray-50/50">
+              <h3 class="font-semibold text-gray-900">{{ $t('cashier.dailyReport') }}</h3>
             </div>
-            <p class="text-gray-500 mb-6">{{ $t('cashier.noActiveSession') }}</p>
-            <button 
-              @click="showOpenModal = true"
-              class="rounded-lg bg-sky-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-sky-500 shadow-sm"
-            >
-              {{ $t('cashier.openSession') }}
-            </button>
+            <div class="p-6 space-y-3">
+              <div class="flex items-center justify-between py-2.5 border-b border-gray-50">
+                <div class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full bg-green-400"></span>
+                  <span class="text-sm text-gray-600">{{ $t('cashier.cashSales') }}</span>
+                </div>
+                <span class="text-sm font-bold text-gray-900">{{ formatPrice(stats.cash) }}</span>
+              </div>
+              <div class="flex items-center justify-between py-2.5 border-b border-gray-50">
+                <div class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full bg-blue-400"></span>
+                  <span class="text-sm text-gray-600">{{ $t('cashier.cardSales') }}</span>
+                </div>
+                <span class="text-sm font-bold text-gray-900">{{ formatPrice(stats.card) }}</span>
+              </div>
+              <div class="flex items-center justify-between py-2.5 border-b border-gray-50">
+                <div class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full bg-purple-400"></span>
+                  <span class="text-sm text-gray-600">{{ $t('cashier.otherSales') }}</span>
+                </div>
+                <span class="text-sm font-bold text-gray-900">{{ formatPrice(stats.other) }}</span>
+              </div>
+              <div class="flex items-center justify-between pt-3 mt-1">
+                <span class="text-sm font-bold text-gray-900">{{ $t('common.total') }}</span>
+                <span class="text-lg font-black text-sky-600">{{ formatPrice(sessionTotal) }}</span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Pending Debts Card -->
-      <div v-if="currentSession" class="col-span-1 md:col-span-2 lg:col-span-3 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex justify-between items-center">
-          <h3 class="font-semibold text-gray-900 flex items-center gap-2">
-            <CreditCardIcon class="h-5 w-5 text-red-500" />
-            {{ $t('cashier.pendingDebts', 'Kutilayotgan Qarzlar') }}
-          </h3>
-        </div>
-        <div class="p-6">
-          <div v-if="pendingDebts.length === 0" class="text-center py-6 text-gray-500">
-            {{ $t('cashier.noPendingDebts', 'Faol qarzlar yuq') }}
+        <!-- Pending Debts -->
+        <div class="rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+          <div class="border-b border-gray-100 px-6 py-4 bg-gray-50/50 flex items-center justify-between">
+            <h3 class="font-semibold text-gray-900 flex items-center gap-2">
+              <CreditCardIcon class="h-4 w-4 text-red-500" />
+              {{ $t('cashier.pendingDebts', 'Kutilayotgan Qarzlar') }}
+            </h3>
+            <span v-if="pendingDebts.length > 0" class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-700">
+              {{ pendingDebts.length }}
+            </span>
           </div>
-          <div v-else class="overflow-x-auto">
-            <table class="w-full text-left">
-              <thead>
-                <tr class="border-b border-gray-200 bg-gray-50/50 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  <th class="px-4 py-3">{{ $t('common.date') }}</th>
-                  <th class="px-4 py-3">{{ $t('common.client') }}</th>
-                  <th class="px-4 py-3">{{ $t('pos.dueDate', 'Muddat') }}</th>
-                  <th class="px-4 py-3">{{ $t('common.amount') }}</th>
-                  <th class="px-4 py-3 text-right">{{ $t('common.actions') }}</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-100">
-                <tr v-for="debt in pendingDebts" :key="debt.id" class="hover:bg-gray-50/50">
-                  <td class="px-4 py-3 text-sm text-gray-900">{{ formatDate(debt.created_at) }}</td>
-                  <td class="px-4 py-3 text-sm text-gray-900 font-medium">{{ debt.members?.fullname }}</td>
-                  <td class="px-4 py-3 text-sm" :class="isOverdue(debt.due_date) ? 'text-red-600 font-bold' : 'text-gray-500'">{{ debt.due_date ? formatDate(debt.due_date) : '-' }}</td>
-                  <td class="px-4 py-3 text-sm font-semibold text-gray-900">{{ formatPrice(debt.remaining_amount) }}</td>
-                  <td class="px-4 py-3 text-right">
-                    <button @click="openDebtPaymentModal(debt)" class="text-xs font-semibold text-sky-600 hover:text-sky-700 bg-sky-50 px-3 py-1.5 rounded-lg">
-                      {{ $t('cashier.pay', 'To\'lash') }}
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="p-6">
+            <div v-if="pendingDebts.length === 0" class="text-center py-6 text-gray-400 text-sm italic">
+              {{ $t('cashier.noPendingDebts', 'Faol qarzlar yo\'q') }}
+            </div>
+            <div v-else class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    <th class="pb-3 pr-4">{{ $t('common.date') }}</th>
+                    <th class="pb-3 pr-4">{{ $t('common.client') }}</th>
+                    <th class="pb-3 pr-4">{{ $t('pos.dueDate', 'Muddat') }}</th>
+                    <th class="pb-3 pr-4">{{ $t('common.amount') }}</th>
+                    <th class="pb-3 text-right">{{ $t('common.actions') }}</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                  <tr v-for="debt in pendingDebts" :key="debt.id" class="group hover:bg-gray-50/50 transition-colors">
+                    <td class="py-3 pr-4 text-sm text-gray-500">{{ formatDate(debt.created_at) }}</td>
+                    <td class="py-3 pr-4 text-sm font-semibold text-gray-900">{{ debt.members?.fullname }}</td>
+                    <td class="py-3 pr-4 text-sm" :class="isOverdue(debt.due_date) ? 'text-red-600 font-bold' : 'text-gray-500'">
+                      {{ debt.due_date ? formatDate(debt.due_date) : '—' }}
+                    </td>
+                    <td class="py-3 pr-4 text-sm font-bold text-gray-900">{{ formatPrice(debt.remaining_amount) }}</td>
+                    <td class="py-3 text-right">
+                      <button @click="openDebtPaymentModal(debt)" class="rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-bold text-sky-700 hover:bg-sky-100 transition-colors">
+                        {{ $t('cashier.pay', 'To\'lash') }}
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Quick Stats Card -->
-      <div v-if="currentSession" class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-          <h3 class="font-semibold text-gray-900">{{ $t('cashier.dailyReport') }}</h3>
-        </div>
-        <div class="p-6 space-y-4">
-          <div class="flex justify-between items-center py-2">
-            <span class="text-sm text-gray-500">{{ $t('cashier.cashSales') }}</span>
-            <span class="font-medium text-gray-900">{{ formatPrice(stats.cash) }}</span>
-          </div>
-          <div class="flex justify-between items-center py-2 border-t border-gray-50">
-            <span class="text-sm text-gray-500">{{ $t('cashier.cardSales') }}</span>
-            <span class="font-medium text-gray-900">{{ formatPrice(stats.card) }}</span>
-          </div>
-          <div class="flex justify-between items-center py-2 border-t border-gray-50">
-            <span class="text-sm text-gray-500">{{ $t('cashier.otherSales') }}</span>
-            <span class="font-medium text-gray-900">{{ formatPrice(stats.other) }}</span>
-          </div>
-          <div class="flex justify-between items-center pt-4 border-t-2 border-gray-100">
-            <span class="text-base font-bold text-gray-900">{{ $t('common.total') }}</span>
-            <span class="text-base font-bold text-sky-600">{{ formatPrice(sessionTotal) }}</span>
-          </div>
-        </div>
-      </div>
+      </template>
     </div>
 
     <!-- Modals -->

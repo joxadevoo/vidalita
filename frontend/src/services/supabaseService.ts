@@ -343,6 +343,12 @@ export const beautyService = {
         return true;
     },
 
+    async deletePackage(id: number | string) {
+        const { error } = await supabase.from('service_packages').delete().eq('id', id);
+        if (error) throw error;
+        return true;
+    },
+
     async getMemberPackages(memberId: number | string) {
         const { data, error } = await supabase
             .from('service_packages')

@@ -51,7 +51,6 @@
               <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('members.columns.id') }}</th>
               <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('members.columns.joined') }}</th>
               <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('members.columns.status') }}</th>
-              <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('members.columns.beauty') }}</th>
               <th class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('common.actions') }}</th>
             </tr>
           </thead>
@@ -77,11 +76,6 @@
                   </span>
                 </div>
               </td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm">
-                <span :class="member.beautyHasRecord ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold">
-                  {{ member.beautyHasRecord ? $t('common.has') : $t('common.notHas') }}
-                </span>
-              </td>
               <td class="whitespace-nowrap px-3 py-4 text-sm text-right" @click.stop>
                 <button
                   class="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700 hover:bg-red-100"
@@ -92,7 +86,7 @@
               </td>
             </tr>
             <tr v-if="filteredMembers.length === 0">
-              <td colspan="7" class="px-6 py-6 text-center text-sm text-gray-500">{{ $t('members.noResults') }}</td>
+              <td colspan="6" class="px-6 py-6 text-center text-sm text-gray-500">{{ $t('members.noResults') }}</td>
             </tr>
           </tbody>
         </table>
