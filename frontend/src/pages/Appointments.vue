@@ -237,13 +237,13 @@
                     </div>
                     <div>
                         <label class="block text-xs font-black text-gray-500 uppercase px-1">{{ $t('appointments.form.staff') }}</label>
-                        <select v-model="form.staffId" class="input h-10 mt-1">
+                        <select v-model="form.staffId" class="mt-1 w-full rounded-full border border-gray-200 px-4 py-2 text-sm focus:ring-1 focus:ring-sky-400">
                             <option v-for="s in staff" :key="s.id" :value="s.id">{{ s.full_name }}</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-black text-gray-500 uppercase px-1">{{ $t('appointments.form.room') }}</label>
-                        <select v-model="form.roomId" class="input h-10 mt-1">
+                        <select v-model="form.roomId" class="mt-1 w-full rounded-full border border-gray-200 px-4 py-2 text-sm focus:ring-1 focus:ring-sky-400">
                             <option v-for="r in rooms" :key="r.id" :value="r.id">{{ r.name }}</option>
                         </select>
                     </div>
@@ -338,10 +338,10 @@
                     <p class="text-sm bg-gray-50 p-2 rounded">{{ selectedEvent.notes }}</p>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 mt-8">
+                <div class="flex flex-col gap-3 mt-8">
                     <select 
                         @change="updateStatusAndClose(selectedEvent.id, ($event.target as HTMLSelectElement).value)"
-                        class="input rounded-full h-11 text-xs font-black uppercase"
+                        class="input rounded-full h-11 text-xs font-black uppercase w-full"
                         :value="selectedEvent.status"
                     >
                         <option value="BOOKED">{{ $t('appointments.status.booked') }}</option>
@@ -350,12 +350,20 @@
                         <option value="COMPLETED" :disabled="selectedEvent.status === 'COMPLETED'">{{ $t('appointments.status.completed') }}</option>
                         <option value="CANCELLED">{{ $t('appointments.status.cancelled') }}</option>
                     </select>
-                    <button 
-                        @click="deleteAppointmentAndClose(selectedEvent.id)" 
-                        class="rounded-full bg-red-500/10 border border-red-500/20 py-2 text-xs font-black uppercase text-red-600 dark:text-red-400 hover:bg-red-500/20 transition-all shadow-sm"
-                    >
-                        {{ $t('common.delete') }}
-                    </button>
+                    <div class="flex items-center gap-3 w-full">
+                        <button 
+                            @click="showDetailModal = false" 
+                            class="flex-1 rounded-full bg-gray-500/10 border border-gray-500/20 py-2.5 text-xs font-black uppercase text-gray-600 dark:text-gray-400 hover:bg-gray-500/20 transition-all shadow-sm"
+                        >
+                            {{ $t('common.close', 'Yopish') }}
+                        </button>
+                        <button 
+                            @click="deleteAppointmentAndClose(selectedEvent.id)" 
+                            class="flex-1 rounded-full bg-red-500/10 border border-red-500/20 py-2.5 text-xs font-black uppercase text-red-600 dark:text-red-400 hover:bg-red-500/20 transition-all shadow-sm"
+                        >
+                            {{ $t('common.delete') }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -646,6 +654,44 @@ const submitBooking = async () => {
             return;
         }
     }
+    if (!form.value.staffId) {
+        toast.warning(t('appointments.form.staff') + ' ni tanlash majburiy');
+        return;
+    }
+    if (!form.value.roomId) {
+        toast.warning(t('appointments.form.room') + ' ni tanlash majburiy');
+        return;
+    }
+
+    const startISO = localToISO(form.value.startTime);
+    const endISO = localToISO(form.value.endTime);
+    
+    // Bandlikni tekshirish (faqat bekor qilinmagan va yakunlanmagan uchrashuvlar uchun)
+    const hasOverlap = appointments.value.some(app => {
+        if (app.status === 'CANCELLED' || app.status === 'COMPLETED' || app.status === 'NO_SHOW') return false;
+        if (app.id === selectedEvent.value?.id) return false; // tahrirlashda o'zini o'tkazib yuborish (agar update qo'shilsa)
+        
+        // Agar tanlangan xodim yoki xona bir xil bo'lsa, vaqt kesishishini tekshiramiz
+        const isSameStaff = Number(app.staffId) === Number(form.value.staffId);
+        const isSameRoom = Number(app.roomId) === Number(form.value.roomId);
+        
+        if (isSameStaff || isSameRoom) {
+            const appStart = new Date(app.startTime).getTime();
+            const appEnd = new Date(app.endTime).getTime();
+            const newStart = new Date(startISO).getTime();
+            const newEnd = new Date(endISO).getTime();
+            
+            // Vaqt kesishish mantig'i:
+            // Yangi uchrashuvning boshlanishi eskisi tugashidan oldin VA yangisini tugash vaqti eskisini boshlanishidan keyin bo'lishi
+            return (newStart < appEnd && newEnd > appStart);
+        }
+        return false;
+    });
+
+    if (hasOverlap) {
+        toast.warning('Tanlangan vaqtda bu xodim ko\'rsatilgan xonada yoki xona boshqa xodim bilan band!');
+        return;
+    }
     
     submitting.value = true;
     try {
@@ -708,6 +754,8 @@ const calendarOptions = computed(() => ({
     },
     slotMinTime: '07:00:00',
     slotMaxTime: '22:00:00',
+    slotEventOverlap: true,
+    eventOverlap: true,
     height: 'auto',
     contentHeight: 'auto',
     handleWindowResize: true,
@@ -731,11 +779,41 @@ const calendarOptions = computed(() => ({
     },
     eventDrop: async (info: any) => {
         try {
-            // info.event.startStr si lokal timezone bilan keladi (timeZone:'local' tufayli)
+            const startISO = localToISO(info.event.startStr.slice(0, 16));
+            const endISO = localToISO(info.event.endStr?.slice(0, 16) || info.event.startStr.slice(0, 16));
+            
+            // Vaqt kesishishini tekshirish (drag-and-drop uchun)
+            const draggedApp = info.event.extendedProps;
+            const hasOverlap = appointments.value.some(app => {
+                if (app.status === 'CANCELLED' || app.status === 'COMPLETED' || app.status === 'NO_SHOW') return false;
+                if (app.id === draggedApp.id) return false; // O'zini tekshirmaymiz
+                
+                // Agar xodim yoki xona bir xil bo'lsa, vaqtni tekshiramiz
+                const isSameStaff = app.staffId && draggedApp.staffId && Number(app.staffId) === Number(draggedApp.staffId);
+                const isSameRoom = app.roomId && draggedApp.roomId && Number(app.roomId) === Number(draggedApp.roomId);
+                
+                if (isSameStaff || isSameRoom) {
+                    const appStart = new Date(app.startTime).getTime();
+                    const appEnd = new Date(app.endTime).getTime();
+                    const newStart = new Date(startISO).getTime();
+                    const newEnd = new Date(endISO).getTime();
+                    
+                    return (newStart < appEnd && newEnd > appStart);
+                }
+                return false;
+            });
+
+            if (hasOverlap) {
+                toast.warning('Tanlangan vaqtda bu xodim ko\'rsatilgan xonada yoki xona boshqa xodim bilan band!');
+                info.revert();
+                return;
+            }
+
+            // check passed
             await appointmentsService.updateTime(
                 info.event.id, 
-                localToISO(info.event.startStr.slice(0, 16)),
-                localToISO(info.event.endStr?.slice(0, 16) || info.event.startStr.slice(0, 16))
+                startISO,
+                endISO
             );
             toast.success(t('common.success'));
             await fetchAppointments();
