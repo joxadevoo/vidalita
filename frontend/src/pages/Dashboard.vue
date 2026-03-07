@@ -5,7 +5,7 @@
         <h1 class="text-3xl font-black tracking-tight text-black dark:text-white">{{ $t('dashboard.title') }}</h1>
         <p class="mt-1 text-sm font-black text-gray-900 dark:text-gray-400">{{ $t('dashboard.subtitle') }}</p>
       </div>
-      <button @click="fetchAll" class="glass group relative flex items-center gap-2 rounded-xl bg-sky-600/10 px-5 py-2.5 text-sm font-black text-sky-900 dark:text-sky-400 transition-all hover:bg-sky-600 hover:text-white dark:hover:bg-sky-600 active:scale-95 border border-sky-600/20">
+      <button @click="fetchAll" class="glass group relative flex items-center gap-2 rounded-full bg-sky-600/10 px-6 py-2.5 text-sm font-black text-sky-900 dark:text-sky-400 transition-all hover:bg-sky-600 hover:text-white dark:hover:bg-sky-600 active:scale-95 border border-sky-600/20">
         <svg class="h-4 w-4 transition-transform group-hover:rotate-180 duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
@@ -20,7 +20,7 @@
         </svg>
         <span>{{ error }}</span>
       </div>
-      <button @click="fetchAll" class="glass group relative flex items-center gap-2 rounded-xl bg-sky-600/10 px-5 py-2.5 text-sm font-black text-sky-900 dark:text-sky-400 transition-all hover:bg-sky-600 hover:text-white dark:hover:bg-sky-600 active:scale-95 border border-sky-600/20">
+      <button @click="fetchAll" class="glass group relative flex items-center gap-2 rounded-full bg-sky-600/10 px-6 py-2.5 text-sm font-black text-sky-900 dark:text-sky-400 transition-all hover:bg-sky-600 hover:text-white dark:hover:bg-sky-600 active:scale-95 border border-sky-600/20">
         <svg class="h-4 w-4 transition-transform group-hover:rotate-180 duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
@@ -32,7 +32,7 @@
 
     <div v-else class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       <div v-for="(card, index) in statCards" :key="card.name" 
-           class="glass animate-fade-in-scale group flex flex-col justify-between p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-sky-500/10"
+           class="glass rounded-2xl animate-fade-in-scale group flex flex-col justify-between p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-sky-500/10 shadow-xl"
            :style="{ animationDelay: `${index * 50}ms` }">
         <div>
           <div class="flex items-center justify-between">
@@ -58,7 +58,7 @@
     <!-- Reports Section -->
     <div v-if="!loading" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <!-- Daily Check-ins Report -->
-      <div class="glass animate-fade-in-scale overflow-hidden transition-all duration-300 hover:shadow-lg" style="animation-delay: 200ms">
+      <div class="glass rounded-2xl animate-fade-in-scale overflow-hidden shadow-xl" style="animation-delay: 200ms">
         <div class="flex items-center justify-between border-b border-gray-300/50 px-6 py-4">
           <h3 class="text-lg font-black text-black dark:text-white">{{ $t('dashboard.dailyCheckinsReport') }}</h3>
           <RouterLink to="/checkins" class="text-sm font-black text-sky-900 dark:text-sky-400 hover:text-sky-700 transition-colors uppercase tracking-wider underline">{{ $t('dashboard.viewAll') }}</RouterLink>
@@ -82,7 +82,7 @@
       </div>
 
       <!-- Active Memberships Report -->
-      <div class="glass animate-fade-in-scale overflow-hidden transition-all duration-300 hover:shadow-lg" style="animation-delay: 300ms">
+      <div class="glass rounded-2xl animate-fade-in-scale overflow-hidden shadow-xl" style="animation-delay: 300ms">
         <div class="flex items-center justify-between border-b border-gray-300/50 px-6 py-4">
           <h3 class="text-lg font-black text-black dark:text-white">{{ $t('dashboard.activeMembershipsReport') }}</h3>
           <RouterLink to="/members" class="text-sm font-black text-sky-900 dark:text-sky-600 transition-colors uppercase tracking-wider underline">{{ $t('dashboard.viewAll') }}</RouterLink>
@@ -109,7 +109,7 @@
             <li v-for="member in expiringMemberships.slice(0, 3)" :key="member.id">
               <div class="flex items-center justify-between text-xs font-bold">
                 <span class="text-gray-700 dark:text-gray-300">{{ member.fullName }}</span>
-                <span class="text-yellow-600 px-2 py-0.5 rounded-full bg-yellow-500/10">{{ member.daysRemaining }} {{ $t('dashboard.days') }}</span>
+                <span class="text-yellow-600 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 font-black">{{ member.daysRemaining }} {{ $t('dashboard.days') }}</span>
               </div>
             </li>
           </ul>
@@ -117,7 +117,7 @@
       </div>
 
       <!-- Low Session Packages Report -->
-      <div class="glass animate-fade-in-scale overflow-hidden transition-all duration-300 hover:shadow-lg border-purple-500/20" style="animation-delay: 400ms">
+      <div class="glass rounded-2xl animate-fade-in-scale overflow-hidden transition-all duration-300 hover:shadow-lg border-purple-500/20 shadow-xl" style="animation-delay: 400ms">
         <div class="flex items-center justify-between border-b border-purple-500/10 px-6 py-4">
           <h3 class="text-lg font-bold text-purple-900 dark:text-purple-400">{{ $t('dashboard.lowSessionPackages') }}</h3>
           <span class="rounded-full bg-purple-500/10 px-2.5 py-0.5 text-xs font-black text-purple-600">
@@ -150,7 +150,7 @@
       </div>
 
       <!-- Low Stock Report -->
-      <div v-if="lowStockProducts.length > 0" class="glass animate-fade-in-scale overflow-hidden transition-all duration-300 hover:shadow-lg border-orange-500/20" style="animation-delay: 500ms">
+      <div v-if="lowStockProducts.length > 0" class="glass rounded-2xl animate-fade-in-scale overflow-hidden transition-all duration-300 hover:shadow-lg border-orange-500/20 shadow-xl" style="animation-delay: 500ms">
         <div class="flex items-center justify-between border-b border-orange-500/10 px-6 py-4">
           <h3 class="text-lg font-bold text-orange-900 dark:text-orange-400">{{ $t('dashboard.lowStockProducts') }}</h3>
           <span class="rounded-full bg-orange-500/10 px-2.5 py-0.5 text-xs font-black text-orange-600">
@@ -178,7 +178,7 @@
 
     <!-- Recent Activity -->
     <div v-if="!loading" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <div class="glass animate-fade-in-scale overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg" style="animation-delay: 600ms">
+      <div class="glass rounded-2xl animate-fade-in-scale overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg shadow-xl" style="animation-delay: 600ms">
         <div class="flex items-center justify-between border-b border-gray-100/10 px-6 py-4">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ $t('dashboard.recentCheckins') }}</h3>
           <RouterLink to="/checkins" class="text-sm font-bold text-sky-600 hover:text-sky-500 transition-colors">{{ $t('dashboard.viewAll') }}</RouterLink>
@@ -197,7 +197,7 @@
         </ul>
       </div>
 
-      <div class="glass animate-fade-in-scale overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg" style="animation-delay: 700ms">
+      <div class="glass rounded-2xl animate-fade-in-scale overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg shadow-xl" style="animation-delay: 700ms">
         <div class="flex items-center justify-between border-b border-gray-100/10 px-6 py-4">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ $t('dashboard.recentBeauty') }}</h3>
           <RouterLink to="/beauty" class="text-sm font-bold text-sky-600 hover:text-sky-500 transition-colors">{{ $t('dashboard.view') }}</RouterLink>

@@ -3,31 +3,42 @@
     <!-- Header -->
     <div class="flex items-center justify-between no-print">
       <div>
-        <h2 class="text-2xl font-bold text-gray-900">{{ $t('cashier.title') }}</h2>
-        <p class="text-sm text-gray-500">{{ $t('cashier.subtitle') }}</p>
+        <h2 class="text-3xl font-black tracking-tighter text-gray-900 dark:text-gray-100 uppercase">{{ $t('cashier.title') }}</h2>
+        <p class="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1 italic">{{ $t('cashier.subtitle') }}</p>
       </div>
-      <div v-if="currentSession" class="flex items-center gap-2">
-        <button @click="printCurrentSession" class="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm">
+      <div v-if="currentSession" class="flex items-center gap-3">
+        <button 
+          @click="printCurrentSession" 
+          class="glass-pill rounded-full border border-gray-400/30 px-5 py-2.5 text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-white/40 dark:hover:bg-white/10 transition-all shadow-sm uppercase tracking-widest flex items-center gap-2"
+        >
           <PrinterIcon class="h-4 w-4" />
           {{ $t('cashier.xReport') }}
         </button>
-        <button @click="showCalendarReport = true" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm">
+        <button 
+          @click="showCalendarReport = true" 
+          class="glass-pill rounded-full border border-sky-500/30 bg-sky-500/10 px-5 py-2.5 text-xs font-black text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 transition-all shadow-sm uppercase tracking-widest"
+        >
           {{ $t('cashier.dailyReport') }}
         </button>
       </div>
     </div>
 
-    <div v-if="loading" class="flex justify-center py-12">
-      <div class="h-8 w-8 animate-spin rounded-full border-4 border-sky-600 border-t-transparent"></div>
+    <div v-if="loading" class="glass rounded-2xl p-20 flex justify-center shadow-2xl border-white/40 dark:border-white/10">
+      <LoadingSpinner />
     </div>
 
-    <div v-else class="space-y-5 no-print">
+    <div v-else class="space-y-6 no-print">
 
       <!-- SESSION CLOSED STATE -->
-      <div v-if="!currentSession" class="flex flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white py-16 shadow-sm">
-        <CreditCardIcon class="h-14 w-14 text-gray-300 mb-4" />
-        <p class="text-lg font-semibold text-gray-500 mb-2">{{ $t('cashier.noActiveSession') }}</p>
-        <button @click="showOpenModal = true" class="mt-4 rounded-lg bg-sky-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-sky-500 shadow-sm">
+      <div v-if="!currentSession" class="glass rounded-3xl p-20 flex flex-col items-center justify-center border-white/40 dark:border-white/10 shadow-3xl text-center backdrop-blur-md">
+        <div class="p-6 rounded-full bg-gray-500/10 text-gray-400 mb-6 border border-gray-500/20 shadow-inner">
+            <LockClosedIcon class="h-16 w-16" />
+        </div>
+        <p class="text-xl font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4 italic">{{ $t('cashier.noActiveSession') }}</p>
+        <button 
+          @click="showOpenModal = true" 
+          class="rounded-full bg-sky-600 px-10 py-4 text-sm font-black text-white hover:bg-sky-500 shadow-xl shadow-sky-500/20 transition-all active:scale-95 uppercase tracking-widest"
+        >
           {{ $t('cashier.openSession') }}
         </button>
       </div>
@@ -37,135 +48,154 @@
 
         <!-- Top Stat Cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="rounded-xl bg-white border border-gray-200 shadow-sm p-5">
-            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{{ $t('cashier.cashSales') }}</div>
-            <div class="text-2xl font-black text-gray-800">{{ formatPrice(stats.cash) }}</div>
-            <div class="mt-2 inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">Naqd</div>
+          <div class="glass rounded-2xl p-6 shadow-2xl border-white/40 dark:border-white/10 flex flex-col justify-between relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-emerald-500/10 blur-2xl group-hover:bg-emerald-500/20 transition-all"></div>
+            <div class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 relative z-10">{{ $t('cashier.cashSales') }}</div>
+            <div class="text-2xl font-black text-gray-900 dark:text-white tracking-tighter relative z-10">{{ formatPrice(stats.cash) }}</div>
+            <div class="mt-4 inline-flex items-center rounded-full bg-emerald-500/10 px-3 py-1 text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest border border-emerald-500/20 w-fit">Naqd</div>
           </div>
-          <div class="rounded-xl bg-white border border-gray-200 shadow-sm p-5">
-            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{{ $t('cashier.cardSales') }}</div>
-            <div class="text-2xl font-black text-gray-800">{{ formatPrice(stats.card) }}</div>
-            <div class="mt-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">Plastik</div>
+
+          <div class="glass rounded-2xl p-6 shadow-2xl border-white/40 dark:border-white/10 flex flex-col justify-between relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-sky-500/10 blur-2xl group-hover:bg-sky-500/20 transition-all"></div>
+            <div class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 relative z-10">{{ $t('cashier.cardSales') }}</div>
+            <div class="text-2xl font-black text-gray-900 dark:text-white tracking-tighter relative z-10">{{ formatPrice(stats.card) }}</div>
+            <div class="mt-4 inline-flex items-center rounded-full bg-sky-500/10 px-3 py-1 text-[9px] font-black text-sky-600 dark:text-sky-400 uppercase tracking-widest border border-sky-500/20 w-fit">Plastik</div>
           </div>
-          <div class="rounded-xl bg-white border border-gray-200 shadow-sm p-5">
-            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{{ $t('cashier.otherSales') }}</div>
-            <div class="text-2xl font-black text-gray-800">{{ formatPrice(stats.other) }}</div>
-            <div class="mt-2 inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-xs font-semibold text-purple-700">Boshqa</div>
+
+          <div class="glass rounded-2xl p-6 shadow-2xl border-white/40 dark:border-white/10 flex flex-col justify-between relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-purple-500/10 blur-2xl group-hover:bg-purple-500/20 transition-all"></div>
+            <div class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 relative z-10">{{ $t('cashier.otherSales') }}</div>
+            <div class="text-2xl font-black text-gray-900 dark:text-white tracking-tighter relative z-10">{{ formatPrice(stats.other) }}</div>
+            <div class="mt-4 inline-flex items-center rounded-full bg-purple-500/10 px-3 py-1 text-[9px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest border border-purple-500/20 w-fit">Boshqa</div>
           </div>
-          <div class="rounded-xl bg-sky-600 border border-sky-500 shadow-sm p-5">
-            <div class="text-[10px] font-bold text-sky-200 uppercase tracking-widest mb-1">{{ $t('cashier.totalSales') }}</div>
-            <div class="text-2xl font-black text-white">{{ formatPrice(sessionTotal) }}</div>
-            <div class="mt-2 inline-flex items-center rounded-full bg-sky-500 px-2 py-0.5 text-xs font-semibold text-white">Jami</div>
+
+          <div class="glass rounded-2xl p-6 shadow-2xl border-sky-500/50 bg-sky-600/10 flex flex-col justify-between relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-sky-500/20 blur-2xl group-hover:bg-sky-500/30 transition-all"></div>
+            <div class="text-[10px] font-black text-sky-500 dark:text-sky-400 uppercase tracking-widest mb-4 relative z-10">{{ $t('cashier.totalSales') }}</div>
+            <div class="text-2xl font-black text-sky-600 dark:text-sky-400 tracking-tighter relative z-10">{{ formatPrice(sessionTotal) }}</div>
+            <div class="mt-4 inline-flex items-center rounded-full bg-sky-500 text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest w-fit shadow-lg shadow-sky-500/20">Jami Savdo</div>
           </div>
         </div>
 
         <!-- Middle: Session Control + Daily Breakdown -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-          <!-- Session Control - big card -->
-          <div class="lg:col-span-2 rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden">
-            <div class="border-b border-gray-100 px-6 py-4 bg-gray-50/50">
-              <h3 class="font-semibold text-gray-900">{{ $t('cashier.status') }}</h3>
+          <!-- Session Control -->
+          <div class="lg:col-span-2 glass rounded-2xl shadow-2xl border-white/40 dark:border-white/10 overflow-hidden">
+            <div class="border-b border-white/20 dark:border-white/5 px-6 py-4 flex items-center gap-2">
+              <KeyIcon class="h-5 w-5 text-sky-500" />
+              <h3 class="text-[11px] font-black uppercase text-gray-700 dark:text-gray-300 tracking-widest">{{ $t('cashier.status') }}</h3>
             </div>
-            <div class="p-6">
-              <!-- Session Open Badge -->
-              <div class="flex items-center gap-3 mb-6">
-                <span class="flex h-2.5 w-2.5 rounded-full bg-green-500 ring-4 ring-green-100"></span>
-                <span class="text-base font-semibold text-green-700">{{ $t('cashier.sessionOpened') }}</span>
-                <span class="ml-auto text-xs text-gray-400">#{{ currentSession.id }}</span>
-              </div>
-              <!-- Balances -->
-              <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="rounded-xl bg-gray-50 border border-gray-100 p-4">
-                  <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">{{ $t('cashier.openingBalance') }}</div>
-                  <div class="text-xl font-bold text-gray-900">{{ formatPrice(currentSession.opening_balance) }}</div>
+            <div class="p-8">
+              <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-3">
+                    <div class="relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex h-3 w-3 rounded-full bg-emerald-500"></span>
+                    </div>
+                    <span class="text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">{{ $t('cashier.sessionOpened') }}</span>
                 </div>
-                <div class="rounded-xl bg-sky-50 border border-sky-100 p-4">
-                  <div class="text-[10px] font-bold text-sky-500 uppercase tracking-widest mb-2">{{ $t('cashier.totalSales') }}</div>
-                  <div class="text-xl font-bold text-sky-700">{{ formatPrice(sessionTotal) }}</div>
+                <span class="px-3 py-1 rounded-full bg-gray-500/10 text-[10px] font-black text-gray-500 border border-gray-500/20 uppercase">ID: #{{ currentSession.id }}</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-6 mb-8">
+                <div class="glass rounded-2xl p-6 border-white/40 dark:border-white/5 shadow-inner bg-white/40 dark:bg-white/5">
+                  <div class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">{{ $t('cashier.openingBalance') }}</div>
+                  <div class="text-xl font-black text-gray-900 dark:text-white tracking-tighter">{{ formatPrice(currentSession.opening_balance) }}</div>
+                </div>
+                <div class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl p-6">
+                  <div class="text-[9px] font-black text-sky-500 uppercase tracking-widest mb-2">{{ $t('cashier.totalSales') }}</div>
+                  <div class="text-xl font-black text-sky-600 dark:text-sky-400 tracking-tighter">{{ formatPrice(sessionTotal) }}</div>
                 </div>
               </div>
-              <!-- Close Button -->
+
               <button
                 @click="showCloseModal = true"
-                class="w-full rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white hover:bg-red-500 shadow-sm transition-all active:scale-[0.98] tracking-wide"
+                class="w-full rounded-full bg-rose-600 px-8 py-4 text-xs font-black text-white hover:bg-rose-500 shadow-xl shadow-rose-500/20 transition-all active:scale-95 uppercase tracking-widest flex items-center justify-center gap-2"
               >
-                🔒 {{ $t('cashier.zReport') }}
+                <LockClosedIcon class="h-4 w-4" />
+                {{ $t('cashier.zReport') }}
               </button>
             </div>
           </div>
 
           <!-- Daily Breakdown -->
-          <div class="rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden">
-            <div class="border-b border-gray-100 px-6 py-4 bg-gray-50/50">
-              <h3 class="font-semibold text-gray-900">{{ $t('cashier.dailyReport') }}</h3>
+          <div class="glass rounded-2xl shadow-2xl border-white/40 dark:border-white/10 overflow-hidden">
+            <div class="border-b border-white/20 dark:border-white/5 px-6 py-4 flex items-center gap-2">
+              <ChartBarIcon class="h-5 w-5 text-sky-500" />
+              <h3 class="text-[11px] font-black uppercase text-gray-700 dark:text-gray-300 tracking-widest">{{ $t('cashier.dailyReport') }}</h3>
             </div>
-            <div class="p-6 space-y-3">
-              <div class="flex items-center justify-between py-2.5 border-b border-gray-50">
-                <div class="flex items-center gap-2">
-                  <span class="h-2 w-2 rounded-full bg-green-400"></span>
-                  <span class="text-sm text-gray-600">{{ $t('cashier.cashSales') }}</span>
-                </div>
-                <span class="text-sm font-bold text-gray-900">{{ formatPrice(stats.cash) }}</span>
+            <div class="p-6 space-y-4">
+              <div class="flex items-center justify-between p-4 rounded-xl bg-white/40 dark:bg-white/5 border border-white/20">
+                <span class="text-[10px] font-black uppercase text-gray-500">{{ $t('cashier.cashSales') }}</span>
+                <span class="text-sm font-black text-gray-900 dark:text-white">{{ formatPrice(stats.cash) }}</span>
               </div>
-              <div class="flex items-center justify-between py-2.5 border-b border-gray-50">
-                <div class="flex items-center gap-2">
-                  <span class="h-2 w-2 rounded-full bg-blue-400"></span>
-                  <span class="text-sm text-gray-600">{{ $t('cashier.cardSales') }}</span>
-                </div>
-                <span class="text-sm font-bold text-gray-900">{{ formatPrice(stats.card) }}</span>
+              <div class="flex items-center justify-between p-4 rounded-xl bg-white/40 dark:bg-white/5 border border-white/20">
+                <span class="text-[10px] font-black uppercase text-gray-500">{{ $t('cashier.cardSales') }}</span>
+                <span class="text-sm font-black text-gray-900 dark:text-white">{{ formatPrice(stats.card) }}</span>
               </div>
-              <div class="flex items-center justify-between py-2.5 border-b border-gray-50">
-                <div class="flex items-center gap-2">
-                  <span class="h-2 w-2 rounded-full bg-purple-400"></span>
-                  <span class="text-sm text-gray-600">{{ $t('cashier.otherSales') }}</span>
-                </div>
-                <span class="text-sm font-bold text-gray-900">{{ formatPrice(stats.other) }}</span>
+              <div class="flex items-center justify-between p-4 rounded-xl bg-white/40 dark:bg-white/5 border border-white/20">
+                <span class="text-[10px] font-black uppercase text-gray-500">{{ $t('cashier.otherSales') }}</span>
+                <span class="text-sm font-black text-gray-900 dark:text-white">{{ formatPrice(stats.other) }}</span>
               </div>
-              <div class="flex items-center justify-between pt-3 mt-1">
-                <span class="text-sm font-bold text-gray-900">{{ $t('common.total') }}</span>
-                <span class="text-lg font-black text-sky-600">{{ formatPrice(sessionTotal) }}</span>
+              <div class="pt-4 mt-2 border-t border-white/10 flex items-center justify-between px-2">
+                <span class="text-xs font-black text-gray-400 uppercase tracking-widest">{{ $t('common.total') }}</span>
+                <span class="text-xl font-black text-sky-600 tracking-tight">{{ formatPrice(sessionTotal) }}</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Pending Debts -->
-        <div class="rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden">
-          <div class="border-b border-gray-100 px-6 py-4 bg-gray-50/50 flex items-center justify-between">
-            <h3 class="font-semibold text-gray-900 flex items-center gap-2">
-              <CreditCardIcon class="h-4 w-4 text-red-500" />
-              {{ $t('cashier.pendingDebts', 'Kutilayotgan Qarzlar') }}
-            </h3>
-            <span v-if="pendingDebts.length > 0" class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-700">
+        <div class="glass rounded-2xl shadow-2xl border-white/40 dark:border-white/10 overflow-hidden">
+          <div class="border-b border-white/20 dark:border-white/5 px-6 py-4 flex items-center justify-between bg-white/30 dark:bg-white/5 backdrop-blur-md">
+            <div class="flex items-center gap-2">
+              <BanknotesIcon class="h-5 w-5 text-rose-500" />
+              <h3 class="text-[11px] font-black uppercase text-gray-700 dark:text-gray-300 tracking-widest">
+                {{ $t('cashier.pendingDebts', 'Kutilayotgan Qarzlar') }}
+              </h3>
+            </div>
+            <span v-if="pendingDebts.length > 0" class="px-3 py-1 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] font-black uppercase border border-rose-500/20 shadow-inner">
               {{ pendingDebts.length }}
             </span>
           </div>
           <div class="p-6">
-            <div v-if="pendingDebts.length === 0" class="text-center py-6 text-gray-400 text-sm italic">
+            <div v-if="pendingDebts.length === 0" class="text-center py-20 text-gray-400 text-[10px] font-black uppercase italic tracking-widest opacity-40">
               {{ $t('cashier.noPendingDebts', 'Faol qarzlar yo\'q') }}
             </div>
-            <div v-else class="overflow-x-auto">
-              <table class="w-full text-left">
+            <div v-else class="overflow-x-auto custom-scrollbar rounded-xl">
+              <table class="w-full text-left border-separate border-spacing-0">
                 <thead>
-                  <tr class="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                    <th class="pb-3 pr-4">{{ $t('common.date') }}</th>
-                    <th class="pb-3 pr-4">{{ $t('common.client') }}</th>
-                    <th class="pb-3 pr-4">{{ $t('pos.dueDate', 'Muddat') }}</th>
-                    <th class="pb-3 pr-4">{{ $t('common.amount') }}</th>
-                    <th class="pb-3 text-right">{{ $t('common.actions') }}</th>
+                  <tr class="bg-white/50 dark:bg-white/5 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                    <th class="py-4 px-6 border-b border-white/10">{{ $t('common.date') }}</th>
+                    <th class="py-4 px-6 border-b border-white/10">{{ $t('common.client') }}</th>
+                    <th class="py-4 px-6 border-b border-white/10">{{ $t('pos.dueDate', 'Muddat') }}</th>
+                    <th class="py-4 px-6 border-b border-white/10">{{ $t('common.amount') }}</th>
+                    <th class="py-4 px-6 border-b border-white/10 text-right">{{ $t('common.actions') }}</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50">
-                  <tr v-for="debt in pendingDebts" :key="debt.id" class="group hover:bg-gray-50/50 transition-colors">
-                    <td class="py-3 pr-4 text-sm text-gray-500">{{ formatDate(debt.created_at) }}</td>
-                    <td class="py-3 pr-4 text-sm font-semibold text-gray-900">{{ debt.members?.fullname }}</td>
-                    <td class="py-3 pr-4 text-sm" :class="isOverdue(debt.due_date) ? 'text-red-600 font-bold' : 'text-gray-500'">
-                      {{ debt.due_date ? formatDateOnly(debt.due_date) : '—' }}
+                <tbody class="divide-y divide-white/10 dark:divide-white/5">
+                  <tr v-for="debt in pendingDebts" :key="debt.id" class="group hover:bg-white/40 dark:hover:bg-white/5 transition-all">
+                    <td class="py-4 px-6 whitespace-nowrap text-xs font-bold text-gray-500 dark:text-gray-400 italic">
+                        {{ formatDate(debt.created_at) }}
                     </td>
-                    <td class="py-3 pr-4 text-sm font-bold text-gray-900">{{ formatPrice(debt.remaining_amount) }}</td>
-                    <td class="py-3 text-right">
-                      <button @click="openDebtPaymentModal(debt)" class="rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-bold text-sky-700 hover:bg-sky-100 transition-colors">
+                    <td class="py-4 px-6 whitespace-nowrap text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-tight">
+                        {{ debt.members?.fullname }}
+                    </td>
+                    <td class="py-4 px-6 whitespace-nowrap text-[10px] font-black uppercase tracking-wider" :class="isOverdue(debt.due_date) ? 'text-rose-600' : 'text-gray-400'">
+                      <div class="flex items-center gap-1.5">
+                          <CalendarDaysIcon class="h-3.5 w-3.5" />
+                          {{ debt.due_date ? formatDateOnly(debt.due_date) : '—' }}
+                      </div>
+                    </td>
+                    <td class="py-4 px-6 whitespace-nowrap text-xs font-black text-gray-900 dark:text-white tracking-tight">
+                        {{ formatPrice(debt.remaining_amount) }}
+                    </td>
+                    <td class="py-4 px-6 text-right">
+                      <button 
+                        @click="openDebtPaymentModal(debt)" 
+                        class="rounded-full bg-sky-500/10 border border-sky-500/20 px-4 py-1.5 text-[10px] font-black text-sky-600 dark:text-sky-400 hover:bg-sky-500 hover:text-white transition-all shadow-sm uppercase tracking-widest opacity-0 group-hover:opacity-100"
+                      >
                         {{ $t('cashier.pay', 'To\'lash') }}
                       </button>
                     </td>
@@ -175,37 +205,34 @@
             </div>
           </div>
         </div>
-
       </template>
     </div>
 
     <!-- Modals -->
     <!-- Open Session Modal -->
     <div v-if="showOpenModal" class="fixed inset-0 z-[150] flex items-center justify-center p-4 no-print">
-      <div class="absolute inset-0 bg-black/30 backdrop-blur-sm no-print" @click="showOpenModal = false"></div>
-      <div class="relative w-full max-w-sm rounded-xl border border-gray-200 bg-white shadow-xl z-[151] overflow-hidden">
-        <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50/50">
-          <h3 class="text-lg font-bold text-gray-900">{{ $t('cashier.openSession') }}</h3>
-          <button @click="showOpenModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-md no-print" @click="showOpenModal = false"></div>
+      <div class="relative w-full max-w-sm glass rounded-3xl border border-white/40 dark:border-white/10 shadow-3xl z-[151] overflow-hidden">
+        <div class="border-b border-white/20 dark:border-white/5 px-6 py-5 flex items-center justify-between bg-white/30 dark:bg-white/5 backdrop-blur-md">
+          <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">{{ $t('cashier.openSession') }}</h3>
+          <button @click="showOpenModal = false" class="p-2 rounded-full hover:bg-white/20 transition-all">
+            <XMarkIcon class="h-4 w-4 text-gray-500" />
           </button>
         </div>
-        <div class="p-6 space-y-5">
-          <div class="space-y-1.5">
-            <label class="block text-sm font-medium text-gray-700">{{ $t('cashier.openingBalance') }}</label>
+        <div class="p-8 space-y-6">
+          <div class="space-y-2">
+            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{{ $t('cashier.openingBalance') }}</label>
             <input 
               v-model.number="form.openingBalance" 
               type="number"
-              class="w-full rounded-lg border border-gray-200 px-3 py-2.5 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
+              class="input h-14 w-full text-lg font-black tracking-tight"
               placeholder="0"
             />
           </div>
           <button 
             @click="handleOpenSession"
             :disabled="submitting"
-            class="w-full rounded-lg bg-sky-600 px-4 py-3 text-sm font-semibold text-white hover:bg-sky-500 disabled:opacity-50 shadow-sm transition-all active:scale-[0.98]"
+            class="w-full rounded-full bg-sky-600 px-6 py-4 text-xs font-black text-white hover:bg-sky-500 disabled:opacity-50 shadow-xl shadow-sky-500/20 transition-all active:scale-95 uppercase tracking-widest"
           >
             {{ submitting ? $t('common.loading') : $t('common.confirm') }}
           </button>
@@ -215,35 +242,42 @@
 
     <!-- Pay Debt Modal -->
     <div v-if="showDebtModal" class="fixed inset-0 z-[150] flex items-center justify-center p-4 no-print">
-      <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" @click="closeDebtModal"></div>
-      <div class="relative w-full max-w-sm rounded-xl border border-gray-200 bg-white shadow-xl z-[151] overflow-hidden">
-        <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50/50">
-          <h3 class="text-lg font-bold text-gray-900">{{ $t('cashier.payDebt', 'Qarzni To\'lash') }}</h3>
-          <button @click="closeDebtModal" class="text-gray-400 hover:text-gray-500">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-md" @click="closeDebtModal"></div>
+      <div class="relative w-full max-w-sm glass rounded-3xl border border-white/40 dark:border-white/10 shadow-3xl z-[151] overflow-hidden">
+        <div class="border-b border-white/20 dark:border-white/5 px-6 py-5 flex items-center justify-between bg-white/30 dark:bg-white/5 backdrop-blur-md">
+          <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">{{ $t('cashier.payDebt', 'Qarzni To\'lash') }}</h3>
+          <button @click="closeDebtModal" class="p-2 rounded-full hover:bg-white/20 transition-all">
+            <XMarkIcon class="h-4 w-4 text-gray-500" />
           </button>
         </div>
-        <div class="p-6 space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('common.amount') }}</label>
-            <input v-model.number="debtPaymentAmount" type="number" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500" />
+        <div class="p-8 space-y-6">
+          <div class="space-y-2">
+            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{{ $t('common.amount') }}</label>
+            <input v-model.number="debtPaymentAmount" type="number" class="input h-14 w-full text-lg font-black tracking-tight" />
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('pos.paymentMethod') }}</label>
-            <select v-model="debtPaymentMethod" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500">
-              <option value="CASH">{{ $t('pos.cash') }}</option>
-              <option value="CARD">{{ $t('pos.card') }}</option>
-              <option value="TRANSFER">{{ $t('pos.transfer', 'O\'tkazma') }}</option>
-            </select>
+          <div class="space-y-2">
+            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{{ $t('pos.paymentMethod') }}</label>
+            <div class="grid grid-cols-2 gap-2">
+                <button 
+                  v-for="method in ['CASH', 'CARD']" 
+                  :key="method"
+                  @click="debtPaymentMethod = method"
+                  :class="[
+                    'rounded-2xl border px-4 py-3 text-[10px] font-black uppercase tracking-widest transition-all',
+                    debtPaymentMethod === method 
+                      ? 'border-sky-500 bg-sky-500/10 text-sky-600 dark:text-sky-400' 
+                      : 'border-gray-300 bg-white/60 text-gray-600 hover:bg-white/80 dark:border-white/10 dark:bg-white/5 dark:text-gray-400 dark:hover:bg-white/10'
+                  ]"
+                >
+                  {{ method === 'CASH' ? $t('pos.cash') : $t('pos.card') }}
+                </button>
+            </div>
           </div>
-        </div>
-        <div class="border-t border-gray-200 bg-gray-50/50 px-6 py-4 flex justify-end gap-3">
-          <button @click="closeDebtModal" class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-            {{ $t('common.cancel') }}
-          </button>
-          <button @click="submitDebtPayment" :disabled="submitting" class="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500 disabled:opacity-50">
+          <button 
+            @click="submitDebtPayment" 
+            :disabled="submitting" 
+            class="w-full rounded-full bg-sky-600 px-6 py-4 text-xs font-black text-white hover:bg-sky-500 disabled:opacity-50 shadow-xl shadow-sky-500/20 transition-all active:scale-95 uppercase tracking-widest"
+          >
             {{ submitting ? $t('common.loading') : $t('common.confirm') }}
           </button>
         </div>
@@ -252,46 +286,38 @@
 
     <!-- Close Session Modal -->
     <div v-if="showCloseModal" class="fixed inset-0 z-[150] flex items-center justify-center p-4 no-print">
-      <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" @click="showCloseModal = false"></div>
-      <div class="relative w-full max-w-sm rounded-xl border border-gray-200 bg-white shadow-xl z-[151] overflow-hidden">
-        <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50/50">
-          <h3 class="text-lg font-bold text-gray-900">{{ $t('cashier.closeSession') }}</h3>
-          <button @click="showCloseModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-md" @click="showCloseModal = false"></div>
+      <div class="relative w-full max-w-sm glass rounded-3xl border border-white/40 dark:border-white/10 shadow-3xl z-[151] overflow-hidden">
+        <div class="border-b border-white/20 dark:border-white/5 px-6 py-5 flex items-center justify-between bg-white/30 dark:bg-white/5 backdrop-blur-md">
+          <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">{{ $t('cashier.closeSession') }}</h3>
+          <button @click="showCloseModal = false" class="p-2 rounded-full hover:bg-white/20 transition-all">
+            <XMarkIcon class="h-4 w-4 text-gray-500" />
           </button>
         </div>
-        <div class="p-6 space-y-5">
-          <div class="rounded-lg bg-gray-50 p-4 space-y-1 border border-gray-100">
-            <div class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Kutilayotgan qoldiq</div>
-            <div class="text-lg font-bold text-gray-900">{{ formatPrice(currentSession.opening_balance + sessionTotal) }}</div>
+        <div class="p-8 space-y-6">
+          <div class="glass rounded-2xl p-6 border-white/40 dark:border-white/5 shadow-inner bg-white/40 dark:bg-white/5 space-y-1">
+            <div class="text-[9px] text-gray-400 uppercase tracking-widest font-black italic">Kutilayotgan qoldiq</div>
+            <div class="text-2xl font-black text-gray-900 dark:text-white tracking-tighter">{{ formatPrice(currentSession.opening_balance + sessionTotal) }}</div>
           </div>
-          <div class="space-y-1.5">
-            <label class="block text-sm font-medium text-gray-700">{{ $t('cashier.closingBalance') }}</label>
+          <div class="space-y-2">
+            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{{ $t('cashier.closingBalance') }}</label>
             <input 
               v-model.number="form.closingBalance" 
               type="number"
-              class="w-full rounded-lg border border-gray-200 px-3 py-2.5 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
+              class="input h-14 w-full text-lg font-black tracking-tight"
               placeholder="0"
             />
           </div>
-          <div class="rounded-lg bg-orange-50 p-4 border border-orange-100">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-orange-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <div class="ml-3">
-                <p class="text-xs font-medium text-orange-800 leading-snug">{{ $t('cashier.zReportWarning') }}</p>
-              </div>
+          <div class="rounded-2xl bg-orange-500/10 p-5 border border-orange-500/20 shadow-inner">
+            <div class="flex gap-3">
+                <ExclamationTriangleIcon class="h-5 w-5 text-orange-500 shrink-0" />
+                <p class="text-[10px] font-bold text-orange-800 dark:text-orange-300 leading-relaxed uppercase">{{ $t('cashier.zReportWarning') }}</p>
             </div>
           </div>
           <button 
             @click="handleCloseSession"
             :disabled="submitting"
-            class="w-full rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-500 disabled:opacity-50 shadow-sm transition-all active:scale-[0.98]"
+            class="w-full rounded-full bg-rose-600 px-6 py-4 text-xs font-black text-white hover:bg-rose-500 disabled:opacity-50 shadow-xl shadow-rose-500/20 transition-all active:scale-95 uppercase tracking-widest"
           >
             {{ submitting ? $t('common.loading') : $t('common.confirm') }}
           </button>
@@ -301,65 +327,73 @@
 
     <!-- Daily Report Modal -->
     <div v-if="showCalendarReport" class="fixed inset-0 z-[150] flex items-center justify-center p-4 no-print">
-      <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" @click="showCalendarReport = false"></div>
-      <div class="relative w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-xl z-[151] flex flex-col max-h-[92vh] overflow-hidden uppercase">
-        <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50/50 flex-shrink-0">
-          <h3 class="text-lg font-bold text-gray-900">{{ $t('cashier.dailyReport') }}</h3>
-          <button @click="showCalendarReport = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-md" @click="showCalendarReport = false"></div>
+      <div class="relative w-full max-w-md glass rounded-3xl border border-white/40 dark:border-white/10 shadow-3xl z-[151] flex flex-col max-h-[92vh] overflow-hidden">
+        <div class="border-b border-white/20 dark:border-white/5 px-6 py-5 flex items-center justify-between bg-white/30 dark:bg-white/5 backdrop-blur-md flex-shrink-0">
+          <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">{{ $t('cashier.dailyReport') }}</h3>
+          <button @click="showCalendarReport = false" class="p-2 rounded-full hover:bg-white/20 transition-all">
+            <XMarkIcon class="h-4 w-4 text-gray-500" />
           </button>
         </div>
         
-        <div class="flex-1 overflow-y-auto px-6 py-5 space-y-4">
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-gray-500 uppercase mb-1">{{ $t('cashier.selectRange') }}</label>
-              <input type="date" v-model="reportFilter.from" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-sky-400" />
+        <div class="flex-1 overflow-y-auto px-8 py-6 space-y-6 custom-scrollbar">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{{ $t('cashier.selectRange') }}</label>
+              <div class="relative">
+                  <CalendarDaysIcon class="absolute left-4 h-4 w-4 text-gray-400 pointer-events-none top-1/2 -translate-y-1/2" />
+                  <input type="date" v-model="reportFilter.from" class="input h-12 w-full pl-12 text-xs font-bold" />
+              </div>
             </div>
-            <div>
-              <label class="block text-xs font-medium text-gray-500 uppercase mb-1">&nbsp;</label>
-              <input type="date" v-model="reportFilter.to" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-sky-400" />
+            <div class="space-y-2">
+              <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">&nbsp;</label>
+              <div class="relative">
+                  <CalendarDaysIcon class="absolute left-4 h-4 w-4 text-gray-400 pointer-events-none top-1/2 -translate-y-1/2" />
+                  <input type="date" v-model="reportFilter.to" class="input h-12 w-full pl-12 text-xs font-bold" />
+              </div>
             </div>
           </div>
           
-          <button @click="fetchPeriodReport" :disabled="submittingReport" class="w-full rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500 disabled:opacity-50">
+          <button 
+            @click="fetchPeriodReport" 
+            :disabled="submittingReport" 
+            class="w-full rounded-full bg-sky-600 px-6 py-3.5 text-xs font-black text-white hover:bg-sky-500 shadow-xl shadow-sky-500/20 transition-all uppercase tracking-widest"
+          >
             {{ submittingReport ? $t('common.loading') : $t('common.search') }}
           </button>
 
-          <div v-if="periodReport" class="mt-6 space-y-4 border-t pt-4">
-            <!-- Jami savdo -->
-            <div class="flex justify-between items-center bg-gray-50 p-2 rounded-lg">
-              <span class="text-sm font-semibold text-gray-700">{{ $t('cashier.totalSales') }}</span>
-              <span class="text-base font-bold text-sky-600">{{ formatPrice(periodReport.total) }}</span>
+          <div v-if="periodReport" class="mt-8 space-y-6 border-t border-white/10 pt-6">
+            <div class="flex justify-between items-center glass p-5 rounded-2xl border-sky-500/20 shadow-inner bg-sky-500/5">
+              <span class="text-[10px] font-black text-sky-600 dark:text-sky-400 uppercase tracking-widest">{{ $t('cashier.totalSales') }}</span>
+              <span class="text-xl font-black text-sky-600 dark:text-sky-400 tracking-tighter">{{ formatPrice(periodReport.total) }}</span>
             </div>
 
-            <!-- Manba bo'yicha breakdown -->
-            <div v-if="periodReport.breakdown" class="space-y-1.5 px-1">
-              <div class="flex justify-between text-xs py-1 text-gray-600 border-b border-gray-50">
+            <div v-if="periodReport.breakdown" class="space-y-3 px-1">
+              <div class="flex justify-between text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-tight border-b border-gray-200 dark:border-white/5 py-1">
                 <span>{{ $t('cashier.breakdownPOS') }}</span>
-                <span class="font-medium">{{ formatPrice(periodReport.breakdown.pos) }}</span>
+                <span>{{ formatPrice(periodReport.breakdown.pos) }}</span>
               </div>
-              <div class="flex justify-between text-xs py-1 text-gray-600 border-b border-gray-50">
+              <div class="flex justify-between text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-tight border-b border-gray-200 dark:border-white/5 py-1">
                 <span>{{ $t('cashier.breakdownBeauty') }}</span>
-                <span class="font-medium">{{ formatPrice(periodReport.breakdown.beauty) }}</span>
+                <span>{{ formatPrice(periodReport.breakdown.beauty) }}</span>
               </div>
-              <div class="flex justify-between text-xs py-1 text-gray-600 border-b border-gray-50">
+              <div class="flex justify-between text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-tight border-b border-gray-200 dark:border-white/5 py-1">
                 <span>{{ $t('cashier.breakdownPackages') }}</span>
-                <span class="font-medium">{{ formatPrice(periodReport.breakdown.packages) }}</span>
+                <span>{{ formatPrice(periodReport.breakdown.packages) }}</span>
               </div>
             </div>
 
-            <!-- To'lov usuli bo'yicha -->
-            <div class="space-y-1.5 pt-2 border-t border-dashed border-gray-200">
-              <div v-for="(val, method) in periodReport.byMethod" :key="method" class="flex justify-between text-[11px] py-1 text-gray-500 italic">
+            <div class="space-y-2 pt-4 border-t border-dashed border-gray-300 dark:border-white/10">
+              <div v-for="(val, method) in periodReport.byMethod" :key="method" class="flex justify-between text-[10px] font-black uppercase text-gray-600 dark:text-gray-400 tracking-widest italic">
                 <span>{{ method }}</span>
                 <span>{{ formatPrice(val) }}</span>
               </div>
             </div>
 
-            <button @click="printPeriodReport" class="w-full mt-4 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2">
+            <button 
+              @click="printPeriodReport" 
+              class="w-full mt-6 rounded-full border border-gray-400/30 py-4 text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-white/40 dark:hover:bg-white/10 transition-all shadow-sm uppercase tracking-widest flex items-center justify-center gap-2"
+            >
               <PrinterIcon class="h-4 w-4" /> {{ $t('cashier.printReport') }}
             </button>
           </div>
@@ -466,8 +500,16 @@ import { cashSessionsService } from '../services/supabaseService'
 import { formatDateTime, formatDateOnly } from '../lib/dateUtils'
 import { 
   CreditCardIcon,
-  PrinterIcon
+  PrinterIcon,
+  LockClosedIcon,
+  ChartBarIcon,
+  XMarkIcon,
+  ExclamationTriangleIcon,
+  CalendarDaysIcon,
+  KeyIcon,
+  BanknotesIcon
 } from '@heroicons/vue/24/outline'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
 
 const { t } = useI18n()
 const currentSession = ref<any>(null)
@@ -543,7 +585,7 @@ const processReport = (report: any) => {
     const method = (s.payment_method || 'other').toLowerCase()
     
     if (method === 'cash') cash += amount
-    else if (method === 'card') card += amount
+    else if (['card', 'uzcard', 'humo', 'visa', 'click', 'payme'].includes(method)) card += amount
     else other += amount
   })
 
@@ -553,7 +595,7 @@ const processReport = (report: any) => {
     const method = (b.payment_method || 'cash').toLowerCase() // Default to cash for old records
     
     if (method === 'cash') cash += amount
-    else if (method === 'card') card += amount
+    else if (['card', 'uzcard', 'humo', 'visa', 'click', 'payme'].includes(method)) card += amount
     else other += amount
   })
 
@@ -658,14 +700,11 @@ const submitDebtPayment = async () => {
   submitting.value = true;
   try {
       const { debtsService } = await import('../services/supabaseService');
-      const userJson = localStorage.getItem('user');
-      const user = userJson ? JSON.parse(userJson) : null;
       await debtsService.payDebt({
           debt_id: activeDebt.value.id,
           amount: debtPaymentAmount.value,
           payment_method: debtPaymentMethod.value as any,
           cash_session_id: currentSession.value.id,
-          processed_by: user?.id
       });
       closeDebtModal();
       await fetchCurrentSession();

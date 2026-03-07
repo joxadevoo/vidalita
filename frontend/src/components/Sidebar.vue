@@ -26,48 +26,48 @@
               :to="item.href"
               :class="[
                 $route.path === item.href
-                  ? 'bg-sky-600 text-white shadow-lg shadow-sky-600/30'
-                  : 'text-gray-900 dark:text-gray-200 hover:bg-gray-500/10 hover:text-sky-600 dark:hover:text-sky-400',
-                'group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200'
+                  ? 'bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-400/40 shadow-sm backdrop-blur-sm'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-white/10 border border-transparent',
+                'group flex items-center px-4 py-2.5 text-sm font-semibold rounded-full transition-all duration-200'
               ]"
               @click="$emit('close')"
             >
               <component
                 :is="item.icon"
                 :class="[
-                  $route.path === item.href ? 'text-white' : 'text-gray-400 group-hover:text-sky-500',
+                  $route.path === item.href ? 'text-sky-600 dark:text-sky-400' : 'text-black dark:text-gray-100 group-hover:text-sky-500',
                   'mr-3 flex-shrink-0 h-5 w-5 transition-colors'
                 ]"
                 aria-hidden="true"
               />
               {{ item.name }}
-              <span v-if="$route.path === item.href" class="ml-auto flex h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span>
+              <span v-if="$route.path === item.href" class="ml-auto flex h-1.5 w-1.5 rounded-full bg-sky-500 animate-pulse"></span>
             </RouterLink>
           </nav>
         </div>
 
-        <div class="flex-shrink-0 flex flex-col border-t border-gray-100/10 p-4 space-y-3">
-          <div class="flex items-center gap-3 px-2">
-            <div class="h-10 w-10 rounded-full bg-gradient-to-tr from-sky-600 to-blue-500 flex items-center justify-center text-white font-black shadow-md shrink-0">
+        <div class="flex-shrink-0 flex flex-col p-3 space-y-2">
+          <div class="glass rounded-2xl p-3 flex items-center gap-3">
+            <div class="h-9 w-9 rounded-full bg-gradient-to-tr from-sky-500 to-blue-400 flex items-center justify-center text-white font-black shadow-md shrink-0 text-sm">
               {{ user?.username?.charAt(0).toUpperCase() }}
             </div>
             <div class="flex-1 min-w-0">
-               <p class="text-sm font-black text-black dark:text-white truncate">{{ user?.username }}</p>
-               <p class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">{{ $t('roles.' + (user?.role || 'reception')) }}</p>
+               <p class="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">{{ user?.username }}</p>
+               <p class="text-[10px] uppercase font-semibold text-gray-400 dark:text-gray-500 tracking-wider">{{ $t('roles.' + (user?.role || 'reception')) }}</p>
             </div>
           </div>
-          <button @click="handleLogout" class="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-xs font-bold text-red-600 dark:text-red-400 bg-red-500/5 hover:bg-red-500/10 rounded-xl transition-colors">
+          <button @click="handleLogout" class="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold text-red-500 dark:text-red-400 rounded-full border border-red-400/30 bg-red-500/8 hover:bg-red-500/15 transition-all shadow-sm">
             <ArrowRightOnRectangleIcon class="h-4 w-4" />
             {{ $t('sidebar.logout') }}
           </button>
-          <div class="mt-2 text-center pb-2 flex flex-col items-center gap-1">
-            <span class="block text-[9px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em] mb-1.5">&copy; {{ currentYear }} Vidalita</span>
-            <div class="flex items-center gap-3">
-              <a href="https://t.me/jaxongirtoshpolatov" target="_blank" class="inline-flex items-center justify-center gap-1 text-[10px] font-bold text-gray-400 dark:text-gray-500 hover:text-sky-500 transition-colors">
-                <CodeBracketIcon class="h-3 w-3" />
+          <div class="text-center pb-1 flex flex-col items-center gap-0.5">
+            <span class="text-[9px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em]">© {{ currentYear }} Vidalita</span>
+            <div class="flex items-center gap-2">
+              <a href="https://t.me/jaxongirtoshpolatov" target="_blank" class="inline-flex items-center gap-1 text-[10px] font-bold text-black dark:text-gray-400 hover:text-sky-500 transition-colors">
+                <CodeBracketIcon class="h-3 w-3 text-black dark:text-gray-400" />
                 <span>{{ $t('sidebar.developer') }}</span>
               </a>
-              <a href="https://github.com/joxadevoo" target="_blank" class="inline-flex items-center text-[10px] font-bold text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+              <a href="https://github.com/joxadevoo" target="_blank" class="text-[10px] font-bold text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
                 joxadevoo
               </a>
             </div>
@@ -80,104 +80,116 @@
   <!-- Desktop sidebar -->
   <aside
     :class="[
-      'hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col glass transition-all duration-300 no-print',
-      collapsed ? 'lg:w-20' : 'lg:w-72'
+      'hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:flex lg:flex-col transition-all duration-300 no-print my-2 ml-2 gap-2',
+      collapsed ? 'lg:w-[3.5rem]' : 'lg:w-[13rem]'
     ]"
   >
-    <div class="hidden lg:flex flex-1 flex-col pt-5 pb-4 overflow-y-auto overflow-x-hidden">
-      <div class="flex items-center flex-shrink-0 mb-8" :class="collapsed ? 'px-0 justify-center' : 'px-6 justify-between'">
-        <div class="flex items-center transition-transform hover:scale-[1.05] duration-300">
-          <div class="h-10 w-10 bg-sky-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-sky-600/30 font-black italic shrink-0">
+    <!-- 1. Logo section — 2 ta alohida glass card (Slim height: 52px) -->
+    <div class="flex-shrink-0 flex items-center h-[52px]" :class="collapsed ? 'justify-center' : 'gap-2'">
+      <!-- Logo card with Transition -->
+      <Transition name="logo-fade">
+        <div v-if="!collapsed" class="glass rounded-full flex items-center gap-3 px-4 h-full flex-1 min-w-0 transition-transform hover:scale-[1.02] duration-300 overflow-hidden">
+          <div class="h-8 w-8 bg-sky-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-sky-600/30 font-black italic shrink-0 text-xs">
             V
           </div>
-          <span v-if="!collapsed" class="ml-3 text-2xl font-black tracking-tight text-black dark:text-white uppercase italic">Vidalita</span>
+          <span class="text-base font-black tracking-tight text-gray-900 dark:text-white uppercase italic truncate">Vidalita</span>
         </div>
-        
-        <button 
-          v-if="!collapsed"
-          class="text-gray-400 hover:text-sky-600 transition-colors" 
-          @click="$emit('toggle-collapse')"
-          :title="$t('sidebar.collapse')"
-        >
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-          </svg>
-        </button>
-      </div>
-
-      <button 
-        v-if="collapsed"
-        class="mx-auto mb-6 text-gray-400 hover:text-sky-600 transition-colors p-2 rounded-lg bg-gray-500/5" 
+      </Transition>
+      <!-- Collapse/Expand toggle card -->
+      <button
+        class="glass rounded-full w-[52px] h-[52px] text-black dark:text-gray-100 hover:text-sky-600 transition-all flex items-center justify-center shrink-0"
         @click="$emit('toggle-collapse')"
-        :title="$t('sidebar.expand')"
+        :title="collapsed ? $t('sidebar.expand') : $t('sidebar.collapse')"
       >
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg v-if="!collapsed" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+        </svg>
+        <svg v-else class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
         </svg>
       </button>
+    </div>
 
-      <nav class="flex-1 space-y-1.5" :class="collapsed ? 'px-2' : 'px-4'">
+    <!-- 2. Nav section -->
+    <div :class="[
+      'glass flex-1 overflow-y-auto overflow-x-hidden transition-all duration-300',
+      collapsed ? 'rounded-[28px]' : 'rounded-[24px]'
+    ]">
+      <nav class="p-1.5 space-y-0.5">
         <RouterLink
           v-for="item in navItems"
           :key="item.name"
           :to="item.href"
           :class="[
             $route.path === item.href
-              ? 'bg-sky-600 text-white shadow-lg shadow-sky-600/30'
-              : 'text-gray-900 dark:text-gray-200 hover:bg-gray-500/10 hover:text-sky-600 dark:hover:text-sky-400',
-            'group relative flex items-center rounded-xl transition-all duration-200',
-            collapsed ? 'justify-center p-3' : 'px-4 py-3 text-sm font-bold'
+              ? 'bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-400/20 shadow-sm'
+              : 'text-gray-700 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-white/10 border border-transparent',
+            'group relative flex items-center rounded-full transition-all duration-200 h-10 w-full',
+            collapsed ? 'justify-center p-0' : 'px-3 text-sm font-semibold'
           ]"
         >
           <component
             :is="item.icon"
             :class="[
-              $route.path === item.href ? 'text-white' : 'text-gray-400 group-hover:text-sky-500',
+              $route.path === item.href ? 'text-sky-600 dark:text-sky-400' : 'text-black dark:text-gray-100 group-hover:text-sky-500',
               'flex-shrink-0 transition-colors',
-              collapsed ? 'h-6 w-6' : 'h-5 w-5 mr-3'
+              collapsed ? 'h-5 w-5' : 'h-5 w-5 mr-3'
             ]"
             aria-hidden="true"
           />
-          <span v-if="!collapsed">{{ item.name }}</span>
-          <span v-if="!collapsed && $route.path === item.href" class="ml-auto flex h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span>
-          
+          <Transition name="logo-fade">
+            <span v-if="!collapsed" class="truncate inline-block">{{ item.name }}</span>
+          </Transition>
+          <span v-if="!collapsed && $route.path === item.href" class="ml-auto flex h-1.5 w-1.5 rounded-full bg-sky-500 animate-pulse"></span>
+
           <!-- Tooltip for collapsed state -->
-          <div v-if="collapsed" class="absolute left-full ml-4 px-3 py-1.5 bg-gray-900 text-white text-[10px] font-black uppercase tracking-widest rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-200 z-50 whitespace-nowrap shadow-xl">
+          <div v-if="collapsed" class="absolute left-full ml-4 px-3 py-1.5 glass text-gray-800 dark:text-gray-100 text-[10px] font-black uppercase tracking-widest rounded-full opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-200 z-[100] whitespace-nowrap shadow-xl border border-sky-400/20">
             {{ item.name }}
           </div>
         </RouterLink>
       </nav>
     </div>
 
-    <div class="hidden lg:flex flex-shrink-0 flex flex-col border-t border-gray-100/10 p-4 space-y-3" :class="collapsed ? 'items-center' : ''">
-      <div class="flex items-center gap-3 px-2">
-        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-sky-600 to-blue-500 flex items-center justify-center text-white font-black shadow-md shrink-0">
+    <!-- 3. User section -->
+    <div :class="[
+      'glass flex-shrink-0 p-1.5 space-y-1.5 transition-all duration-300 flex flex-col',
+      collapsed ? 'rounded-[28px] items-center' : 'rounded-[24px]'
+    ]">
+      <div class="flex items-center gap-2 p-1 rounded-full bg-white/10 overflow-hidden w-full"
+           :class="collapsed ? 'justify-center h-10' : 'h-10'">
+        <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-sky-500 to-blue-400 flex items-center justify-center text-white font-bold shadow-md shrink-0 text-xs text-nowrap">
           {{ user?.username?.charAt(0).toUpperCase() }}
         </div>
-        <div v-if="!collapsed" class="flex-1 min-w-0">
-           <p class="text-sm font-black text-gray-900 dark:text-white truncate">{{ user?.username }}</p>
-           <p class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">{{ $t('roles.' + (user?.role || 'reception')) }}</p>
-        </div>
+        <Transition name="logo-fade">
+          <div v-if="!collapsed" class="flex-1 min-w-0 overflow-hidden">
+             <p class="text-[11px] font-bold text-gray-900 dark:text-gray-100 truncate leading-tight">{{ user?.username }}</p>
+             <p class="text-[8px] uppercase font-semibold text-gray-400 dark:text-gray-500 tracking-wider leading-tight">{{ $t('roles.' + (user?.role || 'reception')) }}</p>
+          </div>
+        </Transition>
       </div>
       <button @click="handleLogout" :class="[
-        'flex items-center justify-center gap-2 rounded-xl transition-all font-bold',
-        collapsed ? 'h-10 w-10 p-0 text-red-500 bg-red-500/5 hover:bg-red-500/10' : 'w-full px-3 py-2.5 text-xs text-red-600 dark:text-red-400 bg-red-500/5 hover:bg-red-500/10'
+        'flex items-center justify-center gap-2 rounded-full border border-red-400/30 bg-red-500/8 hover:bg-red-500/15 transition-all duration-300 font-bold shadow-sm h-9 shrink-0',
+        collapsed ? 'w-9 p-0 text-red-500' : 'w-full px-3 text-xs text-red-500 dark:text-red-400'
       ]">
-        <ArrowRightOnRectangleIcon class="h-5 w-5" />
-        <span v-if="!collapsed">{{ $t('sidebar.logout') }}</span>
+        <ArrowRightOnRectangleIcon class="h-4 w-4 shrink-0" />
+        <Transition name="logo-fade">
+          <span v-if="!collapsed" class="truncate inline-block text-nowrap">{{ $t('sidebar.logout') }}</span>
+        </Transition>
       </button>
-      <div v-if="!collapsed" class="text-center flex flex-col items-center gap-1.5 mt-2">
-        <span class="text-[9px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em]">&copy; {{ currentYear }} Vidalita</span>
-        <div class="flex items-center gap-3">
-          <a href="https://t.me/jaxongirtoshpolatov" target="_blank" class="flex items-center gap-1 text-[10px] font-bold text-gray-400 dark:text-gray-500 hover:text-sky-500 transition-colors">
-            <CodeBracketIcon class="h-3 w-3" />
-            <span>{{ $t('sidebar.developer') }}</span>
-          </a>
-          <a href="https://github.com/joxadevoo" target="_blank" class="flex items-center gap-1 text-[10px] font-bold text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
-            joxadevoo
-          </a>
+      <Transition name="logo-fade">
+        <div v-if="!collapsed" class="text-center flex flex-col items-center gap-0.5 overflow-hidden w-full">
+          <span class="text-[9px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em]">&copy; {{ currentYear }} Vidalita</span>
+          <div class="flex items-center gap-2">
+            <a href="https://t.me/jaxongirtoshpolatov" target="_blank" class="flex items-center gap-1 text-[10px] font-bold text-black dark:text-gray-400 hover:text-sky-500 transition-colors">
+              <CodeBracketIcon class="h-3 w-3 text-black dark:text-gray-400" />
+              <span>{{ $t('sidebar.developer') }}</span>
+            </a>
+            <a href="https://github.com/joxadevoo" target="_blank" class="text-[10px] font-bold text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+              joxadevoo
+            </a>
+          </div>
         </div>
-      </div>
+      </Transition>
     </div>
   </aside>
 </template>
@@ -246,6 +258,49 @@ const handleLogout = () => {
   emit('close')
 }
 </script>
+
+<style scoped>
+/* Sidebar transition override for smoother feel */
+aside {
+  transition: width 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+  will-change: width;
+  backface-visibility: hidden;
+  transform: translateZ(0); /* Force GPU */
+}
+
+.glass {
+  transition: border-radius 0.35s cubic-bezier(0.33, 1, 0.68, 1), 
+              background-color 0.2s ease, 
+              box-shadow 0.2s ease;
+  will-change: border-radius;
+  overflow: hidden;
+}
+
+/* Logo Fade/Scale Transition */
+.logo-fade-enter-active,
+.logo-fade-leave-active {
+  transition: all 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.logo-fade-enter-from,
+.logo-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-10px) scale(0.95);
+  max-width: 0;
+  white-space: nowrap;
+  padding: 0;
+  margin: 0;
+}
+
+/* Hide scrollbar for clean look during transition */
+div::-webkit-scrollbar {
+  display: none;
+}
+div {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>
 
 <style scoped>
 .fade-enter-active,

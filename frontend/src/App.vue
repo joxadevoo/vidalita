@@ -14,10 +14,11 @@
       @toggle-collapse="handleSidebarCollapse"
     />
     <div 
+      class="print:pl-0 print:overflow-visible print:static"
+      style="transition: padding-left 350ms cubic-bezier(0.33, 1, 0.68, 1); will-change: padding-left;"
       :class="[
-        'transition-all duration-300 print:pl-0 print:overflow-visible print:static',
         !isMobile
-          ? (sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-72') 
+          ? (sidebarCollapsed ? 'lg:pl-[4rem]' : 'lg:pl-[13.5rem]') 
           : 'lg:pl-0'
       ]"
     >

@@ -76,7 +76,11 @@
               <tr>
                 <td class="border border-black px-3 py-2 bg-gray-50 font-bold uppercase text-[10px] tracking-tight">{{ $t('invoice.paymentMethod') }}</td>
                 <td class="border border-black px-3 py-2">
-                  {{ sale.paymentMethod === 'CASH' ? $t('pos.cash') : (sale.paymentMethod === 'CARD' ? $t('pos.card') : (sale.paymentMethod === 'MIXED' ? $t('pos.mixed') : $t('pos.debt'))) }}
+                  <template v-if="sale.paymentMethod === 'CASH'">{{ $t('pos.cash') }}</template>
+                  <template v-else-if="sale.paymentMethod === 'CARD'">{{ $t('pos.card') }}</template>
+                  <template v-else-if="sale.paymentMethod === 'MIXED'">{{ $t('pos.mixed') }}</template>
+                  <template v-else-if="sale.paymentMethod === 'DEBT'">{{ $t('pos.debt') }}</template>
+                  <template v-else-if="sale.paymentMethod">{{ $t('pos.' + sale.paymentMethod.toLowerCase()) }}</template>
                   <span v-if="sale.paymentMethod === 'MIXED'" class="ml-2 font-normal text-xs text-gray-600">
                     ({{ formatCurrency(sale.cashAmount) }} + {{ formatCurrency(sale.cardAmount) }})
                   </span>

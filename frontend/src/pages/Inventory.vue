@@ -1,145 +1,219 @@
 <template>
   <div class="space-y-6">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between no-print">
       <div>
-        <h2 class="text-2xl font-bold text-gray-900">{{ $t('inventory.title') }}</h2>
-        <p class="text-sm text-gray-500">{{ $t('inventory.subtitle') }}</p>
+        <h2 class="text-2xl font-black text-gray-900 dark:text-gray-100 uppercase tracking-tight">{{ $t('inventory.title') }}</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 font-bold italic">{{ $t('inventory.subtitle') }}</p>
       </div>
       <div class="flex gap-2">
-        <button class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50" @click="fetchData">{{ $t('common.refresh') }}</button>
-        <button class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 flex items-center gap-1" @click="exportToExcel">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-            {{ $t('common.exportExcel') }}
+        <button class="glass-pill rounded-full border border-gray-400/30 px-5 py-2 text-sm font-black text-gray-700 dark:text-gray-200 hover:bg-white/40 dark:hover:bg-white/10 transition-all shadow-sm" @click="fetchData">
+          <ArrowPathIcon class="h-4 w-4" />
         </button>
-        <button class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500" @click="showStockInModal = true">{{ $t('inventory.stockIn') }}</button>
+        <button class="glass-pill rounded-full border border-gray-400/30 px-5 py-2 text-sm font-black text-gray-700 dark:text-gray-200 hover:bg-white/40 dark:hover:bg-white/10 shadow-sm flex items-center gap-2 transition-all" @click="exportToExcel">
+            <TableCellsIcon class="h-5 w-5 text-emerald-500" />
+            <span class="hidden sm:inline">{{ $t('common.exportExcel') }}</span>
+        </button>
+        <button class="rounded-full bg-emerald-600 px-6 py-2 text-sm font-black text-white shadow-lg shadow-emerald-600/25 hover:bg-emerald-500 transition-all uppercase tracking-wider flex items-center gap-2" @click="showStockInModal = true">
+          <ArrowDownTrayIcon class="h-4 w-4" />
+          {{ $t('inventory.stockIn') }}
+        </button>
       </div>
     </div>
 
     <!-- Tabs -->
-    <div class="flex border-b border-gray-200">
+    <div class="flex relative glass rounded-full p-1 border-white/40 dark:border-white/10 w-fit no-print bg-white/40 dark:bg-black/20 backdrop-blur-md shadow-xl">
+        <!-- Animated Background Indicator -->
+        <div 
+          class="absolute top-1 bottom-1 rounded-full bg-white shadow-md dark:bg-white/20"
+          style="transition: left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);"
+          :class="{
+            'liquid-slide-right': isMoving && tabDirection === 'right',
+            'liquid-slide-left': isMoving && tabDirection === 'left'
+          }"
+          :style="{ 
+            left: activeTab === 'stock' ? '0.25rem' : 'calc(50% + 0.25rem)',
+            width: 'calc(50% - 0.5rem)' 
+          }"
+        ></div>
+        
         <button 
             @click="activeTab = 'stock'" 
-            :class="activeTab === 'stock' ? 'border-sky-600 text-sky-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-            class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm"
+            :class="[
+              activeTab === 'stock' 
+                ? 'text-gray-800 dark:text-white' 
+                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300',
+              'relative z-10 w-28 py-2 text-xs font-black uppercase tracking-widest rounded-full transition-colors duration-300'
+            ]"
         >
             {{ $t('inventory.stockLevels') }}
         </button>
         <button 
             @click="activeTab = 'movements'" 
-            :class="activeTab === 'movements' ? 'border-sky-600 text-sky-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-            class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm"
+            :class="[
+              activeTab === 'movements' 
+                ? 'text-gray-800 dark:text-white' 
+                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300',
+              'relative z-10 w-28 py-2 text-xs font-black uppercase tracking-widest rounded-full transition-colors duration-300'
+            ]"
         >
             {{ $t('inventory.movements') }}
         </button>
     </div>
 
     <!-- Stock Levels Table -->
-    <div v-if="activeTab === 'stock'" class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div v-if="loading" class="p-8 text-center">{{ $t('common.loading') }}</div>
-        <table v-else class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('inventory.columns.product') }}</th>
-                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('inventory.columns.currentStock') }}</th>
-                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('inventory.columns.lastUpdated') }}</th>
+    <div v-if="activeTab === 'stock'" class="glass rounded-2xl overflow-hidden shadow-xl border-white/40 dark:border-white/10 flex flex-col no-print" style="max-height: calc(100vh - 280px);">
+        <LoadingSpinner v-if="loading" />
+        <template v-else>
+          <!-- Thead pill -->
+          <div class="mx-2 mt-2 shrink-0">
+            <table class="border-separate border-spacing-0 w-full">
+              <thead>
+                <tr class="glass rounded-full block-table-header">
+                  <th class="py-2.5 pl-4 pr-3 text-left text-[11px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 rounded-l-full bg-transparent">{{ $t('inventory.columns.product') }}</th>
+                  <th class="px-3 py-2.5 text-left text-[11px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent">{{ $t('inventory.columns.currentStock') }}</th>
+                  <th class="px-3 py-2.5 text-left text-[11px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 rounded-r-full bg-transparent">{{ $t('inventory.columns.lastUpdated') }}</th>
                 </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 bg-white">
-                <tr v-for="item in stockLevels" :key="item.product_id" class="hover:bg-gray-50">
-                    <td class="px-3 py-4 text-sm font-medium text-gray-900">{{ item.products?.name }}</td>
-                    <td class="px-3 py-4 text-sm">
-                        <span :class="item.quantity_on_hand <= 5 ? 'text-red-600 font-bold' : 'text-gray-900'" class="text-sm">
+              </thead>
+            </table>
+          </div>
+
+          <!-- Tbody scrollable -->
+          <div class="overflow-x-auto overflow-y-auto flex-1 custom-scrollbar">
+            <table class="border-separate border-spacing-0 w-full">
+              <thead class="invisible h-0">
+                <tr>
+                  <th class="py-2.5 pl-4 pr-3 w-[40%]"></th>
+                  <th class="px-3 py-2.5 w-[30%]"></th>
+                  <th class="px-3 py-2.5 w-[30%]"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-white/10 dark:divide-white/5">
+                <tr v-for="item in stockLevels" :key="item.product_id" class="group hover:bg-white/40 dark:hover:bg-white/5 transition-all backdrop-blur-sm">
+                    <td class="whitespace-nowrap px-4 py-4 text-sm font-black text-gray-900 dark:text-gray-100 uppercase tracking-tight">{{ item.products?.name }}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                        <span :class="item.quantity_on_hand <= 5 ? 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/20 animate-pulse' : 'bg-green-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/10'" class="inline-flex items-center rounded-full px-3 py-0.5 text-[10px] font-black uppercase tracking-wider border">
                             {{ item.quantity_on_hand }} {{ $t('products.unit') }}
                         </span>
                     </td>
-                    <td class="px-3 py-4 text-sm text-gray-500">{{ new Date(item.updated_at).toLocaleString('uz-UZ') }}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-tight">{{ new Date(item.updated_at).toLocaleString('uz-UZ') }}</td>
                 </tr>
-            </tbody>
-        </table>
+              </tbody>
+            </table>
+          </div>
+        </template>
     </div>
 
     <!-- Movements Filters -->
-    <div v-if="activeTab === 'movements'" class="sticky top-0 z-10 grid gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm md:grid-cols-3">
-        <div>
-            <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('inventory.columns.date') }}</label>
-            <div class="mt-1 grid grid-cols-2 gap-2">
-                <input v-model="movementFilters.startDate" type="date" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none" />
-                <input v-model="movementFilters.endDate" type="date" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none" />
+    <div v-if="activeTab === 'movements'" class="sticky top-0 z-20 glass rounded-full p-4 shadow-xl border-white/40 dark:border-white/10 grid gap-4 md:grid-cols-3 no-print items-end backdrop-blur-md">
+        <div class="space-y-1.5 px-1">
+            <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">{{ $t('inventory.columns.date') }}</label>
+            <div class="flex gap-2">
+                <input v-model="movementFilters.startDate" type="date" class="input h-10 flex-1 text-xs" />
+                <input v-model="movementFilters.endDate" type="date" class="input h-10 flex-1 text-xs" />
             </div>
         </div>
-        <div>
-            <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('inventory.columns.type') }}</label>
-            <select v-model="movementFilters.type" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none">
+        <div class="space-y-1.5 px-1">
+            <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">{{ $t('inventory.columns.type') }}</label>
+            <select v-model="movementFilters.type" class="input h-10 w-full text-[10px] font-black uppercase tracking-widest px-4">
                 <option value="all">{{ $t('common.all') }}</option>
                 <option value="IN">IN</option>
                 <option value="OUT">OUT</option>
             </select>
         </div>
-        <div class="flex items-end justify-end text-sm text-gray-500">
-            {{ $t('common.total') }}: <span class="ml-1 font-semibold text-gray-700">{{ filteredMovements.length }}</span>
+        <div class="flex items-center justify-end text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 px-4 mb-2">
+            {{ $t('common.total') }}: <span class="ml-2 font-black text-sky-600 dark:text-sky-400 text-sm">{{ filteredMovements.length }}</span>
         </div>
     </div>
 
     <!-- Movements History Table -->
-    <div v-if="activeTab === 'movements'" class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div v-if="loading" class="p-8 text-center">{{ $t('common.loading') }}</div>
-        <table v-else class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('inventory.columns.date') }}</th>
-                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('inventory.columns.product') }}</th>
-                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('inventory.columns.customer') }}</th>
-                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('inventory.columns.type') }}</th>
-                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('inventory.columns.qty') }}</th>
-                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('inventory.columns.reason') }}</th>
+    <div v-if="activeTab === 'movements'" class="glass rounded-2xl overflow-hidden shadow-xl border-white/40 dark:border-white/10 flex flex-col no-print" style="max-height: calc(100vh - 280px);">
+        <LoadingSpinner v-if="loading" />
+        <template v-else>
+          <!-- Thead pill -->
+          <div class="mx-2 mt-2 shrink-0">
+            <table class="border-separate border-spacing-0 w-full">
+              <thead>
+                <tr class="glass rounded-full block-table-header">
+                  <th class="py-2.5 pl-4 pr-3 text-left text-[11px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 rounded-l-full bg-transparent">{{ $t('inventory.columns.date') }}</th>
+                  <th class="px-3 py-2.5 text-left text-[11px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent">{{ $t('inventory.columns.product') }}</th>
+                  <th class="px-3 py-2.5 text-left text-[11px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent">{{ $t('inventory.columns.customer') }}</th>
+                  <th class="px-3 py-2.5 text-left text-[11px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent">{{ $t('inventory.columns.type') }}</th>
+                  <th class="px-3 py-2.5 text-left text-[11px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent">{{ $t('inventory.columns.qty') }}</th>
+                  <th class="px-3 py-2.5 text-left text-[11px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 rounded-r-full bg-transparent pr-6">{{ $t('inventory.columns.reason') }}</th>
                 </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 bg-white">
-                <tr v-for="move in filteredMovements" :key="move.id" class="hover:bg-gray-50">
-                    <td class="px-3 py-4 text-sm text-gray-500">{{ new Date(move.created_at).toLocaleString('uz-UZ') }}</td>
-                    <td class="px-3 py-4 text-sm font-medium text-gray-900">{{ move.products?.name }}</td>
-                    <td class="px-3 py-4 text-sm text-gray-500">{{ move.customerName || '—' }}</td>
-                    <td class="px-3 py-4 text-sm">
-                        <span :class="getTypeClass(move.type)" class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold">
+              </thead>
+            </table>
+          </div>
+
+          <!-- Tbody scrollable -->
+          <div class="overflow-x-auto overflow-y-auto flex-1 custom-scrollbar">
+            <table class="border-separate border-spacing-0 w-full">
+              <thead class="invisible h-0">
+                <tr>
+                  <th class="py-2.5 pl-4 pr-3 w-[150px]"></th>
+                  <th class="px-3 py-2.5 w-[250px]"></th>
+                  <th class="px-3 py-2.5 w-[150px]"></th>
+                  <th class="px-3 py-2.5 w-[100px]"></th>
+                  <th class="px-3 py-2.5 w-[100px]"></th>
+                  <th class="px-3 py-2.5 w-[200px]"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-white/10 dark:divide-white/5">
+                <tr v-for="move in filteredMovements" :key="move.id" class="group hover:bg-white/40 dark:hover:bg-white/5 transition-all backdrop-blur-sm">
+                    <td class="whitespace-nowrap px-4 py-4 text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-tight">{{ new Date(move.created_at).toLocaleString('uz-UZ') }}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm font-black text-gray-900 dark:text-gray-100 uppercase tracking-tight">{{ move.products?.name }}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-xs font-bold text-gray-500 dark:text-gray-400">{{ move.customerName || '—' }}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                        <span :class="getTypeClass(move.type)" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider border">
                             {{ move.type }}
                         </span>
                     </td>
-                    <td class="px-3 py-4 text-sm font-bold" :class="move.qty > 0 ? 'text-green-600' : 'text-red-600'">
+                    <td class="whitespace-nowrap px-3 py-4 text-sm font-black tracking-tighter" :class="move.qty > 0 ? 'text-emerald-500' : 'text-rose-500'">
                         {{ move.qty > 0 ? '+' : '' }}{{ move.qty }}
                     </td>
-                    <td class="px-3 py-4 text-sm text-gray-500 uppercase">{{ move.reason }}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest pr-6 italic">{{ move.reason }}</td>
                 </tr>
-            </tbody>
-        </table>
+              </tbody>
+            </table>
+          </div>
+        </template>
     </div>
 
     <!-- Stock In Modal -->
-    <div v-if="showStockInModal" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 p-4">
-        <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl z-[151]">
-            <h3 class="text-lg font-bold mb-4">{{ $t('inventory.stockInTitle') }}</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('inventory.columns.product') }}</label>
-                    <select v-model="stockInForm.productId" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none">
+    <div v-if="showStockInModal" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/20 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="glass relative w-full max-w-md rounded-2xl p-8 shadow-2xl z-[151] border-white/40 dark:border-white/10 my-auto backdrop-blur-xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-black text-gray-900 dark:text-gray-100 uppercase tracking-tight">{{ $t('inventory.stockInTitle') }}</h3>
+                <button @click="showStockInModal = false" class="p-2 rounded-full hover:bg-white/20 dark:hover:bg-white/10 text-gray-400 hover:text-gray-600 transition-all">
+                    <XMarkIcon class="h-6 w-6" />
+                </button>
+            </div>
+            
+            <div class="space-y-5">
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">{{ $t('inventory.columns.product') }}</label>
+                    <select v-model="stockInForm.productId" class="input h-11 w-full text-[11px] font-black uppercase tracking-wider px-4">
                         <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.name }} ({{ p.sku }})</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('inventory.quantityLabel') }}</label>
-                    <input v-model.number="stockInForm.qty" type="number" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none" />
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">{{ $t('inventory.quantityLabel') }}</label>
+                        <input v-model.number="stockInForm.qty" type="number" class="input h-11 w-full text-sm font-black" />
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">{{ $t('inventory.costPriceLabel') }}</label>
+                        <input v-model.number="stockInForm.unitCost" type="number" class="input h-11 w-full text-sm font-bold" />
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('inventory.costPriceLabel') }}</label>
-                    <input v-model.number="stockInForm.unitCost" type="number" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none" />
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 uppercase">{{ $t('inventory.reasonLabel') }}</label>
-                    <input v-model="stockInForm.reason" type="text" :placeholder="$t('inventory.reasonPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none" />
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">{{ $t('inventory.reasonLabel') }}</label>
+                    <input v-model="stockInForm.reason" type="text" :placeholder="$t('inventory.reasonPlaceholder')" class="input h-11 w-full text-sm font-bold" />
                 </div>
             </div>
-            <div class="mt-8 flex justify-end gap-3">
-                <button @click="showStockInModal = false" class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">{{ $t('common.cancel') }}</button>
-                <button @click="submitStockIn" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500" :disabled="submitting">
+            <div class="mt-10 flex justify-end gap-3">
+                <button @click="showStockInModal = false" class="glass-pill rounded-full border border-gray-400/30 px-6 py-2.5 text-sm font-black text-gray-600 dark:text-gray-300 hover:bg-white/40 dark:hover:bg-white/10 transition-all">{{ $t('common.cancel') }}</button>
+                <button @click="submitStockIn" class="rounded-full bg-emerald-600 px-10 py-2.5 text-sm font-black text-white shadow-lg shadow-emerald-600/25 hover:bg-emerald-500 active:scale-95 transition-all uppercase tracking-widest" :disabled="submitting">
                     {{ submitting ? $t('common.saving') : $t('common.confirm') }}
                 </button>
             </div>
@@ -154,11 +228,39 @@ import { inventoryService, productsService } from '../services/supabaseService';
 import * as XLSX from 'xlsx';
 import { useI18n } from 'vue-i18n';
 import { useToast } from '../composables/useToast';
+import LoadingSpinner from '../components/LoadingSpinner.vue';
+import {
+  ArrowPathIcon,
+  TableCellsIcon,
+  ArrowDownTrayIcon,
+  XMarkIcon
+} from '@heroicons/vue/24/outline';
 
 const { t } = useI18n();
 const toast = useToast();
 
 const activeTab = ref<'stock' | 'movements'>('stock');
+const tabDirection = ref('');
+const isMoving = ref(false);
+let moveTimeout: any = null;
+
+watch(activeTab, (newVal: string, oldVal: string) => {
+  const tabs = ['stock', 'movements'];
+  const oldIdx = tabs.indexOf(oldVal);
+  const newIdx = tabs.indexOf(newVal);
+  
+  if (newIdx > oldIdx) {
+    tabDirection.value = 'right';
+  } else {
+    tabDirection.value = 'left';
+  }
+  
+  isMoving.value = true;
+  if (moveTimeout) clearTimeout(moveTimeout);
+  moveTimeout = setTimeout(() => {
+    isMoving.value = false;
+  }, 450);
+});
 const loading = ref(false);
 const submitting = ref(false);
 

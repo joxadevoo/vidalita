@@ -2,11 +2,17 @@
   <div class="space-y-6">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h2 class="text-2xl font-bold text-gray-900">{{ $t('checkins.title') }}</h2>
-        <p class="text-sm text-gray-500">{{ $t('checkins.subtitle') }}</p>
-        <p class="text-xs text-gray-400 mt-1">🕐 {{ $t('checkins.currentTime') }}: {{ currentTimeFormatted }}</p>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $t('checkins.title') }}</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('checkins.subtitle') }}</p>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1.5">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          {{ $t('checkins.currentTime') }}: <span class="font-mono text-gray-600 dark:text-gray-300">{{ currentTimeFormatted }}</span>
+        </p>
       </div>
-      <button class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50" @click="fetchCheckins">{{ $t('common.refresh') }}</button>
+      <button class="glass-pill rounded-full border border-gray-400/30 px-5 py-2 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-white/40 dark:hover:bg-white/10 transition-all shadow-sm flex items-center gap-2" @click="fetchCheckins">
+        <ArrowPathIcon class="h-4 w-4" :class="{ 'animate-spin': loading }" />
+        {{ $t('common.refresh') }}
+      </button>
     </div>
 
     <div v-if="error" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ error }}</div>
@@ -16,22 +22,28 @@
     <Teleport to="body">
       <div v-if="showMemberModal" class="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4" @click.self="closeMemberModal">
         <!-- Backdrop with blur -->
-        <div class="absolute inset-0 bg-black/30 backdrop-blur-sm z-[150]"></div>
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-md z-[150]"></div>
         <!-- Modal content -->
-        <div class="relative w-full max-w-6xl max-h-[95vh] overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-xl z-[151]" @click.stop>
-        <div class="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 sm:px-6 sm:py-4">
-          <h3 class="text-lg sm:text-xl font-bold text-gray-900">{{ $t('checkins.memberInfo') }}</h3>
-          <button @click="closeMemberModal" class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
-            <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="relative w-full max-w-6xl max-h-[92vh] overflow-hidden rounded-3xl border border-white/20 bg-white/10 backdrop-blur-3xl shadow-2xl z-[151] flex flex-col animate-in fade-in zoom-in-95 duration-300" @click.stop>
+        <div class="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-white/20 px-6 py-4 backdrop-blur-xl">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-sky-500/20 flex items-center justify-center">
+              <UserIcon class="h-6 w-6 text-sky-600 dark:text-sky-400" />
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ $t('checkins.memberInfo') }}</h3>
+          </div>
+          <button @click="closeMemberModal" class="rounded-full p-2 text-gray-500 hover:bg-white/20 transition-all">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
+        <div class="overflow-y-auto custom-scrollbar flex-1">
         <LoadingSpinner v-if="memberModalLoading" />
         <div v-else-if="memberModalError" class="px-4 sm:px-6 py-12 text-center text-red-600">{{ memberModalError }}</div>
         <div v-else-if="scannedMember" class="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
           <!-- Asosiy ma'lumotlar -->
-          <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <section class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl">
             <div class="border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4">
               <h4 class="text-base sm:text-lg font-semibold text-gray-900">{{ $t('memberDetail.basicInfo') }}</h4>
             </div>
@@ -102,7 +114,7 @@
           </section>
 
           <!-- Gym ma'lumotlari (To'lov va a'zolik) -->
-          <section v-if="scannedGymInfo" class="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <section v-if="scannedGymInfo" class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl overflow-hidden">
             <div class="border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4">
               <h4 class="text-base sm:text-lg font-semibold text-gray-900">{{ $t('memberCreate.gymInfo') }}</h4>
             </div>
@@ -156,21 +168,21 @@
           </section>
 
           <!-- Sog'liq ma'lumotlari -->
-          <section v-if="scannedBeautyHealth" class="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <section v-if="scannedBeautyHealth" class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl overflow-hidden">
             <div class="border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4">
               <h4 class="text-base sm:text-lg font-semibold text-gray-900">{{ $t('memberDetail.healthInfo') }}</h4>
             </div>
             <div class="px-4 sm:px-6 py-4 sm:py-6">
               <div class="overflow-x-auto rounded-xl border border-gray-200">
                 <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
+                  <thead class="bg-gray-100/50 dark:bg-white/5">
                     <tr>
-                      <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">{{ $t('memberCreate.healthCondition') }}</th>
-                      <th class="px-2 sm:px-4 py-3 text-center text-xs sm:text-sm font-semibold text-gray-900">{{ $t('common.status') }}</th>
-                      <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">{{ $t('memberCreate.details') }}</th>
+                      <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('memberCreate.healthCondition') }}</th>
+                      <th class="px-2 sm:px-4 py-3 text-center text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('common.status') }}</th>
+                      <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('memberCreate.details') }}</th>
                     </tr>
                   </thead>
-                  <tbody class="divide-y divide-gray-200 bg-white">
+                  <tbody class="divide-y divide-white/10 dark:divide-white/5">
                     <tr v-for="question in beautyQuestions" :key="question.key" class="align-top">
                       <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-700">{{ $t(question.labelKey) }}</td>
                       <td class="px-2 sm:px-4 py-3 text-center text-xs sm:text-sm">
@@ -210,7 +222,7 @@
           </section>
 
           <!-- Kirishlar tarixi -->
-          <section v-if="scannedCheckins && scannedCheckins.length > 0" class="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <section v-if="scannedCheckins && scannedCheckins.length > 0" class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl overflow-hidden">
             <div class="border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4">
               <h4 class="text-base sm:text-lg font-semibold text-gray-900">{{ $t('memberDetail.checkinHistory') }}</h4>
               <p class="text-xs sm:text-sm text-gray-500">{{ $t('memberDetail.checkinTotal') }}: {{ scannedCheckins.length }} {{ $t('memberDetail.checkins') }}</p>
@@ -218,14 +230,14 @@
             <div class="px-4 sm:px-6 py-4 sm:py-6">
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
+                  <thead class="bg-gray-100/50 dark:bg-white/5">
                     <tr>
-                      <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">{{ $t('checkins.columns.dateTime') }}</th>
-                      <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('checkins.columns.verifiedBy') }}</th>
+                      <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('checkins.columns.dateTime') }}</th>
+                      <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('checkins.columns.verifiedBy') }}</th>
                     </tr>
                   </thead>
-                  <tbody class="divide-y divide-gray-200 bg-white">
-                    <tr v-for="checkin in scannedCheckins.slice(0, 10)" :key="checkin.id" class="hover:bg-gray-50">
+                  <tbody class="divide-y divide-white/10 dark:divide-white/5">
+                    <tr v-for="checkin in scannedCheckins.slice(0, 10)" :key="checkin.id" class="hover:bg-white/20 dark:hover:bg-white/5 transition-colors">
                       <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-900">{{ formatDateTime(checkin.date) }}</td>
                       <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ checkin.verifiedBy || '—' }}</td>
                     </tr>
@@ -236,7 +248,7 @@
           </section>
 
           <!-- Faol Paketlar (Seanslar) -->
-          <section v-if="scannedPackages && scannedPackages.length > 0" class="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <section v-if="scannedPackages && scannedPackages.length > 0" class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl overflow-hidden">
             <div class="border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4">
               <h4 class="text-base sm:text-lg font-semibold text-gray-900">{{ $t('memberDetail.activePackages') }}</h4>
               <p class="text-xs sm:text-sm text-gray-500">{{ scannedPackages.length }} {{ $t('beautyServices.items') }}</p>
@@ -244,15 +256,15 @@
             <div class="px-4 sm:px-6 py-4 sm:py-6">
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
+                  <thead class="bg-gray-100/50 dark:bg-white/5">
                     <tr>
-                      <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">{{ $t('beautyServices.packageType') }}</th>
-                      <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('beautyServices.totalSessions') }}</th>
-                      <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('beautyServices.remainingSessions') }}</th>
+                      <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('beautyServices.packageType') }}</th>
+                      <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('beautyServices.totalSessions') }}</th>
+                      <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('beautyServices.remainingSessions') }}</th>
                     </tr>
                   </thead>
-                  <tbody class="divide-y divide-gray-200 bg-white">
-                    <tr v-for="pkg in scannedPackages" :key="pkg.id" class="hover:bg-gray-50">
+                  <tbody class="divide-y divide-white/10 dark:divide-white/5">
+                    <tr v-for="pkg in scannedPackages" :key="pkg.id" class="hover:bg-white/20 dark:hover:bg-white/5 transition-colors">
                       <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">{{ pkg.serviceName }}</td>
                       <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ pkg.totalSessions }}</td>
                       <td class="whitespace-nowrap px-3 py-4 text-sm font-bold" :class="pkg.remainingSessions <= 1 ? 'text-red-600' : 'text-green-600'">
@@ -266,7 +278,7 @@
           </section>
 
           <!-- Go'zallik xizmatlari -->
-          <section v-if="scannedBeautyServices && scannedBeautyServices.length > 0" class="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <section v-if="scannedBeautyServices && scannedBeautyServices.length > 0" class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl overflow-hidden">
             <div class="border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4">
               <h4 class="text-base sm:text-lg font-semibold text-gray-900">{{ $t('memberDetail.beautyServices') }}</h4>
               <p class="text-xs sm:text-sm text-gray-500">{{ $t('memberDetail.beautyTotal') }}: {{ scannedBeautyServices.length }} {{ $t('memberDetail.services') }}</p>
@@ -274,15 +286,15 @@
             <div class="px-4 sm:px-6 py-4 sm:py-6">
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
+                  <thead class="bg-gray-100/50 dark:bg-white/5">
                     <tr>
-                      <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">{{ $t('memberDetail.serviceName') }}</th>
-                      <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('memberDetail.serviceDate') }}</th>
-                      <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">{{ $t('memberDetail.note') }}</th>
+                      <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('memberDetail.serviceName') }}</th>
+                      <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('memberDetail.serviceDate') }}</th>
+                      <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('memberDetail.note') }}</th>
                     </tr>
                   </thead>
-                  <tbody class="divide-y divide-gray-200 bg-white">
-                    <tr v-for="service in scannedBeautyServices.slice(0, 10)" :key="service.id" class="hover:bg-gray-50">
+                  <tbody class="divide-y divide-white/10 dark:divide-white/5">
+                    <tr v-for="service in scannedBeautyServices.slice(0, 10)" :key="service.id" class="hover:bg-white/20 dark:hover:bg-white/5 transition-colors">
                       <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">{{ service.serviceName }}</td>
                       <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ formatDate(service.serviceDate) }}</td>
                       <td class="px-3 py-4 text-sm text-gray-500">{{ service.note || '—' }}</td>
@@ -294,172 +306,237 @@
           </section>
         </div>
         </div>
+        </div>
       </div>
     </Teleport>
 
     <!-- Barcode Scanner Input -->
-    <div class="rounded-lg border border-sky-200 bg-sky-50 p-4">
-      <div class="mb-3 flex items-center justify-between">
-        <div>
-          <h3 class="text-sm font-semibold text-gray-900">{{ $t('checkins.barcodeTitle') }}</h3>
-          <p class="text-xs text-gray-500">{{ $t('checkins.barcodeSubtitle') }}</p>
+    <div class="glass rounded-2xl p-4 sm:p-6 shadow-lg border-white/40 dark:border-white/10 relative overflow-hidden group">
+      <div class="absolute inset-0 bg-gradient-to-r from-sky-500/5 to-purple-500/5 opacity-50"></div>
+      <div class="relative z-10">
+        <div class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-base font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              <QrCodeIcon class="h-5 w-5 text-sky-500" />
+              {{ $t('checkins.barcodeTitle') }}
+            </h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $t('checkins.barcodeSubtitle') }}</p>
+          </div>
+          <button
+            @click="toggleCameraScanner"
+            class="rounded-full border border-sky-400/40 bg-sky-500/10 dark:bg-sky-500/5 px-4 py-1.5 text-xs font-bold text-sky-700 dark:text-sky-400 hover:bg-sky-500/20 transition-all flex items-center justify-center gap-2"
+          >
+            <component :is="showCameraScanner ? KeyboardIcon : CameraIcon" class="h-4 w-4" />
+            {{ showCameraScanner ? $t('scanner.manual') : $t('scanner.camera') }}
+          </button>
         </div>
-        <button
-          @click="toggleCameraScanner"
-          class="rounded-lg border border-sky-300 bg-white px-3 py-1.5 text-xs font-medium text-sky-700 hover:bg-sky-50"
-        >
-          {{ showCameraScanner ? '⌨️ ' + $t('scanner.manual') : '📸 ' + $t('scanner.camera') }}
-        </button>
-      </div>
-      
-      <!-- Camera Scanner -->
-      <div v-if="showCameraScanner" class="space-y-3">
-        <div class="relative">
-          <div id="qr-reader-checkin" class="rounded-lg overflow-hidden border-2" :class="cameraScanning ? 'border-sky-500' : 'border-gray-300'"></div>
-          <div v-if="!cameraScanning" class="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-lg">
-            <div class="text-center">
-              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <p class="mt-2 text-xs text-gray-500">{{ $t('scanner.cameraNotStarted') }}</p>
+        
+        <!-- Camera Scanner -->
+        <div v-if="showCameraScanner" class="space-y-4 animate-in fade-in zoom-in-95 duration-300">
+          <div class="relative max-w-md mx-auto">
+            <div id="qr-reader-checkin" class="rounded-2xl overflow-hidden border-2 shadow-inner" :class="cameraScanning ? 'border-sky-500/50 shadow-sky-500/20' : 'border-gray-300/50'"></div>
+            <div v-if="!cameraScanning" class="absolute inset-0 flex items-center justify-center bg-gray-500/10 backdrop-blur-sm rounded-2xl border border-dashed border-gray-400/30 text-center p-6">
+              <div class="space-y-3">
+                <CameraIcon class="mx-auto h-12 w-12 text-gray-400" />
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('scanner.cameraNotStarted') }}</p>
+              </div>
             </div>
           </div>
+          <div class="flex justify-center pt-2">
+            <button
+              v-if="!cameraScanning"
+              @click="startCameraScanning"
+              class="rounded-full bg-sky-600 px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-sky-600/25 hover:bg-sky-500 hover:-translate-y-0.5 transition-all"
+            >
+              {{ $t('scanner.startScanning') }}
+            </button>
+            <button
+              v-else
+              @click="stopCameraScanning"
+              class="rounded-full bg-red-600 px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-600/25 hover:bg-red-500 hover:-translate-y-0.5 transition-all"
+            >
+              {{ $t('scanner.stopScanning') }}
+            </button>
+          </div>
+          <div v-if="cameraScannerError" class="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-xs font-medium text-red-600 dark:text-red-400 text-center">
+            {{ cameraScannerError }}
+          </div>
         </div>
-        <div class="flex gap-2">
-          <button
-            v-if="!cameraScanning"
-            @click="startCameraScanning"
-            class="flex-1 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500"
-          >
-            {{ $t('scanner.startScanning') }}
-          </button>
-          <button
-            v-else
-            @click="stopCameraScanning"
-            class="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
-          >
-            {{ $t('scanner.stopScanning') }}
-          </button>
-        </div>
-        <div v-if="cameraScannerError" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-          {{ cameraScannerError }}
-        </div>
-      </div>
 
-      <!-- Manual Input -->
-      <div v-else class="flex gap-2">
-        <input
-          ref="barcodeInputRef"
-          v-model="barcodeInput"
-          type="text"
-          :placeholder="$t('checkins.barcodePlaceholder')"
-          class="flex-1 rounded-lg border border-sky-300 bg-white px-3 py-2 text-sm font-mono uppercase focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-          @keyup.enter="handleBarcodeScan"
-          @input="handleInputChange"
-          @paste="handlePaste"
-          @keydown="handleKeyDown"
-          autofocus
-        />
-        <button
-          @click="handleBarcodeScan"
-          :disabled="!barcodeInput.trim() || barcodeInput.length < 3 || scanning"
-          class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-medium text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {{ scanning ? $t('checkins.checking') : $t('checkins.enter') }}
-        </button>
+        <!-- Manual Input -->
+        <div v-else class="flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div class="relative flex-1">
+            <input
+              ref="barcodeInputRef"
+              v-model="barcodeInput"
+              type="text"
+              :placeholder="$t('checkins.barcodePlaceholder')"
+              class="w-full input border-sky-400/30 focus:border-sky-500 focus:ring-sky-500/20 pr-10"
+              @keyup.enter="handleBarcodeScan"
+              @input="handleInputChange"
+              @paste="handlePaste"
+              @keydown="handleKeyDown"
+              autofocus
+            />
+            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-sky-500/40">
+              <IdentificationIcon class="h-5 w-5" />
+            </div>
+          </div>
+          <button
+            @click="handleBarcodeScan"
+            :disabled="!barcodeInput.trim() || barcodeInput.length < 3 || scanning"
+            class="rounded-full bg-sky-600 px-8 py-2 text-sm font-bold text-white shadow-lg shadow-sky-600/25 hover:bg-sky-500 hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none transition-all flex items-center gap-2 h-10"
+          >
+            <span v-if="scanning" class="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+            {{ scanning ? $t('checkins.checking') : $t('checkins.enter') }}
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Filter paneli -->
-    <div class="sticky top-0 z-20 grid gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm md:grid-cols-2 lg:grid-cols-4">
-      <div class="flex min-w-0 flex-col">
-        <label class="mb-1 text-xs text-gray-500">{{ $t('checkins.dateFrom') }}</label>
-        <input v-model="dateFrom" type="date" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400" />
+    <div class="sticky top-0 z-20 glass rounded-full p-2 flex flex-col lg:flex-row items-center justify-between gap-4 shadow-xl border-white/40 dark:border-white/10 no-print mb-6 backdrop-blur-md">
+      <!-- Search -->
+      <div class="w-full lg:max-w-md xl:max-w-lg relative flex items-center group">
+        <MagnifyingGlassIcon class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-sky-500 transition-colors pointer-events-none" />
+        <input
+          v-model="searchTerm"
+          type="text"
+          :placeholder="$t('checkins.searchPlaceholder')"
+          class="w-full rounded-full h-11 pl-12 pr-4 text-sm bg-white/40 dark:bg-black/20 border-0 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400/40 backdrop-blur-sm transition"
+        />
       </div>
-      <div class="flex min-w-0 flex-col">
-        <label class="mb-1 text-xs text-gray-500">{{ $t('checkins.dateTo') }}</label>
-        <input v-model="dateTo" type="date" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400" />
-      </div>
-      <div class="flex min-w-0 flex-col">
-        <label class="mb-1 text-xs text-gray-500">{{ $t('common.search') }}</label>
-        <input v-model="searchTerm" type="text" :placeholder="$t('checkins.searchPlaceholder')" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400" />
-      </div>
-      <div class="flex min-w-0 w-full items-end gap-1 overflow-hidden">
-        <div class="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2 py-2">
-        <input id="todayOnly" v-model="onlyToday" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500" />
-          <label for="todayOnly" class="text-xs text-gray-600 whitespace-nowrap">{{ $t('checkins.todayOnly') }}</label>
+
+      <div class="flex flex-col lg:flex-row items-center gap-3 w-full lg:w-auto">
+        <!-- Date From -->
+        <div class="flex items-center gap-2 w-full lg:w-auto">
+          <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest shrink-0">{{ $t('checkins.dateFrom') }}</span>
+          <div class="flex items-center gap-2 px-3 h-11 rounded-full bg-white/30 dark:bg-white/5 border border-white/20 w-full lg:w-36 overflow-hidden">
+            <CalendarIcon class="h-4 w-4 text-gray-500" />
+            <input v-model="dateFrom" type="date" class="bg-transparent border-none focus:ring-0 w-full p-0 text-xs font-bold h-full text-gray-700 dark:text-gray-200 cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
+          </div>
         </div>
-        <button
-          @click="exportToExcel"
-          class="flex flex-shrink-0 items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white px-2 py-2 text-xs text-gray-700 hover:bg-gray-50 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-          :title="$t('checkins.exportExcel')"
-        >
-          <TableCellsIcon class="h-3.5 w-3.5" />
-          <span class="hidden sm:inline">{{ $t('checkins.exportExcel') }}</span>
-        </button>
-        <button
-          @click="exportToPDF"
-          class="flex flex-shrink-0 items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white px-2 py-2 text-xs text-gray-700 hover:bg-gray-50 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-          :title="$t('checkins.exportPDF')"
-        >
-          <DocumentTextIcon class="h-3.5 w-3.5" />
-          <span class="hidden sm:inline">{{ $t('checkins.exportPDF') }}</span>
-        </button>
-        <button
-          @click="resetFilters"
-          class="flex-shrink-0 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-2 py-2 text-xs text-gray-700 hover:bg-gray-50 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-        >
-          {{ $t('checkins.resetFilters') }}
-        </button>
+
+        <!-- Date To -->
+        <div class="flex items-center gap-2 w-full lg:w-auto">
+          <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest shrink-0">{{ $t('checkins.dateTo') }}</span>
+          <div class="flex items-center gap-2 px-3 h-11 rounded-full bg-white/30 dark:bg-white/5 border border-white/20 w-full lg:w-36 overflow-hidden">
+            <CalendarIcon class="h-4 w-4 text-gray-500" />
+            <input v-model="dateTo" type="date" class="bg-transparent border-none focus:ring-0 w-full p-0 text-xs font-bold h-full text-gray-700 dark:text-gray-200 cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 w-full lg:w-auto">
+          <!-- Today Only -->
+          <div class="flex h-11 items-center gap-2 rounded-full border border-gray-400/30 bg-white/20 dark:bg-white/5 px-4 group hover:border-sky-400/50 transition-colors cursor-pointer" @click="onlyToday = !onlyToday">
+            <input id="todayOnly" v-model="onlyToday" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500/20" @click.stop />
+            <label for="todayOnly" class="text-xs font-bold text-gray-700 dark:text-gray-200 whitespace-nowrap cursor-pointer uppercase tracking-tight">{{ $t('checkins.todayOnly') }}</label>
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              @click="exportToExcel"
+              class="flex items-center justify-center h-11 w-11 rounded-full border border-emerald-400/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all shadow-sm shrink-0"
+              :title="$t('checkins.exportExcel')"
+            >
+              <TableCellsIcon class="h-5 w-5" />
+            </button>
+            <button
+              @click="exportToPDF"
+              class="flex items-center justify-center h-11 w-11 rounded-full border border-red-400/30 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 transition-all shadow-sm shrink-0"
+              :title="$t('checkins.exportPDF')"
+            >
+              <DocumentTextIcon class="h-5 w-5" />
+            </button>
+            <button
+              @click="resetFilters"
+              class="flex items-center justify-center h-11 px-6 rounded-full border border-gray-400/30 bg-gray-500/10 text-gray-600 dark:text-gray-400 hover:bg-gray-500/20 transition-all font-black text-[10px] shadow-sm uppercase tracking-widest whitespace-nowrap"
+            >
+              {{ $t('common.reset') }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Table section (scrollable) -->
-    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm" style="max-height: calc(100vh - 420px);">
+    <div class="glass flex-1 overflow-hidden rounded-2xl shadow-xl flex flex-col" style="max-height: calc(100vh - 280px);">
     <LoadingSpinner v-if="loading" />
-      <div v-else class="overflow-x-auto" style="max-height: calc(100vh - 420px);">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="sticky top-0 z-10 bg-gray-50">
-            <tr>
-              <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('checkins.columns.name') }}</th>
-              <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('checkins.columns.id') }}</th>
-              <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('checkins.columns.dateTime') }}</th>
-              <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('checkins.columns.verifiedBy') }}</th>
-              <th class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('common.actions') }}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200 bg-white">
-            <tr v-for="item in filteredCheckins" :key="item.id" class="hover:bg-gray-50">
-              <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">{{ item.fullName || $t('checkins.noName') }}</td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ item.qrCodeId }}</td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ formatDateTime(item.date) }}</td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ item.verifiedBy || '—' }}</td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-right">
-                <div class="flex justify-end gap-2">
-                  <button
-                    class="rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50"
-                    @click="onDeleteCheckin(item.id)"
-                    :title="$t('checkins.deleteHistory')"
-                  >
-                    {{ $t('common.delete') }}
-                  </button>
-                  <button
-                    class="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700 hover:bg-red-100"
-                    @click="onDeleteMember(item.memberId)"
-                    :title="$t('checkins.deleteMember')"
-                  >
-                    {{ $t('checkins.deleteMember') }}
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr v-if="filteredCheckins.length === 0">
-              <td colspan="5" class="px-6 py-6 text-center text-sm text-gray-500">{{ $t('checkins.noResults') }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <template v-else>
+        <!-- Thead pill -->
+        <div class="mx-2 mt-2 mb-1 shrink-0 glass rounded-full shadow-lg border-white/20 dark:border-white/10 overflow-hidden backdrop-blur-xl">
+          <table class="table-fixed border-separate border-spacing-0 w-full">
+            <thead>
+              <tr class="bg-transparent">
+                <th class="py-2.5 pl-6 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[220px]">{{ $t('checkins.columns.name') }}</th>
+                <th class="px-4 py-2.5 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[140px]">{{ $t('checkins.columns.id') }}</th>
+                <th class="px-4 py-2.5 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[180px]">{{ $t('checkins.columns.dateTime') }}</th>
+                <th class="px-4 py-2.5 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[180px]">{{ $t('checkins.columns.verifiedBy') }}</th>
+                <th class="py-2.5 pr-6 text-right text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[130px]">{{ $t('common.actions') }}</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+
+        <!-- Tbody scrollable -->
+        <div class="overflow-x-auto overflow-y-auto flex-1 custom-scrollbar">
+          <table class="table-fixed border-separate border-spacing-0 w-full">
+            <thead class="invisible h-0">
+              <tr>
+            <th class="py-2.5 pl-6 w-[220px]"></th>
+            <th class="px-4 py-2.5 w-[140px]"></th>
+            <th class="px-4 py-2.5 w-[180px]"></th>
+            <th class="px-4 py-2.5 w-[180px]"></th>
+            <th class="py-2.5 pr-6 w-[130px]"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/10 dark:divide-white/5">
+              <tr v-for="item in filteredCheckins" :key="item.id" class="group transition-colors hover:bg-white/40 dark:hover:bg-white/5 backdrop-blur-sm">
+                <td class="whitespace-nowrap py-4 pl-6 text-sm font-bold text-gray-900 dark:text-gray-100">{{ item.fullName || $t('checkins.noName') }}</td>
+                <td class="whitespace-nowrap px-4 py-4 text-sm font-mono text-gray-500 dark:text-gray-400">#{{ item.qrCodeId }}</td>
+                <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
+                  <div class="flex flex-col">
+                    <span class="font-black text-gray-900 dark:text-gray-100 uppercase tracking-tight text-xs">{{ formatDateTime(item.date).split(' ')[0] }}</span>
+                    <span class="text-[10px] font-bold text-gray-400 italic mt-0.5">{{ formatDateTime(item.date).split(' ')[1] }}</span>
+                  </div>
+                </td>
+                <td class="whitespace-nowrap px-4 py-4 text-sm">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 dark:text-sky-300 text-[10px] font-black uppercase tracking-widest border border-sky-200 dark:border-sky-800 shadow-sm">
+                    <UserIcon class="h-3 w-3" />
+                    {{ item.verifiedBy || '—' }}
+                  </span>
+                </td>
+                <td class="whitespace-nowrap py-4 pr-6 text-sm text-right">
+                  <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      class="rounded-full bg-white/50 dark:bg-black/20 px-3 py-1 text-xs font-bold text-gray-700 dark:text-gray-300 border border-gray-400/20 hover:border-red-400/50 hover:text-red-500 transition-all shadow-sm"
+                      @click="onDeleteCheckin(item.id)"
+                    >
+                      {{ $t('common.delete') }}
+                    </button>
+                    <button
+                      class="rounded-full bg-red-500/10 dark:bg-red-500/5 px-3 py-1 text-xs font-bold text-red-600 dark:text-red-400 border border-red-400/30 hover:bg-red-500/20 transition-all shadow-sm"
+                      @click="onDeleteMember(item.memberId)"
+                    >
+                      {{ $t('checkins.deleteMember') }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="filteredCheckins.length === 0">
+                <td colspan="5" class="px-6 py-12 text-center">
+                  <div class="flex flex-col items-center gap-2">
+                    <div class="h-12 w-12 rounded-full bg-gray-500/10 flex items-center justify-center">
+                      <MagnifyingGlassIcon class="h-6 w-6 text-gray-400" />
+                    </div>
+                    <p class="text-sm font-medium text-gray-500">{{ $t('checkins.noResults') }}</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -472,7 +549,22 @@ import { membersService, checkinsService, beautyService, storageService } from '
 import { supabase } from '../lib/supabase'
 import * as mappings from '../lib/mappings'
 import * as XLSX from 'xlsx'
-import { TableCellsIcon, DocumentTextIcon } from '@heroicons/vue/24/outline'
+import { 
+  TableCellsIcon, 
+  DocumentTextIcon, 
+  ArrowPathIcon,
+  QrCodeIcon,
+  IdentificationIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+  TrashIcon,
+  UserPlusIcon,
+  CalendarDaysIcon,
+  CalendarIcon,
+  CameraIcon,
+  UserIcon,
+  ViewfinderCircleIcon as KeyboardIcon
+} from '@heroicons/vue/24/outline'
 import { formatDate, formatDateTime, getCurrentDateTime } from '../lib/dateUtils'
 import { Html5Qrcode } from 'html5-qrcode'
 import { useToast } from '../composables/useToast'
@@ -1107,7 +1199,82 @@ const stopCameraScanning = async () => {
 </script>
 
 <style scoped>
+/* Glass & UI Base */
+.glass {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+:global(.dark) .glass {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.glass-bg {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+:global(.dark) .glass-bg {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  color: #111827;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 1px 3px rgba(0,0,0,0.08);
+  outline: none;
+}
+.input:focus {
+  outline: none;
+  border-color: rgba(14, 165, 233, 0.5);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12);
+}
+
+/* Dark mode inputs */
+:global(.dark) .input {
+  background: #28282829 !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #e2e8f0;
+  box-shadow: none;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+:global(.dark) .input::placeholder { color: #475569; }
+:global(.dark) .input:focus {
+  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+/* Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(155, 155, 155, 0.4);
+  border-radius: 20px;
+}
+
 #qr-reader-checkin {
   min-height: 250px;
+}
+
+#qr-reader-checkin video {
+  border-radius: 1rem;
 }
 </style>

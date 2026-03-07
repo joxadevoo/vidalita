@@ -440,7 +440,9 @@
     "appointmentTime": "Appointment time",
     "soldViaCashier": "Sold via cashier",
     "staff": "Staff",
-    "errorLoadingHistory": "Error loading history"
+    "errorLoadingHistory": "Error loading history",
+    "session": "Session",
+    "includedInPackage": "Included in package"
   },
   "barcode": {
     "title": "Barcode",
@@ -555,6 +557,7 @@
     "newProduct": "New Product",
     "categories": "Categories",
     "allCategories": "All Categories",
+    "noProducts": "No products found",
     "searchPlaceholder": "Search by name, SKU or Barcode...",
     "columns": {
       "name": "Name",
@@ -644,7 +647,12 @@
     "cashAmount": "Cash Amount",
     "cardAmount": "Card Amount",
     "debt": "Debt (Installment)",
-    "dueDate": "Due Date"
+    "dueDate": "Due Date",
+    "uzcard": "Uzcard",
+    "humo": "Humo",
+    "visa": "Visa",
+    "click": "Click",
+    "payme": "Payme"
   },
   "invoice": {
     "title": "Invoice",
@@ -676,9 +684,13 @@
     "newAppointment": "New Appointment",
     "noAppointments": "No appointments found",
     "confirmComplete": "Are you sure you want to complete this appointment and deduct a session?",
+    "today": "Today",
     "view": {
       "calendar": "Calendar",
-      "list": "List"
+      "list": "List",
+      "month": "Month",
+      "week": "Week",
+      "day": "Day"
     },
     "columns": {
       "customer": "Customer / Guest",

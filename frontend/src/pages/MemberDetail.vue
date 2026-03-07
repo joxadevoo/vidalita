@@ -11,18 +11,18 @@
           <RouterLink
             v-if="member"
             :to="`/members/${member.id}/edit`"
-            class="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-medium text-sky-700 hover:bg-sky-100"
+            class="rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-medium text-sky-700 hover:bg-sky-100"
           >
             {{ $t('common.edit') }}
           </RouterLink>
           <button
-            class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+            class="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
             @click="fetchMember"
           >
             {{ $t('common.refresh') }}
           </button>
           <button
-            class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-100"
+            class="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100"
             @click="onDeleteMember"
           >
             {{ $t('common.delete') }}
@@ -36,16 +36,16 @@
 
     <div v-else-if="member" class="space-y-6">
       <!-- Section info -->
-      <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
+      <section class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl">
         <div class="border-b border-gray-100 px-6 py-4">
           <h2 class="text-lg font-semibold text-gray-900">{{ $t('memberDetail.basicInfo') }}</h2>
         </div>
         <div class="px-6 py-6">
           <div class="flex flex-col md:flex-row gap-6 mb-6">
             <div v-if="member.photo" class="flex-shrink-0">
-              <img :src="storageService.getMemberPhotoUrl(member.photo) || ''" :alt="member.fullName" class="h-32 w-32 rounded-lg object-cover border-2 border-gray-200" />
+              <img :src="storageService.getMemberPhotoUrl(member.photo) || ''" :alt="member.fullName" class="h-32 w-32 rounded-2xl object-cover border-2 border-gray-200" />
             </div>
-            <div v-else class="flex-shrink-0 h-32 w-32 rounded-lg bg-gray-100 border-2 border-gray-200 flex items-center justify-center">
+            <div v-else class="flex-shrink-0 h-32 w-32 rounded-2xl bg-gray-100 border-2 border-gray-200 flex items-center justify-center">
               <svg class="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
@@ -74,7 +74,7 @@
 
       <!-- Gym & Health -->
       <div class="grid gap-6 md:grid-cols-2">
-        <section v-if="gymInfo" class="rounded-xl border border-gray-200 bg-white shadow-sm">
+        <section v-if="gymInfo" class="rounded-2xl border border-gray-200 bg-white shadow-sm">
           <div class="border-b border-gray-100 px-6 py-4"><h2 class="text-lg font-semibold text-gray-900">{{ $t('memberDetail.gymInfo') }}</h2></div>
           <div class="px-6 py-6 space-y-4">
              <div v-if="gymInfo.membershipType">
@@ -92,7 +92,7 @@
           </div>
         </section>
 
-        <section v-if="beautyHealth" class="rounded-xl border border-gray-200 bg-white shadow-sm">
+      <section v-if="beautyHealth" class="rounded-2xl border border-gray-200 bg-white shadow-sm">
           <div class="border-b border-gray-100 px-6 py-4"><h2 class="text-lg font-semibold text-gray-900">{{ $t('memberDetail.healthProfile') }}</h2></div>
           <div class="px-6 py-6 space-y-2">
              <div v-for="q in beautyQuestions" :key="q.key" class="text-sm flex justify-between">
@@ -104,7 +104,7 @@
       </div>
 
       <!-- History -->
-      <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
+      <section class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl">
         <div class="border-b border-gray-100 px-6 py-4"><h2 class="text-lg font-semibold text-gray-900">{{ $t('memberDetail.checkinHistory') }}</h2></div>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
@@ -117,7 +117,7 @@
       </section>
 
       <!-- Active Packages (Sessions) -->
-      <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
+      <section class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl">
         <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
           <h2 class="text-lg font-semibold text-gray-900">{{ $t('memberDetail.activePackages') }}</h2>
           <span class="text-xs text-gray-500">{{ activePackages.length }} {{ $t('beautyServices.items') }}</span>
@@ -164,7 +164,7 @@
       </section>
 
       <!-- Beauty Services -->
-      <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
+      <section class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl">
         <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
           <h2 class="text-lg font-semibold text-gray-900">{{ $t('memberDetail.beautyServices') }}</h2>
           <span class="text-xs text-gray-500">{{ $t('memberDetail.beautyTotal') }}: {{ beautyServices.length }} {{ $t('memberDetail.services') }}</span>
@@ -197,21 +197,21 @@
         <div v-if="beautyServices.length > 0" class="mt-6 px-6 pb-6">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Recent Services (30 days) -->
-            <div class="rounded-lg bg-sky-50 p-4">
+            <div class="rounded-2xl bg-sky-50 p-4">
               <h4 class="text-sm font-semibold text-sky-900">{{ $t('memberDetail.recentServices') }}</h4>
               <p class="mt-2 text-2xl font-bold text-sky-600">{{ recentServices.length }}</p>
               <p class="text-xs text-sky-700">{{ $t('memberDetail.last30Days') }}</p>
             </div>
 
             <!-- Most Used Service -->
-            <div class="rounded-lg bg-purple-50 p-4">
+            <div class="rounded-2xl bg-purple-50 p-4">
               <h4 class="text-sm font-semibold text-purple-900">{{ $t('memberDetail.mostUsedService') }}</h4>
               <p class="mt-2 text-lg font-bold text-purple-600">{{ mostUsedService?.name || '—' }}</p>
               <p class="text-xs text-purple-700" v-if="mostUsedService">{{ mostUsedService.count }} {{ $t('memberDetail.times') }}</p>
             </div>
 
             <!-- Total Services -->
-            <div class="rounded-lg bg-green-50 p-4">
+            <div class="rounded-2xl bg-green-50 p-4">
               <h4 class="text-sm font-semibold text-green-900">{{ $t('memberDetail.totalServices') }}</h4>
               <p class="mt-2 text-2xl font-bold text-green-600">{{ beautyServices.length }}</p>
               <p class="text-xs text-green-700">{{ $t('memberDetail.allTime') }}</p>
@@ -220,7 +220,7 @@
         </div>
       </section>
 
-      <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
+      <section class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl">
         <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
           <h2 class="text-lg font-semibold text-gray-900">{{ $t('memberDetail.salesHistory') }}</h2>
           <span class="text-xs text-gray-500">{{ $t('memberDetail.salesTotal') }}: {{ sales.length }}</span>
@@ -256,7 +256,7 @@
                 <td class="px-6 py-4">
                   <button
                     @click="openInvoice(sale.id)"
-                    class="flex items-center gap-1 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition-all"
+                    class="flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition-all"
                   >
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -274,7 +274,7 @@
       </section>
 
       <!-- Appointments -->
-      <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
+      <section class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl">
         <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
           <h2 class="text-lg font-semibold text-gray-900">{{ $t('memberDetail.appointments') }}</h2>
           <span class="text-xs text-gray-500">{{ $t('memberDetail.appointmentsTotal') }}: {{ appointments.length }}</span>

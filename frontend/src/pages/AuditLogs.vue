@@ -1,20 +1,21 @@
 <template>
   <div class="space-y-6 pb-20 sm:pb-6">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print">
       <div>
-        <h1 class="text-2xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
-          <div class="p-2 bg-sky-500/10 text-sky-600 rounded-xl">
-            <ShieldCheckIcon class="h-6 w-6" />
-          </div>
+        <h1 class="text-3xl font-black tracking-tighter text-gray-900 dark:text-gray-100 uppercase flex items-center gap-3">
+          <ShieldCheckIcon class="h-8 w-8 text-sky-500" />
           {{ $t('auditLogs.title') }}
         </h1>
-        <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mt-2">
+        <p class="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1 italic">
           {{ $t('auditLogs.subtitle') }}
         </p>
       </div>
-      <button @click="loadLogs" class="btn-secondary h-11 px-4 text-sm whitespace-nowrap hidden sm:flex">
-        <ArrowPathIcon class="h-5 w-5 mr-2" :class="{ 'animate-spin': loading }" />
+      <button 
+        @click="loadLogs" 
+        class="glass-pill rounded-full border border-gray-400/30 px-6 py-2.5 text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-white/40 dark:hover:bg-white/10 transition-all shadow-sm uppercase tracking-widest flex items-center gap-2"
+      >
+        <ArrowPathIcon class="h-4 w-4" :class="{ 'animate-spin': loading }" />
         {{ $t('common.refresh') }}
       </button>
     </div>
@@ -37,62 +38,79 @@
     </div>
 
     <!-- List -->
-    <div v-else class="glass rounded-2xl overflow-hidden shadow-sm border border-white/20 dark:border-gray-800/50">
-      <div v-if="logs.length === 0" class="p-12 text-center text-gray-500 dark:text-gray-400">
-        <ShieldCheckIcon class="h-12 w-12 mx-auto mb-3 opacity-20" />
-        <p class="font-bold">{{ $t('auditLogs.noLogs') }}</p>
+    <div v-else class="flex flex-col gap-6 no-print">
+      <div v-if="logs.length === 0" class="glass rounded-2xl p-20 text-center opacity-60 italic text-gray-400 border-white/40 dark:border-white/10 shadow-2xl">
+        <ShieldCheckIcon class="h-16 w-16 mx-auto mb-4 opacity-20" />
+        <p class="font-black uppercase tracking-widest text-xs">{{ $t('auditLogs.noLogs') }}</p>
       </div>
 
-      <div v-else class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
-              <th class="py-4 px-6 text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">{{ $t('auditLogs.columns.date') }}</th>
-              <th class="py-4 px-6 text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">{{ $t('auditLogs.columns.user') }}</th>
-              <th class="py-4 px-6 text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">{{ $t('auditLogs.columns.action') }}</th>
-              <th class="py-4 px-6 text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">{{ $t('auditLogs.columns.target') }}</th>
-              <th class="py-4 px-6 text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{{ $t('auditLogs.columns.details') }}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            <tr 
-              v-for="log in logs" 
-              :key="log.id"
-              class="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors group"
-            >
-              <td class="py-4 px-6 whitespace-nowrap">
-                <div class="text-sm font-bold text-gray-900 dark:text-white">
-                  {{ formatDate(log.created_at) }}
-                </div>
-                <div class="text-[11px] font-bold text-gray-400 tracking-wider">
-                  {{ formatTime(log.created_at) }}
-                </div>
-              </td>
-              <td class="py-4 px-6 whitespace-nowrap">
-                <span class="inline-flex flex-col items-start gap-1">
-                  <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold"
-                    :class="log.performer_name ? 'bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'">
-                    {{ log.performer_name || $t('auditLogs.system') }}
-                  </span>
-                </span>
-              </td>
-              <td class="py-4 px-6 whitespace-nowrap">
-                <span class="text-[11px] font-black px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 tracking-widest text-gray-600 dark:text-gray-300">
-                  {{ log.action }}
-                </span>
-              </td>
-              <td class="py-4 px-6 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 font-mono font-bold">
-                {{ log.target_id || '-' }}
-              </td>
-              <td class="py-4 px-6 text-sm text-gray-600 dark:text-gray-400">
-                <div v-if="log.details" class="max-w-md truncate font-mono text-[10px] bg-gray-50 dark:bg-gray-800/80 p-2.5 rounded-xl border border-gray-100 dark:border-gray-700/50 text-gray-500 dark:text-gray-400 leading-relaxed overflow-x-auto">
-                  {{ JSON.stringify(log.details) }}
-                </div>
-                <span v-else class="text-gray-400 dark:text-gray-600 font-bold">-</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div v-else class="space-y-4">
+        <!-- Sticky Table Header -->
+        <div class="sticky top-0 z-20 mx-2 shrink-0">
+          <table class="border-separate border-spacing-0 w-full">
+            <thead>
+              <tr class="glass rounded-full block-table-header backdrop-blur-md shadow-xl border-white/40 dark:border-white/10">
+                <th class="py-3 pl-6 text-left text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 rounded-l-full bg-transparent">{{ $t('auditLogs.columns.date') }}</th>
+                <th class="py-3 px-6 text-left text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 bg-transparent">{{ $t('auditLogs.columns.user') }}</th>
+                <th class="py-3 px-6 text-left text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 bg-transparent">{{ $t('auditLogs.columns.action') }}</th>
+                <th class="py-3 px-6 text-left text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 bg-transparent">{{ $t('auditLogs.columns.target') }}</th>
+                <th class="py-3 pr-6 text-left text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 rounded-r-full bg-transparent">{{ $t('auditLogs.columns.details') }}</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+
+        <div class="glass rounded-2xl overflow-hidden shadow-2xl border-white/40 dark:border-white/10">
+          <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-separate border-spacing-0">
+              <thead class="invisible h-0">
+                <tr>
+                  <th class="w-[15%]"></th>
+                  <th class="w-[15%]"></th>
+                  <th class="w-[15%]"></th>
+                  <th class="w-[15%]"></th>
+                  <th class="w-[40%]"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-white/10 dark:divide-white/5">
+                <tr 
+                  v-for="log in logs" 
+                  :key="log.id"
+                  class="hover:bg-white/40 dark:hover:bg-white/5 transition-all group backdrop-blur-sm"
+                >
+                  <td class="py-4 pl-6 whitespace-nowrap">
+                    <div class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight">
+                      {{ formatDate(log.created_at) }}
+                    </div>
+                    <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 italic">
+                      {{ formatTime(log.created_at) }}
+                    </div>
+                  </td>
+                  <td class="py-4 px-6 whitespace-nowrap">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-sky-500/20 shadow-inner"
+                      :class="log.performer_name ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400' : 'bg-gray-500/10 text-gray-500 dark:text-gray-400'">
+                      {{ log.performer_name || $t('auditLogs.system') }}
+                    </span>
+                  </td>
+                  <td class="py-4 px-6 whitespace-nowrap">
+                    <span class="text-[10px] font-black px-3 py-1 rounded-full bg-white/50 dark:bg-white/5 border border-white/40 dark:border-white/10 tracking-widest text-gray-600 dark:text-gray-300 uppercase shadow-sm">
+                      {{ log.action }}
+                    </span>
+                  </td>
+                  <td class="py-4 px-6 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-400 font-mono font-black italic">
+                    {{ log.target_id || '-' }}
+                  </td>
+                  <td class="py-4 pr-6">
+                    <div v-if="log.details" class="max-w-md font-mono text-[9px] bg-white/40 dark:bg-black/20 p-3 rounded-xl border border-white/40 dark:border-white/5 text-gray-500 dark:text-gray-400 leading-relaxed overflow-x-auto shadow-inner">
+                      {{ JSON.stringify(log.details) }}
+                    </div>
+                    <span v-else class="text-gray-300 dark:text-gray-600 font-black">-</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>

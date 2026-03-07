@@ -36,6 +36,7 @@
     "notFound": "Topilmadi",
     "noData": "Ma'lumot yo'q",
     "exportExcel": "Excel",
+    "reset": "Tozalash",
     "import": "Import",
     "total": "Jami",
     "items": "ta"
@@ -316,8 +317,8 @@
     "barcodePlaceholder": "TGCXXXXXX",
     "checking": "Tekshirilmoqda...",
     "enter": "Kirish",
-    "dateFrom": "Sana oralig'i (dan)",
-    "dateTo": "Sana oralig'i (gacha)",
+    "dateFrom": "(dan)",
+    "dateTo": "(gacha)",
     "searchPlaceholder": "Ism yoki ID",
     "todayOnly": "Faqat bugungi",
     "exportExcel": "Excel",
@@ -365,8 +366,8 @@
     "serviceTypeLabel": "Xizmat turi",
     "serviceTypeSelect": "Xizmat turini tanlang",
     "serviceTypeHint": "Xizmat turini tanlash ixtiyoriy (enum)",
-    "dateFrom": "Sana oralig'i (dan)",
-    "dateTo": "Sana oralig'i (gacha)",
+    "dateFrom": "(dan)",
+    "dateTo": "(gacha)",
     "searchPlaceholder": "Ism, xizmat yoki ID",
     "todayOnly": "Faqat bugungi",
     "exportExcel": "Excel",
@@ -440,7 +441,9 @@
     "appointmentTime": "Uchrashuv vaqti",
     "soldViaCashier": "Kassa orqali sotildi",
     "staff": "Xodim",
-    "errorLoadingHistory": "Tarixni yuklashda xatolik yuz berdi"
+    "errorLoadingHistory": "Tarixni yuklashda xatolik yuz berdi",
+    "session": "Seans",
+    "includedInPackage": "Paket ichida"
   },
   "barcode": {
     "title": "Barcode",
@@ -501,6 +504,7 @@
   },
   "settings": {
     "title": "Sozlamalar",
+    "subtitle": "Tizim sozlamalari, xodimlar va foydalanuvchilarni boshqarish",
     "languageSelect": "Tilni tanlang / Select Language / Выберите язык / Dil Seçin",
     "staff": "Xodimlar",
     "rooms": "Xonalar",
@@ -555,6 +559,7 @@
     "newProduct": "Yangi mahsulot",
     "categories": "Kategoriyalar",
     "allCategories": "Barcha kategoriyalar",
+    "noProducts": "Mahsulotlar topilmadi",
     "searchPlaceholder": "Nomi, SKU yoki Barcode bo'yicha qidirish...",
     "columns": {
       "name": "Nomi",
@@ -644,7 +649,12 @@
     "errorNoMoreStock": "Omborda boshqa qolmagan!",
     "errorNotEnoughStock": "Omborda yetarli emas!",
     "debt": "Qarz (Taksit)",
-    "dueDate": "To'lov muddati"
+    "dueDate": "To'lov muddati",
+    "uzcard": "Uzcard",
+    "humo": "Humo",
+    "visa": "Visa",
+    "click": "Click",
+    "payme": "Payme"
   },
   "invoice": {
     "title": "Faktura",
@@ -680,9 +690,13 @@
     "member": "A'zo",
     "guest": "Mehmon",
     "noRoom": "Xonasiz",
+    "today": "Bugun",
     "view": {
       "calendar": "Taqvim",
-      "list": "Ro'yxat"
+      "list": "Ro'yxat",
+      "month": "Oy",
+      "week": "Hafta",
+      "day": "Kun"
     },
     "stats": {
       "today": "Bugungi randevular",

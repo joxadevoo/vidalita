@@ -3,7 +3,7 @@
     <div class="flex flex-col gap-2">
       <RouterLink :to="isEditMode ? `/members/${memberId}` : '/members'" class="text-sm text-sky-600 hover:text-sky-500">&larr; {{ isEditMode ? $t('memberDetail.backToMembers') : $t('memberCreate.backToMembers') }}</RouterLink>
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">{{ isEditMode ? $t('memberCreate.editTitle') : $t('memberCreate.title') }}</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ isEditMode ? $t('memberCreate.editTitle') : $t('memberCreate.title') }}</h1>
         <p class="text-sm text-gray-500">{{ isEditMode ? $t('memberCreate.editSubtitle') : $t('memberCreate.subtitle') }}</p>
       </div>
     </div>
@@ -11,10 +11,10 @@
     <LoadingSpinner v-if="pageLoading" />
 
     <form v-else class="space-y-8" @submit.prevent="handleSubmit">
-      <section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <div class="border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4 bg-gray-50/50">
-          <h2 class="text-base sm:text-lg font-semibold text-gray-900">{{ $t('memberCreate.basicInfo') }}</h2>
-          <p class="text-xs sm:text-sm text-gray-500">{{ $t('memberCreate.basicInfoSubtitle') }}</p>
+      <section class="glass rounded-2xl overflow-hidden">
+        <div class="border-b border-white/30 dark:border-white/10 px-4 sm:px-6 py-3 sm:py-4 bg-white/20 dark:bg-black/10">
+          <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('memberCreate.basicInfo') }}</h2>
+          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{{ $t('memberCreate.basicInfoSubtitle') }}</p>
         </div>
         <div class="grid gap-4 px-4 sm:px-6 py-4 sm:py-6 md:grid-cols-2">
           <div class="md:col-span-2">
@@ -55,7 +55,7 @@
               {{ $t('memberCreate.phone') }} <span class="text-red-500">*</span>
             </label>
             <div class="flex gap-2">
-              <select v-model="form.phoneCountry" class="w-24 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/20">
+              <select v-model="form.phoneCountry" class="w-24 rounded-full border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/20">
                 <option value="uz">🇺🇿 UZ</option>
                 <option value="ru">🇷🇺 RU</option>
                 <option value="tr">🇹🇷 TR</option>
@@ -107,7 +107,7 @@
             <label class="input-label" for="photo">{{ $t('memberCreate.photo') }}</label>
             <div class="mt-2 flex items-center gap-4">
               <div v-if="photoPreview" class="relative group">
-                <img :src="photoPreview" alt="Preview" class="h-24 w-24 rounded-lg border-2 border-gray-100 object-cover shadow-sm" />
+                <img :src="photoPreview" alt="Preview" class="h-24 w-24 rounded-2xl border-2 border-gray-100 object-cover shadow-sm" />
                 <button
                   type="button"
                   @click="removePhoto"
@@ -124,7 +124,7 @@
                   type="file"
                   accept="image/*"
                   @change="handlePhotoUpload"
-                  class="block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-sky-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-sky-700 hover:file:bg-sky-100 cursor-pointer"
+                  class="block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-sky-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-sky-700 hover:file:bg-sky-100 cursor-pointer"
                 />
                 <p class="mt-1 text-xs text-gray-400">{{ $t('memberCreate.photoFormat') }}</p>
               </div>
@@ -133,15 +133,15 @@
         </div>
       </section>
 
-      <section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <div class="border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4 bg-gray-50/50">
-          <h2 class="text-lg font-semibold text-gray-900">{{ $t('memberCreate.additionalInfo') }}</h2>
-          <p class="text-sm text-gray-500">{{ $t('memberCreate.additionalInfoSubtitle') }}</p>
+      <section class="glass rounded-2xl overflow-hidden">
+        <div class="border-b border-white/30 dark:border-white/10 px-4 sm:px-6 py-3 sm:py-4 bg-white/20 dark:bg-black/10">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('memberCreate.additionalInfo') }}</h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('memberCreate.additionalInfoSubtitle') }}</p>
         </div>
         <div class="space-y-6 px-4 sm:px-6 py-4 sm:py-6">
           <div class="md:flex md:items-center md:gap-4">
             <label class="input-label md:w-48">{{ $t('memberCreate.serviceType') }} <span class="text-red-500">*</span></label>
-            <select v-model="form.serviceType" class="input md:flex-1 bg-white" required>
+            <select v-model="form.serviceType" class="input md:flex-1" required>
               <option value="gym">{{ $t('memberCreate.serviceTypeGym') }}</option>
               <option value="beauty">{{ $t('memberCreate.serviceTypeBeauty') }}</option>
               <option value="both">{{ $t('memberCreate.serviceTypeBoth') }}</option>
@@ -151,13 +151,13 @@
           <!-- Gym Additional Information -->
           <div v-if="form.serviceType === 'gym' || form.serviceType === 'both'" class="animate-in fade-in slide-in-from-top-2 duration-300 space-y-6">
             <div class="flex items-center gap-2 pb-2 border-b border-gray-100">
-              <h3 class="text-base font-semibold text-sky-900">{{ $t('memberCreate.gymInfo') }}</h3>
+              <h3 class="text-base font-semibold text-sky-700 dark:text-sky-300">{{ $t('memberCreate.gymInfo') }}</h3>
             </div>
 
             <div class="grid gap-6 md:grid-cols-2">
               <!-- Emergency Contact -->
-              <div class="rounded-xl border border-gray-100 bg-blue-50/30 p-4 space-y-4">
-                <h4 class="text-sm font-bold text-blue-900 uppercase tracking-tight flex items-center gap-2">
+              <div class="glass rounded-xl p-4 space-y-4">
+                <h4 class="text-sm font-bold text-sky-700 dark:text-sky-300 uppercase tracking-tight flex items-center gap-2">
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
@@ -166,22 +166,22 @@
                 <div class="space-y-3">
                   <div>
                     <label class="input-label text-blue-800" for="emergencyName">{{ $t('memberCreate.emergencyName') }}</label>
-                    <input id="emergencyName" v-model="gymInfo.emergencyName" type="text" class="input bg-white" :placeholder="$t('memberCreate.emergencyNamePlaceholder')" />
+                    <input id="emergencyName" v-model="gymInfo.emergencyName" type="text" class="input" :placeholder="$t('memberCreate.emergencyNamePlaceholder')" />
                   </div>
                   <div>
                     <label class="input-label text-blue-800" for="emergencyPhone">{{ $t('memberCreate.emergencyPhone') }}</label>
-                    <input id="emergencyPhone" v-model="gymInfo.emergencyPhone" type="text" class="input bg-white" :placeholder="$t('memberCreate.emergencyPhonePlaceholder')" />
+                    <input id="emergencyPhone" v-model="gymInfo.emergencyPhone" type="text" class="input" :placeholder="$t('memberCreate.emergencyPhonePlaceholder')" />
                   </div>
                   <div>
                     <label class="input-label text-blue-800" for="emergencyRelation">{{ $t('memberCreate.emergencyRelation') }}</label>
-                    <input id="emergencyRelation" v-model="gymInfo.emergencyRelation" type="text" class="input bg-white" :placeholder="$t('memberCreate.emergencyRelationPlaceholder')" />
+                    <input id="emergencyRelation" v-model="gymInfo.emergencyRelation" type="text" class="input" :placeholder="$t('memberCreate.emergencyRelationPlaceholder')" />
                   </div>
                 </div>
               </div>
 
               <!-- Health and Fitness -->
-              <div class="rounded-xl border border-gray-100 bg-emerald-50/30 p-4 space-y-4">
-                <h4 class="text-sm font-bold text-emerald-900 uppercase tracking-tight flex items-center gap-2">
+              <div class="glass rounded-xl p-4 space-y-4">
+                <h4 class="text-sm font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-tight flex items-center gap-2">
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                   </svg>
@@ -190,11 +190,11 @@
                 <div class="space-y-3">
                   <div>
                     <label class="input-label text-emerald-800" for="medicalConditions">{{ $t('memberCreate.medicalConditions') }}</label>
-                    <textarea id="medicalConditions" v-model="gymInfo.medicalConditions" rows="2" class="input bg-white" :placeholder="$t('memberCreate.medicalConditionsPlaceholder')"></textarea>
+                    <textarea id="medicalConditions" v-model="gymInfo.medicalConditions" rows="2" class="input" :placeholder="$t('memberCreate.medicalConditionsPlaceholder')"></textarea>
                   </div>
                   <div v-if="form.serviceType === 'gym'">
                     <label class="input-label text-emerald-800" for="gymMedications">{{ $t('memberCreate.medications') }}</label>
-                    <textarea id="gymMedications" v-model="gymInfo.medications" rows="2" class="input bg-white" :placeholder="$t('memberCreate.medicationsPlaceholder')"></textarea>
+                    <textarea id="gymMedications" v-model="gymInfo.medications" rows="2" class="input" :placeholder="$t('memberCreate.medicationsPlaceholder')"></textarea>
                   </div>
                 </div>
               </div>
@@ -210,8 +210,10 @@
                     :key="type"
                     type="button"
                     @click="gymInfo.membershipType = type"
-                    :class="gymInfo.membershipType === type ? 'bg-sky-600 text-white border-sky-600' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
-                    class="rounded-lg border px-3 py-2 text-sm font-medium transition-all"
+                    :class="gymInfo.membershipType === type
+                      ? 'bg-sky-500/25 border-sky-400/60 text-sky-700 dark:text-sky-300 shadow-sm'
+                      : 'bg-white/30 border-white/40 text-gray-700 hover:bg-white/50'"
+                    class="rounded-full border px-3 py-2 text-sm font-medium transition-all backdrop-blur-sm"
                   >
                     {{ $t(`memberCreate.membership${type.charAt(0).toUpperCase() + type.slice(1)}`) }}
                   </button>
@@ -229,8 +231,10 @@
                     :key="method"
                     type="button"
                     @click="gymInfo.paymentMethod = method"
-                    :class="gymInfo.paymentMethod === method ? 'bg-amber-600 text-white border-amber-600' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
-                    class="flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-all"
+                    :class="gymInfo.paymentMethod === method
+                      ? 'bg-amber-500/25 border-amber-400/60 text-amber-700 dark:text-amber-300 shadow-sm'
+                      : 'bg-white/30 border-white/40 text-gray-700 hover:bg-white/50'"
+                    class="flex-1 rounded-full border px-3 py-2 text-sm font-medium transition-all backdrop-blur-sm"
                   >
                     {{ $t(`memberCreate.payment${method.charAt(0).toUpperCase() + method.slice(1)}`) }}
                   </button>
@@ -248,7 +252,7 @@
               <h3 class="text-base font-semibold text-purple-900">{{ $t('memberCreate.beautyHealth') }}</h3>
             </div>
             
-            <div class="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+            <div class="glass rounded-3xl p-8 shadow-2xl border-white/40 dark:border-white/10 overflow-hidden relative group">
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-purple-50">
                   <tr>
@@ -257,7 +261,7 @@
                     <th class="px-4 py-3 text-center text-sm font-bold text-purple-900 w-16">{{ $t('common.no') }}</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
+                <tbody class="divide-y divide-gray-200">
                   <tr v-for="question in beautyQuestions" :key="question.key" class="align-top hover:bg-gray-50 transition-colors">
                     <td class="px-4 py-3 text-sm text-gray-700">
                       <span class="font-medium">{{ $t(question.labelKey) }}</span>
@@ -327,7 +331,7 @@
         </div>
       </div>
 
-      <div v-if="submitError" class="rounded-xl border border-red-200 bg-red-50 p-4">
+      <section v-if="submitError" class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl p-4">
         <div class="flex items-start gap-3">
           <svg class="h-6 w-6 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -337,9 +341,9 @@
             <p class="mt-1 text-sm text-red-700">{{ submitError }}</p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div v-if="submitSuccess && !submitting" class="rounded-xl border border-green-200 bg-green-50 p-4">
+      <section v-if="submitSuccess && !submitting" class="glass rounded-2xl border-white/40 dark:border-white/10 shadow-xl p-4">
         <div class="flex items-start gap-3">
           <svg class="h-6 w-6 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -349,13 +353,16 @@
             <p class="mt-1 text-sm text-green-700">{{ submitSuccess }}</p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="flex items-center justify-end gap-3 sticky bottom-0 bg-white/80 backdrop-blur-sm p-4 border-t border-gray-100 rounded-b-xl z-10 shadow-lg sm:p-6">
-        <RouterLink :to="isEditMode ? `/members/${memberId}` : '/members'" class="rounded-lg border border-gray-200 px-6 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors">{{ $t('common.cancel') }}</RouterLink>
-        <button 
-          type="submit" 
-          class="rounded-lg bg-sky-600 px-8 py-2.5 text-sm font-bold text-white shadow-md hover:bg-sky-500 hover:shadow-lg focus:ring-4 focus:ring-sky-100 active:scale-95 transition-all disabled:cursor-not-allowed disabled:opacity-60" 
+      <div class="flex items-center justify-end gap-3 sticky bottom-0 p-3 z-10 mt-2">
+        <RouterLink
+          :to="isEditMode ? `/members/${memberId}` : '/members'"
+          class="glass-pill rounded-full h-9 px-5 flex items-center text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-400/40 shadow-sm"
+        >{{ $t('common.cancel') }}</RouterLink>
+        <button
+          type="submit"
+          class="glass-pill rounded-full h-9 px-6 flex items-center text-sm font-bold bg-sky-500/20 border border-sky-400/50 text-sky-700 dark:text-sky-300 hover:bg-sky-500/30 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           :disabled="submitting || !!phoneConflict || !!phoneError || (submitAttempted && !isFormValid)"
         >
           {{ submitting ? $t('memberCreate.submitting') : (isEditMode ? $t('memberCreate.updateMember') : $t('memberCreate.addMember')) }}
@@ -759,7 +766,24 @@ const handleSubmit = async () => {
 
 <style scoped>
 .input-label { display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.375rem; transition: color 0.2s; }
-.input { width: 100%; border-radius: 10px; border: 1px solid #e5e7eb; padding: 0.625rem 0.875rem; font-size: 0.875rem; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-.input:focus { border-color: #0ea5e9; outline: none; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1); }
-.input:hover:not(:focus) { border-color: #d1d5db; }
+.input { width: 100%; border-radius: 9999px; border: 1px solid rgba(255,255,255,0.45); background: rgba(255,255,255,0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 0.5rem 1rem; font-size: 0.875rem; transition: all 0.2s; color: #111827; box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 1px 3px rgba(0,0,0,0.08); outline: none; }
+.input:focus { outline: none; border-color: rgba(14, 165, 233, 0.5); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12); }
+.input:hover:not(:focus) { border-color: rgba(255,255,255,0.55); }
+
+/* Dark mode */
+:global(.dark) .input-label { color: #cbd5e1; }
+:global(.dark) .input { 
+  background: #28282829 !important; 
+  border-color: rgba(255, 255, 255, 0.15) !important; 
+  color: #e2e8f0; 
+  box-shadow: none; 
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+:global(.dark) .input::placeholder { color: #475569; }
+:global(.dark) .input:focus { 
+  border-color: rgba(56, 189, 248, 0.4); 
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15); 
+}
 </style>

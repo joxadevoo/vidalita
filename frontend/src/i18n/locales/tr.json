@@ -555,6 +555,7 @@
     "newProduct": "Yeni Ürün",
     "categories": "Kategoriler",
     "allCategories": "Tüm Kategoriler",
+    "noProducts": "Ürün bulunamadı",
     "searchPlaceholder": "İsim, SKU veya Barkod ile ara...",
     "columns": {
       "name": "İsim",
@@ -676,9 +677,13 @@
     "newAppointment": "Yeni Randevu",
     "noAppointments": "Randevu bulunamadı",
     "confirmComplete": "Bu randevuyu tamamlamak ve seansı düşmek istediğinizden emin misiniz?",
+    "today": "Bugün",
     "view": {
       "calendar": "Takvim",
-      "list": "Liste"
+      "list": "Liste",
+      "month": "Ay",
+      "week": "Hafta",
+      "day": "Gün"
     },
     "columns": {
       "customer": "Müşteri / Misafir",

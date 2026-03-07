@@ -1,99 +1,130 @@
 <template>
   <div class="flex flex-col">
-    <!-- Sticky header section -->
-    <div class="flex-shrink-0 space-y-6 bg-white p-6 rounded-lg shadow-sm">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h2 class="text-2xl font-bold text-gray-900">{{ $t('barcode.title') }}</h2>
-        <p class="text-sm text-gray-500">{{ $t('barcode.subtitle') }}</p>
-      </div>
-      <div class="flex gap-2">
-        <button
-          class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
-          @click="fetchMembers"
-        >
-          {{ $t('common.refresh') }}
-        </button>
-        <button
-          class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500"
-          @click="printAll"
-          :disabled="filteredMembers.length === 0"
-        >
-          {{ $t('barcode.printAll') }}
-        </button>
+    <div class="flex-shrink-0 space-y-6 no-print">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 class="text-2xl font-black text-gray-900 dark:text-gray-100 uppercase tracking-tight">{{ $t('barcode.title') }}</h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400 font-bold italic">{{ $t('barcode.subtitle') }}</p>
+        </div>
+        <div class="flex gap-2">
+          <button
+            class="glass-pill rounded-full border border-gray-400/30 px-5 py-2 text-sm font-black text-gray-700 dark:text-gray-200 hover:bg-white/40 dark:hover:bg-white/10 transition-all shadow-sm"
+            @click="fetchMembers"
+          >
+            <ArrowPathIcon class="h-4 w-4" />
+          </button>
+          <button
+            class="rounded-full bg-sky-600 px-6 py-2 text-sm font-black text-white shadow-lg shadow-sky-600/25 hover:bg-sky-500 transition-all uppercase tracking-wider flex items-center gap-2"
+            @click="printAll"
+            :disabled="filteredMembers.length === 0"
+          >
+            <PrinterIcon class="h-4 w-4" />
+            {{ $t('barcode.printAll') }}
+          </button>
+        </div>
       </div>
     </div>
 
     <div v-if="error" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ error }}</div>
 
       <!-- Sticky filter section -->
-      <div class="sticky top-0 z-10 grid gap-4 p-4 bg-gray-50 rounded-lg md:grid-cols-2 lg:grid-cols-4">
-      <div class="flex items-center gap-2">
-        <input
-          v-model="searchTerm"
-          type="text"
-          :placeholder="$t('barcode.searchPlaceholder')"
-          class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-        />
-      </div>
-      <div class="flex items-center gap-2">
-        <label class="text-sm text-gray-500">{{ $t('barcode.statusLabel') }}</label>
-        <select
-          v-model="statusFilter"
-          class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-        >
-          <option value="all">{{ $t('common.all') }}</option>
-          <option value="active">{{ $t('common.active') }}</option>
-          <option value="inactive">{{ $t('common.inactive') }}</option>
-        </select>
-      </div>
-      <div class="flex items-center justify-end text-sm text-gray-500">
-        {{ $t('barcode.found') }}: <span class="ml-1 font-semibold text-gray-700">{{ filteredMembers.length }}</span>
+      <div class="sticky top-0 z-20 glass rounded-full p-2 flex flex-col lg:flex-row items-center justify-between gap-4 shadow-xl border-white/40 dark:border-white/10 no-print mb-6 backdrop-blur-md">
+        <!-- Search -->
+        <div class="w-full lg:max-w-md xl:max-w-lg relative flex items-center group">
+          <MagnifyingGlassIcon class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-sky-500 transition-colors pointer-events-none" />
+          <input
+            v-model="searchTerm"
+            type="text"
+            :placeholder="$t('barcode.searchPlaceholder')"
+            class="w-full rounded-full h-11 pl-12 pr-4 text-sm bg-white/40 dark:bg-black/20 border-0 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400/40 backdrop-blur-sm transition"
+          />
+        </div>
+
+        <div class="flex flex-col md:flex-row items-center gap-4 w-full lg:w-auto">
+          <!-- Status -->
+          <div class="flex items-center gap-2 px-4 h-11 rounded-full bg-white/30 dark:bg-white/5 border border-white/20 w-full md:w-auto relative group/select">
+            <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">{{ $t('barcode.statusLabel') }}</label>
+            <div class="relative flex items-center">
+              <select
+                v-model="statusFilter"
+                class="bg-transparent border-none focus:ring-0 text-xs font-bold h-full appearance-none dark:text-gray-200 pr-8 cursor-pointer uppercase tracking-tight"
+              >
+                <option value="all" class="dark:bg-gray-900">{{ $t('common.all') }}</option>
+                <option value="active" class="dark:bg-gray-900">{{ $t('common.active') }}</option>
+                <option value="inactive" class="dark:bg-gray-900">{{ $t('common.inactive') }}</option>
+              </select>
+              <ChevronDownIcon class="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none transition-transform group-hover/select:text-sky-500" />
+            </div>
+          </div>
+
+          <!-- Count -->
+          <div class="flex items-center justify-end gap-2 px-1 h-11">
+            <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{{ $t('barcode.found') }}:</span>
+            <span class="glass-pill rounded-full w-11 h-11 flex items-center justify-center text-sm font-bold text-gray-700 dark:text-gray-200">{{ filteredMembers.length }}</span>
+          </div>
         </div>
       </div>
-    </div>
 
     <!-- Scrollable barcode cards section -->
-    <div class="flex-1 overflow-y-auto pt-6">
-    <LoadingSpinner v-if="loading" />
+    <div class="flex-1 overflow-y-auto pt-6 custom-scrollbar no-print">
+      <LoadingSpinner v-if="loading" />
 
-    <div v-else class="grid gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-      <div
-        v-for="member in filteredMembers"
-        :key="member.id"
-        class="barcode-container rounded-lg border border-gray-200 bg-white p-4 shadow-sm print:break-inside-avoid"
-      >
-        <!-- Action Buttons -->
-        <div class="mb-3 flex justify-end gap-2 print:hidden">
-          <button
-            @click="printSingle(member)"
-            class="rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-700 transition-colors"
-            :title="$t('barcode.print')"
-          >
-            <PrinterIcon class="h-4 w-4" />
-          </button>
+      <div v-else class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 px-1 pb-10">
+        <div
+          v-for="member in filteredMembers"
+          :key="member.id"
+          class="group glass rounded-2xl p-5 shadow-lg border-white/40 dark:border-white/10 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex flex-col items-center gap-4 relative"
+        >
+          <!-- Action Buttons -->
+          <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              @click="printSingle(member)"
+              class="p-2.5 rounded-full bg-sky-500/10 text-sky-600 hover:bg-sky-500 hover:text-white transition-all shadow-sm"
+              :title="$t('barcode.print')"
+            >
+              <PrinterIcon class="h-4 w-4" />
+            </button>
+          </div>
+          
+          <div class="w-full space-y-3">
+            <div class="text-center">
+              <div class="text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{{ member.fullName }}</div>
+              <div v-if="member.phone" class="text-[9px] font-bold text-gray-400 italic mt-0.5">{{ member.phone }}</div>
+            </div>
+
+            <!-- Barcode Container -->
+            <div class="bg-white p-4 rounded-xl shadow-inner border border-gray-100 dark:border-white/5 flex flex-col items-center gap-3">
+              <svg :id="`barcode-${member.id}`" class="w-full mix-blend-multiply" style="min-height: 80px; max-width: 100%;"></svg>
+              <div class="text-[10px] font-black font-mono text-gray-400 uppercase tracking-tighter">{{ member.qrCodeId }}</div>
+            </div>
+          </div>
         </div>
         
-        <!-- Barcode Only -->
-        <div class="flex flex-col items-center">
-          <div class="bg-white p-3 rounded border border-gray-200 w-full">
-            <svg :id="`barcode-${member.id}`" class="w-full" style="min-height: 80px; max-width: 100%;"></svg>
+        <div v-if="filteredMembers.length === 0" class="col-span-full py-20 text-center opacity-60 italic text-gray-400">
+          <div class="flex flex-col items-center gap-2">
+            <div class="h-16 w-16 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center opacity-20">
+              <MagnifyingGlassIcon class="h-8 w-8" />
+            </div>
+            {{ $t('barcode.noResults') }}
           </div>
-          <p class="mt-2 text-xs font-mono text-gray-600 text-center">{{ member.qrCodeId }}</p>
         </div>
       </div>
-      <div v-if="filteredMembers.length === 0" class="col-span-full rounded-lg border border-gray-200 bg-white px-6 py-12 text-center text-sm text-gray-500">
-        {{ $t('barcode.noResults') }}
-      </div>
-      </div>
     </div>
+    
+    <!-- Hidden element for barcode rendering when printing -->
+    <div id="print-mount" class="hidden"></div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { PrinterIcon } from '@heroicons/vue/24/outline'
+import { 
+  PrinterIcon, 
+  ArrowPathIcon, 
+  MagnifyingGlassIcon,
+  ChevronDownIcon
+} from '@heroicons/vue/24/outline'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
 import { membersService } from '../services/supabaseService'
 

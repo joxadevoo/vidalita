@@ -1,205 +1,289 @@
 <template>
   <div class="space-y-6">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between no-print">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">{{ $t('sales.title') }}</h1>
-        <p class="text-sm text-gray-500">{{ $t('sales.subtitle') }}</p>
+        <h1 class="text-3xl font-black tracking-tighter text-gray-900 dark:text-gray-100 uppercase">{{ $t('sales.title') }}</h1>
+        <p class="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1 italic">{{ $t('sales.subtitle') }}</p>
       </div>
       <div class="flex gap-2">
         <button
           @click="exportToPDF"
-          class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all shadow-sm"
+          class="glass-pill rounded-full border border-gray-400/30 px-6 py-2.5 text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-white/40 dark:hover:bg-white/10 transition-all shadow-sm uppercase tracking-widest flex items-center gap-2"
         >
-          <svg class="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+          <DocumentTextIcon class="h-4 w-4 text-rose-500" />
           {{ $t('sales.exportPdf') }}
         </button>
       </div>
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <p class="text-xs font-medium uppercase tracking-wider text-gray-500">{{ $t('sales.totalVolume') }}</p>
-        <p class="mt-2 text-2xl font-bold text-sky-600">{{ formatCurrency(stats.total) }}</p>
-      </div>
-      <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <p class="text-xs font-medium uppercase tracking-wider text-gray-500">{{ $t('sales.cashTotal') }}</p>
-        <p class="mt-2 text-2xl font-bold text-amber-600">{{ formatCurrency(stats.cash) }}</p>
-      </div>
-      <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <p class="text-xs font-medium uppercase tracking-wider text-gray-500">{{ $t('sales.cardTotal') }}</p>
-        <p class="mt-2 text-2xl font-bold text-emerald-600">{{ formatCurrency(stats.card) }}</p>
-      </div>
-      <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">{{ $t('sales.summary') }}</p>
-            <div class="mt-2 flex gap-4">
-              <span class="text-sm font-semibold text-purple-600">POS: {{ stats.posCount }}</span>
-              <span class="text-sm font-semibold text-pink-600">BEAUTY: {{ stats.serviceCount }}</span>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 no-print">
+      <div class="glass rounded-2xl p-6 shadow-2xl border-white/40 dark:border-white/10 flex flex-col justify-between relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-sky-500/10 blur-2xl group-hover:bg-sky-500/20 transition-all"></div>
+        <div class="flex items-center justify-between mb-4 relative z-10">
+            <div class="p-2.5 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                <CurrencyDollarIcon class="h-5 w-5" />
             </div>
-          </div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">{{ $t('sales.totalVolume') }}</p>
+        </div>
+        <p class="text-2xl font-black text-gray-900 dark:text-gray-100 tracking-tighter relative z-10">{{ formatCurrency(stats.total) }}</p>
+      </div>
+
+      <div class="glass rounded-2xl p-6 shadow-2xl border-white/40 dark:border-white/10 flex flex-col justify-between relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-amber-500/10 blur-2xl group-hover:bg-amber-500/20 transition-all"></div>
+        <div class="flex items-center justify-between mb-4 relative z-10">
+            <div class="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                <WalletIcon class="h-5 w-5" />
+            </div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">{{ $t('sales.cashTotal') }}</p>
+        </div>
+        <p class="text-2xl font-black text-gray-900 dark:text-gray-100 tracking-tighter relative z-10">{{ formatCurrency(stats.cash) }}</p>
+      </div>
+
+      <div class="glass rounded-2xl p-6 shadow-2xl border-white/40 dark:border-white/10 flex flex-col justify-between relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-emerald-500/10 blur-2xl group-hover:bg-emerald-500/20 transition-all"></div>
+        <div class="flex items-center justify-between mb-4 relative z-10">
+            <div class="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <CreditCardIcon class="h-5 w-5" />
+            </div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">{{ $t('sales.cardTotal') }}</p>
+        </div>
+        <p class="text-2xl font-black text-gray-900 dark:text-gray-100 tracking-tighter relative z-10">{{ formatCurrency(stats.card) }}</p>
+      </div>
+
+      <div class="glass rounded-2xl p-6 shadow-2xl border-white/40 dark:border-white/10 flex flex-col justify-between relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-purple-500/10 blur-2xl group-hover:bg-purple-500/20 transition-all"></div>
+        <div class="flex items-center justify-between mb-4 relative z-10">
+            <div class="p-2.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                <ChartBarIcon class="h-5 w-5" />
+            </div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">{{ $t('sales.summary') }}</p>
+        </div>
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="flex flex-col">
+                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">POS</span>
+                <span class="text-lg font-black text-purple-600">{{ stats.posCount }}</span>
+            </div>
+            <div class="h-8 w-px bg-white/20"></div>
+            <div class="flex flex-col">
+                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">BEAUTY</span>
+                <span class="text-lg font-black text-pink-600">{{ stats.serviceCount }}</span>
+            </div>
         </div>
       </div>
     </div>
 
     <!-- Filters and Tabs -->
-    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm space-y-4">
-      <div class="flex flex-col md:flex-row gap-4">
-        <div class="flex-1">
-          <label class="text-xs font-medium text-gray-500 uppercase mb-1 block">{{ $t('common.search') }}</label>
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </span>
-            <input
-              v-model="searchTerm"
-              type="text"
-              :placeholder="$t('sales.searchPlaceholder')"
-              class="block w-full rounded-lg border border-gray-200 py-2.5 pl-10 pr-3 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-            />
+    <div class="glass rounded-full p-2 shadow-xl border-white/40 dark:border-white/10 flex items-center no-print mb-6 w-full">
+      <div class="flex flex-col lg:flex-row items-center justify-between w-full gap-4">
+        <!-- Search - Flexible and Longer -->
+        <div class="w-full lg:max-w-md xl:max-w-lg relative group">
+          <MagnifyingGlassIcon class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-sky-500 transition-colors pointer-events-none" />
+          <input
+            v-model="searchTerm"
+            type="text"
+            :placeholder="$t('sales.searchPlaceholder')"
+            class="input h-11 pl-12 text-sm rounded-full bg-white/50 dark:bg-black/20 w-full"
+          />
+        </div>
+        
+        <div class="flex flex-col lg:flex-row items-center gap-2 w-full lg:w-auto">
+        <!-- Date From -->
+        <div class="flex items-center gap-2 w-full lg:w-auto">
+          <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest shrink-0">{{ $t('checkins.from') }}</span>
+          <div class="flex items-center gap-2 px-3 h-11 rounded-full bg-white/30 dark:bg-white/5 border border-white/20 w-full lg:w-36 overflow-hidden">
+            <CalendarIcon class="h-4 w-4" />
+            <input v-model="dateFrom" type="date" class="bg-transparent border-none focus:ring-0 w-full p-0 text-xs font-bold h-full text-gray-700 dark:text-gray-200 cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-3 md:w-80">
-          <div>
-            <label class="text-xs font-medium text-gray-500 uppercase mb-1 block">{{ $t('checkins.from') }}</label>
-            <input
-              v-model="dateFrom"
-              type="date"
-              class="block w-full rounded-lg border border-gray-200 py-2.5 px-3 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-            />
-          </div>
-          <div>
-            <label class="text-xs font-medium text-gray-500 uppercase mb-1 block">{{ $t('checkins.to') }}</label>
-            <input
-              v-model="dateTo"
-              type="date"
-              class="block w-full rounded-lg border border-gray-200 py-2.5 px-3 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-            />
-          </div>
-        </div>
-        <div class="flex items-end gap-2">
-          <button
-            @click="setMonthFilter('this')"
-            class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs font-medium text-gray-600 hover:bg-gray-100"
-          >
-            {{ $t('sales.month.thisMonth') }}
-          </button>
-          <button
-            @click="resetFilters"
-            class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
-          >
-            {{ $t('checkins.resetFilters') }}
-          </button>
-        </div>
-      </div>
 
-      <!-- Tabs -->
-      <div class="flex border-b border-gray-200">
-        <button
-          v-for="tab in ['all', 'POS', 'SERVICE']"
-          :key="tab"
-          @click="activeTab = tab"
-          :class="[
-            activeTab === tab 
-              ? 'border-sky-600 text-sky-600 bg-sky-50/50' 
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-            'px-6 py-2 border-b-2 font-medium text-sm transition-all rounded-t-lg'
-          ]"
-        >
-          {{ tab === 'all' ? $t('sales.tabs.all') : (tab === 'POS' ? $t('sales.tabs.pos') : $t('sales.tabs.beauty')) }}
-        </button>
+        <!-- Date To -->
+        <div class="flex items-center gap-2 w-full lg:w-auto">
+          <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest shrink-0">{{ $t('checkins.to') }}</span>
+          <div class="flex items-center gap-2 px-3 h-11 rounded-full bg-white/30 dark:bg-white/5 border border-white/20 w-full lg:w-36 overflow-hidden">
+            <CalendarIcon class="h-4 w-4" />
+            <input v-model="dateTo" type="date" class="bg-transparent border-none focus:ring-0 w-full p-0 text-xs font-bold h-full text-gray-700 dark:text-gray-200 cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
+          </div>
+        </div>
+          
+          <!-- Action Buttons -->
+          <div class="flex items-center gap-1.5 w-full lg:w-auto">
+            <button
+              @click="setMonthFilter('this')"
+              class="flex-1 lg:flex-none glass rounded-full border border-gray-400/20 h-11 px-6 text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-200 hover:bg-white/60 dark:hover:bg-white/20 transition-all shadow-sm whitespace-nowrap"
+            >
+              {{ $t('sales.month.thisMonth') }}
+            </button>
+            <button
+              @click="resetFilters"
+              class="rounded-full bg-gray-200 dark:bg-white/5 h-11 w-11 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-white/10 transition-all border border-gray-400/10"
+              :title="$t('common.reset')"
+            >
+              <FunnelIcon class="h-5 w-5" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Sales Table -->
-    <div class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-      <div v-if="loading" class="flex justify-center py-12">
-        <div class="h-8 w-8 animate-spin rounded-full border-4 border-sky-600 border-t-transparent"></div>
+    <div class="flex flex-col gap-6 no-print">
+      <!-- Tabs - Centered above Table -->
+      <div class="flex justify-center -mb-2">
+        <div class="flex relative p-1.5 glass rounded-full w-fit border-white/40 dark:border-white/5 bg-white/40 dark:bg-black/20 backdrop-blur-md shadow-xl">
+          <!-- Animated Background Indicator -->
+          <div 
+            class="absolute top-1.5 bottom-1.5 rounded-full bg-white/90 dark:bg-white/15 shadow-lg"
+            style="transition: left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);"
+            :class="{
+              'liquid-slide-right': isMoving && tabDirection === 'right',
+              'liquid-slide-left': isMoving && tabDirection === 'left'
+            }"
+            :style="{ 
+              left: activeTab === 'all' ? '0.375rem' : activeTab === 'POS' ? 'calc(33.33% + 0.125rem)' : 'calc(66.66% - 0.125rem)',
+              width: 'calc(33.33% - 0.5rem)' 
+            }"
+          ></div>
+          
+          <button
+            v-for="tab in ['all', 'POS', 'SERVICE']"
+            :key="tab"
+            @click="activeTab = tab"
+            :class="[
+              activeTab === tab 
+                ? 'text-sky-600 dark:text-sky-400' 
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200',
+              'relative z-10 w-32 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest transition-colors duration-300'
+            ]"
+          >
+            {{ tab === 'all' ? $t('sales.tabs.all') : (tab === 'POS' ? $t('sales.tabs.pos') : $t('sales.tabs.beauty')) }}
+          </button>
+        </div>
       </div>
-      <div v-else-if="error" class="p-6 text-center text-red-600">
+
+      <div v-if="loading" class="glass rounded-2xl p-20 flex justify-center shadow-2xl border-white/40 dark:border-white/10">
+        <LoadingSpinner />
+      </div>
+      <div v-else-if="error" class="glass rounded-2xl p-12 text-center text-rose-600 font-black shadow-2xl border-rose-500/20">
         {{ error }}
       </div>
-      <div v-else class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ $t('sales.columns.date') }}</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ $t('sales.columns.type') }}</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ $t('sales.columns.customer') }}</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ $t('sales.columns.items') }}</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ $t('sales.columns.total') }}</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ $t('sales.columns.method') }}</th>
-              <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ $t('sales.columns.actions') }}</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="sale in filteredSales" :key="sale.uniqueId" class="hover:bg-gray-50 transition-colors">
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                {{ formatDateTime(sale.date) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">
-                <span 
-                  :class="sale.type === 'POS' ? 'bg-purple-100 text-purple-700' : 'bg-pink-100 text-pink-700'"
-                  class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                >
-                  {{ sale.type === 'POS' ? $t('sales.typePos') : $t('sales.typeService') }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                <div class="flex flex-col">
-                  <span>{{ sale.customerName || $t('pos.guest') }}</span>
-                  <span v-if="sale.customerPhone" class="text-xs text-gray-500">{{ sale.customerPhone }}</span>
-                </div>
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
-                <div v-if="sale.type === 'POS'">
-                  <span v-if="sale.items.length > 0">
-                    {{ sale.items[0].product?.name }}
-                    <span v-if="sale.items.length > 1" class="text-xs font-semibold text-sky-600">
-                      {{ $t('memberDetail.moreItems', { count: sale.items.length - 1 }) }}
+      <div v-else class="space-y-4">
+        <!-- Sticky Table Header -->
+        <div class="sticky top-0 z-20 mx-2 mb-1 shrink-0 glass rounded-full shadow-lg border-white/20 dark:border-white/10 overflow-hidden backdrop-blur-xl">
+          <table class="table-fixed border-separate border-spacing-0 w-full">
+            <thead>
+              <tr class="bg-transparent">
+                <th class="py-3 pl-6 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[12%]">{{ $t('sales.columns.date') }}</th>
+                <th class="py-3 px-4 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[10%]">{{ $t('sales.columns.type') }}</th>
+                <th class="py-3 px-4 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[18%]">{{ $t('sales.columns.customer') }}</th>
+                <th class="py-3 px-4 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[20%]">{{ $t('sales.columns.items') }}</th>
+                <th class="py-3 px-4 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[15%]">{{ $t('sales.columns.total') }}</th>
+                <th class="py-3 px-4 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[12%]">{{ $t('sales.columns.method') }}</th>
+                <th class="py-3 pr-6 text-right text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[13%]">{{ $t('sales.columns.actions') }}</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+
+        <div class="glass rounded-2xl overflow-hidden shadow-xl border-white/40 dark:border-white/10 flex flex-col" style="max-height: calc(100vh - 280px);">
+          <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-separate border-spacing-0 table-fixed">
+              <thead class="invisible h-0">
+                <tr>
+                  <th class="w-[12%] pl-6"></th>
+                  <th class="w-[10%] px-4"></th>
+                  <th class="w-[18%] px-4"></th>
+                  <th class="w-[20%] px-4"></th>
+                  <th class="w-[15%] px-4"></th>
+                  <th class="w-[12%] px-4"></th>
+                  <th class="w-[13%] pr-6"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-white/10 dark:divide-white/5">
+                <tr v-for="sale in filteredSales" :key="sale.uniqueId" class="group hover:bg-white/40 dark:hover:bg-white/5 transition-all backdrop-blur-sm border-b border-white/10 dark:border-white/5">
+                  <td class="py-4 pl-6 whitespace-nowrap text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-tight">
+                    {{ formatDateTime(sale.date) }}
+                  </td>
+                  <td class="py-4 px-4 whitespace-nowrap">
+                    <span 
+                      :class="sale.type === 'POS' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20' : 'bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20'"
+                      class="inline-flex items-center rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-widest border shadow-inner"
+                    >
+                      {{ sale.type === 'POS' ? $t('sales.typePos') : $t('sales.typeService') }}
                     </span>
-                  </span>
-                  <span v-else>—</span>
-                </div>
-                <div v-else>
-                  {{ sale.serviceName }}
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-sky-600">
-                {{ formatCurrency(sale.amount) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                <span v-if="sale.paymentMethod" :class="sale.paymentMethod === 'CASH' ? 'bg-amber-100 text-amber-700' : (sale.paymentMethod === 'CARD' ? 'bg-sky-100 text-sky-700' : 'bg-orange-100 text-orange-700')" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold">
-                  {{ sale.paymentMethod === 'CASH' ? $t('pos.cash') : (sale.paymentMethod === 'CARD' ? $t('pos.card') : $t('pos.mixed')) }}
-                </span>
-                <span v-else>—</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                <button
-                  v-if="sale.type === 'POS'"
-                  @click="openInvoice(sale.id)"
-                  class="ml-auto flex items-center gap-1 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition-all"
-                >
-                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  {{ $t('invoice.viewInvoice') }}
-                </button>
-                <span v-else class="text-xs text-gray-400 italic">{{ $t('sales.noInvoice') }}</span>
-              </td>
-            </tr>
-            <tr v-if="filteredSales.length === 0">
-              <td colspan="7" class="px-6 py-12 text-center text-sm text-gray-500 italic">
-                {{ searchTerm || dateFrom || dateTo ? $t('members.noResults') : $t('sales.noSales') }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                  </td>
+                  <td class="py-4 px-4 whitespace-nowrap font-black text-gray-900 dark:text-gray-100 uppercase tracking-tight text-[11px]">
+                    <div class="flex items-center gap-2">
+                        <div class="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-xl bg-gray-900 dark:bg-sky-900/20 text-[9px] font-black text-white/50 tracking-tighter uppercase shadow-inner">
+                            {{ (sale.customerName || '?').charAt(0) }}
+                        </div>
+                        <div class="flex flex-col">
+                            <span>{{ sale.customerName || $t('pos.guest') }}</span>
+                            <span v-if="sale.customerPhone" class="text-[9px] font-bold text-gray-400 dark:text-gray-500 italic lowercase tracking-tight">{{ sale.customerPhone }}</span>
+                        </div>
+                    </div>
+                  </td>
+                  <td class="py-4 px-4 text-[10px] font-bold text-gray-500 dark:text-gray-400 italic max-w-xs truncate uppercase tracking-tight">
+                    <template v-if="sale.type === 'POS'">
+                      <span v-if="sale.items.length > 0">
+                        {{ sale.items[0].product?.name }}
+                        <span v-if="sale.items.length > 1" class="text-[9px] font-black text-sky-600 dark:text-sky-400 bg-sky-500/10 px-1.5 py-0.5 rounded-full ml-1">
+                          +{{ sale.items.length - 1 }}
+                        </span>
+                      </span>
+                      <span v-else>—</span>
+                    </template>
+                    <template v-else>
+                      {{ sale.serviceName }}
+                    </template>
+                  </td>
+                  <td class="py-4 px-4 whitespace-nowrap text-[11px] font-black text-sky-600 dark:text-sky-400 tabular-nums text-right md:text-left">
+                    {{ formatCurrency(sale.amount) }}
+                  </td>
+                  <td class="py-4 px-4 whitespace-nowrap">
+                    <span v-if="sale.paymentMethod" 
+                      :class="[
+                        'inline-flex items-center rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-widest border shadow-inner',
+                        sale.paymentMethod === 'CASH' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' : 
+                        (['CARD', 'UZCARD', 'HUMO', 'VISA'].includes(sale.paymentMethod) ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20' : 
+                        (['CLICK', 'PAYME'].includes(sale.paymentMethod) ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
+                        'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20'))
+                      ]"
+                    >
+                      <template v-if="sale.paymentMethod === 'CASH'">{{ $t('pos.cash') }}</template>
+                      <template v-else-if="sale.paymentMethod === 'CARD'">{{ $t('pos.card') }}</template>
+                      <template v-else-if="sale.paymentMethod === 'MIXED'">{{ $t('pos.mixed') }}</template>
+                      <template v-else-if="sale.paymentMethod === 'DEBT'">{{ $t('pos.debt') }}</template>
+                      <template v-else>{{ $t('pos.' + sale.paymentMethod.toLowerCase()) }}</template>
+                    </span>
+                    <span v-else class="text-gray-300 dark:text-gray-600 font-black">—</span>
+                  </td>
+                  <td class="py-4 pr-6 text-right">
+                    <button
+                      v-if="sale.type === 'POS'"
+                      @click="openInvoice(sale.id)"
+                      class="ml-auto flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 text-[10px] font-black text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all shadow-sm uppercase tracking-widest opacity-0 group-hover:opacity-100"
+                    >
+                      <DocumentTextIcon class="h-3.5 w-3.5" />
+                      {{ $t('invoice.viewInvoice') }}
+                    </button>
+                    <span v-else class="text-[9px] font-bold text-gray-400 dark:text-gray-600 italic uppercase tracking-tighter">{{ $t('sales.noInvoice') }}</span>
+                  </td>
+                </tr>
+                <tr v-if="filteredSales.length === 0">
+                  <td colspan="7" class="py-20 text-center opacity-60 italic text-gray-400">
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="h-16 w-16 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center opacity-20">
+                            <MagnifyingGlassIcon class="h-8 w-8" />
+                        </div>
+                        {{ searchTerm || dateFrom || dateTo ? $t('members.noResults') : $t('sales.noSales') }}
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -213,11 +297,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { 
+  CurrencyDollarIcon, 
+  WalletIcon, 
+  CreditCardIcon, 
+  ChartBarIcon, 
+  MagnifyingGlassIcon, 
+  CalendarIcon, 
+  FunnelIcon, 
+  DocumentTextIcon 
+} from '@heroicons/vue/24/outline'
 import { salesService, beautyService } from '../services/supabaseService'
 import { formatDateTime } from '../lib/dateUtils'
 import InvoiceModal from '../components/InvoiceModal.vue'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
 import { useToast } from '../composables/useToast'
 
 const { t } = useI18n()
@@ -231,6 +326,27 @@ const searchTerm = ref('')
 const dateFrom = ref('')
 const dateTo = ref('')
 const activeTab = ref('all') // 'all', 'POS', 'SERVICE'
+const tabDirection = ref('')
+const isMoving = ref(false)
+let moveTimeout: any = null
+
+watch(activeTab, (newVal: string, oldVal: string) => {
+  const tabs = ['all', 'POS', 'SERVICE']
+  const oldIdx = tabs.indexOf(oldVal)
+  const newIdx = tabs.indexOf(newVal)
+  
+  if (newIdx > oldIdx) {
+    tabDirection.value = 'right'
+  } else {
+    tabDirection.value = 'left'
+  }
+  
+  isMoving.value = true
+  if (moveTimeout) clearTimeout(moveTimeout)
+  moveTimeout = setTimeout(() => {
+    isMoving.value = false
+  }, 450)
+})
 
 // Invoice modal state
 const showInvoice = ref(false)
@@ -365,6 +481,14 @@ const exportToPDF = () => {
     ? `${dateFrom.value} - ${dateTo.value}` 
     : t('sales.month.thisMonth')
 
+  const getMethodLabel = (method: string) => {
+    if (method === 'CASH') return t('pos.cash')
+    if (method === 'CARD') return t('pos.card')
+    if (method === 'MIXED') return t('pos.mixed')
+    if (method === 'DEBT') return t('pos.debt')
+    return t('pos.' + method.toLowerCase())
+  }
+
   const rows = data.map(s => `
     <tr>
       <td>${formatDateTime(s.date)}</td>
@@ -372,7 +496,7 @@ const exportToPDF = () => {
       <td>${s.customerName}</td>
       <td>${s.type === 'POS' ? (s.items[0]?.product?.name || '—') : s.serviceName}</td>
       <td style="text-align: right;">${formatCurrency(s.amount)}</td>
-      <td>${s.paymentMethod === 'CASH' ? t('pos.cash') : (s.paymentMethod === 'CARD' ? t('pos.card') : t('pos.mixed'))} ${s.paymentMethod === 'MIXED' ? `(${formatCurrency(s.cashAmount)} + ${formatCurrency(s.cardAmount)})` : ''}</td>
+      <td>${getMethodLabel(s.paymentMethod)} ${s.paymentMethod === 'MIXED' ? `(${formatCurrency(s.cashAmount)} + ${formatCurrency(s.cardAmount)})` : ''}</td>
     </tr>
   `).join('')
 

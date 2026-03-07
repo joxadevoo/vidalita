@@ -2,12 +2,18 @@
   <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <h2 class="text-2xl font-bold text-gray-900">{{ $t('beautyServices.title') }}</h2>
-        <p class="text-sm text-gray-500">{{ $t('beautyServices.subtitle') }}</p>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $t('beautyServices.title') }}</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('beautyServices.subtitle') }}</p>
       </div>
-      <div class="flex gap-2">
-      <button class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50" @click="fetchServices">{{ $t('common.refresh') }}</button>
-        <button class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500" @click="openModal">{{ $t('beautyServices.newService') }}</button>
+      <div class="flex gap-3">
+        <button class="glass-pill rounded-full border border-gray-400/30 px-5 py-2 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-white/40 dark:hover:bg-white/10 transition-all shadow-sm flex items-center gap-2" @click="fetchServices">
+          <ArrowPathIcon class="h-4 w-4" :class="{ 'animate-spin': loading }" />
+          {{ $t('common.refresh') }}
+        </button>
+        <button class="rounded-full bg-sky-600 px-6 py-2 text-sm font-bold text-white shadow-lg shadow-sky-600/25 hover:bg-sky-500 hover:-translate-y-0.5 transition-all flex items-center gap-2" @click="openModal">
+          <PlusIcon class="h-5 w-5" />
+          {{ $t('beautyServices.newService') }}
+        </button>
       </div>
     </div>
 
@@ -15,369 +21,469 @@
     <div v-if="successMessage" class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{{ successMessage }}</div>
 
     <!-- Filter paneli -->
-    <div class="sticky top-0 z-20 grid gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm md:grid-cols-2 lg:grid-cols-4">
-      <div class="flex min-w-0 flex-col">
-        <label class="mb-1 text-xs text-gray-500">{{ $t('beautyServices.dateFrom') }}</label>
-        <input v-model="dateFrom" type="date" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400" />
+    <div class="sticky top-0 z-20 glass rounded-full p-2 flex flex-col lg:flex-row items-center justify-between gap-4 shadow-xl border-white/40 dark:border-white/10 no-print mb-6 backdrop-blur-md">
+      <!-- Search -->
+      <div class="w-full lg:max-w-md xl:max-w-lg relative flex items-center group">
+        <MagnifyingGlassIcon class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-sky-500 transition-colors pointer-events-none" />
+        <input
+          v-model="searchTerm"
+          type="text"
+          :placeholder="$t('beautyServices.searchPlaceholder')"
+          class="w-full rounded-full h-11 pl-12 pr-4 text-sm bg-white/40 dark:bg-black/20 border-0 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400/40 backdrop-blur-sm transition"
+        />
       </div>
-      <div class="flex min-w-0 flex-col">
-        <label class="mb-1 text-xs text-gray-500">{{ $t('beautyServices.dateTo') }}</label>
-        <input v-model="dateTo" type="date" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400" />
-      </div>
-      <div class="flex min-w-0 flex-col">
-        <label class="mb-1 text-xs text-gray-500">{{ $t('common.search') }}</label>
-        <input v-model="searchTerm" type="text" :placeholder="$t('beautyServices.searchPlaceholder')" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400" />
-      </div>
-      <div class="flex min-w-0 w-full items-end gap-1 overflow-hidden">
-        <div class="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2 py-2">
-          <input id="todayOnly" v-model="onlyToday" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500" />
-          <label for="todayOnly" class="text-xs text-gray-600 whitespace-nowrap">{{ $t('beautyServices.todayOnly') }}</label>
+
+      <div class="flex flex-col lg:flex-row items-center gap-3 w-full lg:w-auto">
+        <!-- Date From -->
+        <div class="flex items-center gap-2 w-full lg:w-auto">
+          <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest shrink-0">{{ $t('beautyServices.dateFrom') }}</span>
+          <div class="flex items-center gap-2 px-3 h-11 rounded-full bg-white/30 dark:bg-white/5 border border-white/20 w-full lg:w-36 overflow-hidden">
+            <CalendarIcon class="h-4 w-4" />
+            <input v-model="dateFrom" type="date" class="bg-transparent border-none focus:ring-0 w-full p-0 text-xs font-bold h-full text-gray-700 dark:text-gray-200 cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
+          </div>
         </div>
-        <button
-          @click="exportToExcel"
-          class="flex flex-shrink-0 items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white px-2 py-2 text-xs text-gray-700 hover:bg-gray-50 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-          :title="$t('beautyServices.exportExcel')"
-        >
-          <TableCellsIcon class="h-3.5 w-3.5" />
-          <span class="hidden sm:inline">{{ $t('beautyServices.exportExcel') }}</span>
-        </button>
-        <button
-          @click="exportToPDF"
-          class="flex flex-shrink-0 items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white px-2 py-2 text-xs text-gray-700 hover:bg-gray-50 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-          :title="$t('beautyServices.exportPDF')"
-        >
-          <DocumentTextIcon class="h-3.5 w-3.5" />
-          <span class="hidden sm:inline">{{ $t('beautyServices.exportPDF') }}</span>
-        </button>
-        <button
-          @click="resetFilters"
-          class="flex-shrink-0 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-2 py-2 text-xs text-gray-700 hover:bg-gray-50 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-        >
-          {{ $t('beautyServices.resetFilters') }}
-        </button>
+
+        <!-- Date To -->
+        <div class="flex items-center gap-2 w-full lg:w-auto">
+          <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest shrink-0">{{ $t('beautyServices.dateTo') }}</span>
+          <div class="flex items-center gap-2 px-3 h-11 rounded-full bg-white/30 dark:bg-white/5 border border-white/20 w-full lg:w-36 overflow-hidden">
+            <CalendarIcon class="h-4 w-4" />
+            <input v-model="dateTo" type="date" class="bg-transparent border-none focus:ring-0 w-full p-0 text-xs font-bold h-full text-gray-700 dark:text-gray-200 cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 w-full lg:w-auto">
+          <!-- Today Only -->
+          <div class="flex h-11 items-center gap-2 rounded-full border border-gray-400/30 bg-white/20 dark:bg-white/5 px-4 group hover:border-sky-400/50 transition-colors cursor-pointer" @click="onlyToday = !onlyToday">
+            <input id="todayOnly" v-model="onlyToday" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500/20" @click.stop />
+            <label for="todayOnly" class="text-xs font-bold text-gray-700 dark:text-gray-200 whitespace-nowrap cursor-pointer uppercase tracking-tight">{{ $t('beautyServices.todayOnly') }}</label>
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              @click="exportToExcel"
+              class="flex items-center justify-center h-11 w-11 rounded-full border border-emerald-400/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all shadow-sm"
+              :title="$t('beautyServices.exportExcel')"
+            >
+              <TableCellsIcon class="h-5 w-5" />
+            </button>
+            <button
+              @click="exportToPDF"
+              class="flex items-center justify-center h-11 w-11 rounded-full border border-red-400/30 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 transition-all shadow-sm"
+              :title="$t('beautyServices.exportPDF')"
+            >
+              <DocumentTextIcon class="h-5 w-5" />
+            </button>
+            <button
+              @click="resetFilters"
+              class="flex items-center justify-center h-11 px-6 rounded-full border border-gray-400/30 bg-gray-500/10 text-gray-600 dark:text-gray-400 hover:bg-gray-500/20 transition-all font-black text-[10px] shadow-sm uppercase tracking-widest"
+            >
+              {{ $t('common.reset') }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Table section (scrollable) -->
-    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm" style="max-height: calc(100vh - 280px);">
+    <div class="glass rounded-2xl overflow-hidden shadow-xl border-white/40 dark:border-white/10 flex flex-col no-print" style="max-height: calc(100vh - 280px);">
     <LoadingSpinner v-if="loading" />
-      <div v-else class="overflow-x-auto" style="max-height: calc(100vh - 280px);">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="sticky top-0 z-10 bg-gray-50">
-            <tr>
-              <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('beautyServices.columns.name') }}</th>
-              <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('beautyServices.columns.service') }}</th>
-              <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('beautyServices.columns.price') }}</th>
-              <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('beautyServices.columns.date') }}</th>
-              <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('beautyServices.columns.note') }}</th>
-              <th class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900 bg-gray-50">{{ $t('common.actions') }}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200 bg-white">
-            <tr v-for="s in filteredServices" :key="(s.isPackage ? 'p-' : 's-') + s.id" class="hover:bg-gray-50">
-              <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">{{ s.fullName || $t('beautyServices.noName') }}</td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ s.serviceName }}</td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                <span v-if="s.amount !== null && s.amount !== undefined" class="font-medium text-green-700">
-                  {{ formatPrice(s.amount) }}
-                </span>
-                <span v-else-if="s.serviceType && serviceTypes?.prices?.[s.serviceType] !== undefined" class="font-medium text-green-700">
-                  {{ formatPrice(serviceTypes.prices[s.serviceType]) }}
-                </span>
-                <span v-else class="text-gray-400">—</span>
-              </td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ formatDate(s.serviceDate) }}</td>
-              <td class="px-3 py-4 text-sm text-gray-500">{{ s.note || '—' }}</td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-right">
-                <button
-                  class="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700 hover:bg-red-100"
-                  @click="onDeleteService(s)"
-                >
-                  {{ $t('common.delete') }}
-                </button>
-              </td>
-            </tr>
-            <tr v-if="filteredServices.length === 0">
-              <td colspan="6" class="px-6 py-6 text-center text-sm text-gray-500">{{ $t('beautyServices.noResults') }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <template v-else>
+        <!-- Thead pill -->
+        <div class="mx-2 mt-2 mb-1 shrink-0 glass rounded-full shadow-lg border-white/20 dark:border-white/10 overflow-hidden backdrop-blur-xl">
+          <table class="table-fixed border-separate border-spacing-0 w-full">
+            <thead>
+              <tr class="bg-transparent">
+                <th class="py-2.5 pl-6 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[220px]">{{ $t('beautyServices.columns.name') }}</th>
+                <th class="px-4 py-2.5 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[240px]">{{ $t('beautyServices.columns.serviceType') }}</th>
+                <th class="px-4 py-2.5 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[110px]">{{ $t('beautyServices.columns.price') }}</th>
+                <th class="px-4 py-2.5 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[150px]">{{ $t('beautyServices.columns.date') }}</th>
+                <th class="px-4 py-2.5 text-left text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[150px]">{{ $t('beautyServices.columns.note') }}</th>
+                <th class="py-2.5 pr-6 text-right text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 bg-transparent w-[120px]">{{ $t('common.actions') }}</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+
+        <!-- Tbody scrollable -->
+        <div class="overflow-x-auto overflow-y-auto flex-1 custom-scrollbar">
+          <table class="table-fixed border-separate border-spacing-0 w-full">
+            <thead class="invisible h-0">
+              <tr>
+                <th class="py-2.5 pl-6 w-[220px]"></th>
+                <th class="px-4 py-2.5 w-[240px]"></th>
+                <th class="px-4 py-2.5 w-[110px]"></th>
+                <th class="px-4 py-2.5 w-[150px]"></th>
+                <th class="px-4 py-2.5 w-[150px]"></th>
+                <th class="py-2.5 pr-6 w-[120px]"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/10 dark:divide-white/5">
+              <tr 
+                v-for="s in processedServices" 
+                :key="(s.isPackage ? 'p-' : 's-') + s.id" 
+                class="group transition-colors backdrop-blur-sm"
+                :class="[
+                  s.isPackage ? 'bg-white/10 dark:bg-white/5 border-t border-white/10 dark:border-white/5' : 'hover:bg-white/40 dark:hover:bg-white/5',
+                  s.isSession ? 'bg-purple-500/5 hover:bg-purple-500/10 !important' : ''
+                ]"
+              >
+                <td class="whitespace-nowrap py-4 pl-6 text-sm font-bold text-gray-900 dark:text-gray-100">
+                  <div class="flex items-center gap-0">
+                    <div v-if="s.isSession" class="w-8 shrink-0 relative self-stretch">
+                       <!-- Vertical Connector -->
+                       <div 
+                         class="absolute left-4 top-0 w-4 border-purple-600 dark:border-purple-400 transition-all"
+                         :class="[
+                           s.isLastChild ? 'h-5 border-l-2 border-b-2 rounded-bl-lg' : 'h-full border-l-2'
+                         ]"
+                       ></div>
+                       <!-- Horizontal tick for non-last children -->
+                       <div v-if="!s.isLastChild" class="absolute left-4 top-5 w-4 border-b-2 border-purple-600 dark:border-purple-400"></div>
+                    </div>
+                    <div class="font-black text-gray-900 dark:text-gray-100 uppercase tracking-tight text-xs">{{ s.fullName || $t('beautyServices.noName') }}</div>
+                  </div>
+                </td>
+                <td class="whitespace-nowrap px-4 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-tight text-right md:text-left overflow-hidden">
+                  <div class="flex items-center gap-1.5 w-full">
+                    <span v-if="s.isPackage" class="flex-shrink-0 h-2 w-2 rounded-full bg-purple-500 shadow-sm shadow-purple-500/50" title="Package"></span>
+                    <span v-else-if="s.isSession" class="flex-shrink-0 text-[10px] font-black uppercase text-purple-500">[{{ $t('beautyServices.session') }}]</span>
+                    <span class="truncate" :title="s.serviceName">{{ s.serviceName }}</span>
+                  </div>
+                </td>
+                <td class="whitespace-nowrap px-4 py-4 text-xs font-black text-sky-600 dark:text-sky-400 tabular-nums">
+                  <span v-if="s.isPackage" class="font-black">
+                    {{ formatPrice(s.amount) }}
+                  </span>
+                  <span v-else-if="s.amount !== null && s.amount !== undefined && s.amount > 0" class="font-black">
+                    {{ formatPrice(s.amount) }}
+                  </span>
+                  <span v-else-if="s.isSession" class="text-[10px] font-bold text-gray-400 italic">
+                    {{ $t('beautyServices.includedInPackage') }}
+                  </span>
+                  <span v-else-if="s.serviceType && serviceTypes?.prices?.[s.serviceType] !== undefined" class="font-black">
+                    {{ formatPrice(serviceTypes?.prices?.[s.serviceType]) }}
+                  </span>
+                  <span v-else class="text-gray-400">—</span>
+                </td>
+                <td class="whitespace-nowrap px-4 py-4 text-xs font-black text-gray-500 dark:text-gray-400 tracking-tight">
+                  {{ formatDate(s.serviceDate) }}
+                </td>
+                <td class="px-4 py-4 text-[10px] font-bold text-gray-400 dark:text-gray-500 italic truncate max-w-[150px]">{{ s.note || '—' }}</td>
+                <td class="whitespace-nowrap py-4 pr-6 text-right">
+                  <div class="flex justify-end gap-2">
+                    <button
+                      class="rounded-full bg-red-500/10 dark:bg-red-500/5 px-4 py-1 text-xs font-bold text-red-600 dark:text-red-400 border border-red-400/30 hover:bg-red-500/20 transition-all shadow-sm opacity-0 group-hover:opacity-100"
+                      @click="onDeleteService(s)"
+                    >
+                      {{ $t('common.delete') }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="filteredServices.length === 0">
+                <td colspan="6" class="px-6 py-12 text-center">
+                  <div class="flex flex-col items-center gap-2">
+                    <div class="h-12 w-12 rounded-full bg-gray-500/10 flex items-center justify-center text-gray-400">
+                      <MagnifyingGlassIcon class="h-6 w-6" />
+                    </div>
+                    <p class="text-sm font-medium text-gray-500">{{ $t('beautyServices.noResults') }}</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </template>
     </div>
 
     <!-- Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-[150] flex items-center justify-center p-4" @click.self="closeModal">
-      <!-- Backdrop with blur -->
-      <div class="absolute inset-0 bg-black/30 backdrop-blur-sm z-[150]"></div>
-      <!-- Modal content -->
-      <div class="relative w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-lg z-[151] flex flex-col max-h-[92vh] overflow-hidden" @click.stop>
-        <div class="border-b border-gray-200 px-6 py-4 flex-shrink-0">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">{{ $t('beautyServices.modalTitle') }}</h3>
-            <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+    <Teleport to="body">
+      <div v-if="showModal" class="fixed inset-0 z-[150] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity" @click="closeModal"></div>
+        <div class="relative w-full max-w-xl glass rounded-3xl shadow-2xl z-[151] flex flex-col max-h-[92vh] overflow-hidden border-white/40 dark:border-white/10 animate-in fade-in zoom-in-95 duration-300">
+          <div class="border-b border-white/20 dark:border-white/5 px-6 py-5 flex-shrink-0 bg-white/10 dark:bg-black/10">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-2xl bg-sky-500/10 flex items-center justify-center text-sky-600 dark:text-sky-400">
+                  <PlusIcon class="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ $t('beautyServices.modalTitle') }}</h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ $t('beautyServices.subtitle') }}</p>
+                </div>
+              </div>
+              <button @click="closeModal" class="h-8 w-8 rounded-full flex items-center justify-center bg-gray-100 dark:bg-white/5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
-        <form @submit.prevent="handleSubmit" class="flex flex-col flex-1 overflow-hidden">
-          <div class="px-6 py-4 space-y-4 overflow-y-auto">
-            <div v-if="formError" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{{ formError }}</div>
           
-          <!-- Member Selection -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('beautyServices.memberLabel') }} <span class="text-red-500">*</span></label>
-            <div class="relative member-dropdown-container">
-              <input
-                v-model="memberSearch"
-                type="text"
-                :placeholder="$t('beautyServices.memberPlaceholder')"
-                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-                @input="filterMembers"
-                @focus="showMemberDropdown = true"
-              />
-              <div v-if="showMemberDropdown && filteredMembersList.length > 0" class="absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg">
-                <button
-                  v-for="member in filteredMembersList"
-                  :key="member.id"
-                  type="button"
-                  class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
-                  @click="selectMember(member)"
-                >
-                  <div class="font-medium text-gray-900">{{ member.fullName }}</div>
-                  <div class="text-xs text-gray-500">{{ member.phone }} • {{ member.qrCodeId }}</div>
+          <form @submit.prevent="handleSubmit" class="flex flex-col flex-1 overflow-hidden">
+            <div class="px-6 py-6 space-y-6 overflow-y-auto custom-scrollbar">
+              <div v-if="formError" class="rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 shadow-sm animate-in shake duration-300">
+                {{ formError }}
+              </div>
+            
+            <!-- Member Selection -->
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">{{ $t('beautyServices.memberLabel') }} <span class="text-red-500">*</span></label>
+              <div class="relative member-dropdown-container">
+                <div class="relative">
+                  <input
+                    v-model="memberSearch"
+                    type="text"
+                    :placeholder="$t('beautyServices.memberPlaceholder')"
+                    class="input h-11 pr-10"
+                    @input="filterMembers"
+                    @focus="showMemberDropdown = true"
+                  />
+                  <div class="absolute right-3 top-1/2 -translate-y-1/2 text-sky-500/40">
+                    <IdentificationIcon class="h-5 w-5" />
+                  </div>
+                </div>
+                
+                <div v-if="showMemberDropdown && filteredMembersList.length > 0" class="absolute z-50 mt-2 w-full max-h-64 overflow-auto rounded-2xl glass border-white/20 shadow-2xl animate-in fade-in slide-in-from-top-2">
+                  <button
+                    v-for="member in filteredMembersList"
+                    :key="member.id"
+                    type="button"
+                    class="w-full px-4 py-3 text-left hover:bg-white/40 dark:hover:bg-white/10 transition-colors border-b border-white/10 dark:border-white/5 last:border-0"
+                    @click="selectMember(member)"
+                  >
+                    <div class="font-bold text-gray-900 dark:text-gray-100">{{ member.fullName }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                      <span>{{ member.phone }}</span>
+                      <span class="h-1 w-1 rounded-full bg-gray-300"></span>
+                      <span class="font-mono">{{ member.qrCodeId }}</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+              
+              <div v-if="selectedMember" class="flex items-center justify-between rounded-2xl bg-sky-500/5 dark:bg-sky-500/10 border border-sky-500/20 px-4 py-3 animate-in zoom-in-95">
+                <div class="flex items-center gap-3">
+                  <div class="h-8 w-8 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-600 dark:text-sky-400">
+                    <UserIcon class="h-4 w-4" />
+                  </div>
+                  <span class="font-bold text-gray-900 dark:text-gray-100 text-sm">{{ selectedMember.fullName }}</span>
+                </div>
+                <button type="button" @click="selectedMember = null; memberSearch = ''" class="text-xs font-bold text-red-500 hover:text-red-600 dark:text-red-400 px-2 py-1 rounded-full hover:bg-red-500/10 transition-colors">
+                  {{ $t('common.delete') }}
                 </button>
               </div>
             </div>
-            <div v-if="selectedMember" class="mt-2 rounded-lg bg-gray-50 px-3 py-2 text-sm">
-              <span class="font-medium text-gray-900">{{ $t('beautyServices.memberSelected') }}: {{ selectedMember.fullName }}</span>
-              <button type="button" @click="selectedMember = null; memberSearch = ''" class="ml-2 text-sky-600 hover:text-sky-700">{{ $t('common.delete') }}</button>
-            </div>
-          </div>
 
-          <!-- Service Name (Bitta dropdown - barcha xizmatlar) -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('beautyServices.serviceNameLabel') }} <span class="text-red-500">*</span></label>
-            <select
-              v-model="form.serviceName"
-              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-            >
-              <option value="">{{ $t('beautyServices.serviceNameSelect') }}</option>
-              <optgroup v-for="category in serviceCategories" :key="category.key" :label="category.label">
-                <option v-for="service in category.services" :key="service.type" :value="service.type">
-                  {{ service.label }}
-                </option>
-              </optgroup>
-            </select>
-            <p class="mt-1 text-xs text-gray-500">{{ $t('beautyServices.serviceNameHint') }}</p>
-
-            <!-- Amallarni tanlash -->
-            <div class="mt-4 flex gap-4">
-              <label class="flex items-center gap-1.5 cursor-pointer">
-                <input type="radio" v-model="form.actionType" value="service" class="text-sky-600 focus:ring-sky-500" />
-                <span class="text-sm text-gray-700">{{ $t('beautyServices.add') }}</span>
-              </label>
-              <label class="flex items-center gap-1.5 cursor-pointer">
-                <input type="radio" v-model="form.actionType" value="package" class="text-sky-600 focus:ring-sky-500" />
-                <span class="text-sm text-gray-700">{{ $t('beautyServices.buyPackage') }}</span>
-              </label>
-              <label class="flex items-center gap-1.5 cursor-pointer" v-if="activePackages.length > 0">
-                <input type="radio" v-model="form.actionType" value="use" class="text-sky-600 focus:ring-sky-500" />
-                <span class="text-sm text-gray-700">{{ $t('beautyServices.useSession') }}</span>
-              </label>
-            </div>
-
-            <!-- Narx ko'rsatish (Faqat xizmat yoki paket sotib olayotganda) -->
-            <div v-if="form.serviceName && serviceTypes?.prices?.[form.serviceName] && form.actionType !== 'use'" class="mt-2 rounded-lg bg-green-50 px-3 py-2">
-              <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-green-800">
-                  {{ $t('beautyServices.originalPrice') }}: {{ formatPrice(serviceTypes.prices[form.serviceName]) }}
-                </span>
-                <span v-if="form.discountPercent > 0" class="text-sm font-medium text-red-600">
-                  -{{ form.discountPercent }}%
-                </span>
-              </div>
-              <div v-if="form.discountPercent > 0" class="mt-1 text-sm font-bold text-green-800">
-                {{ $t('beautyServices.finalPrice') }}: {{ formatPrice(calculatedPrice) }}
-              </div>
-            </div>
-
-            <!-- Seanslar soni (Faqat paket sotib olayotganda) -->
-            <div v-if="form.actionType === 'package'" class="mt-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('beautyServices.totalSessions') }}</label>
-              <input
-                v-model.number="form.totalSessions"
-                type="number"
-                min="1"
-                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-                required
-              />
-            </div>
-
-            <!-- Mavjud paketni tanlash (Faqat seans foydalanayotganda) -->
-            <div v-if="form.actionType === 'use'" class="mt-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('beautyServices.packageDetails') }}</label>
+            <!-- Service Name -->
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">{{ $t('beautyServices.serviceNameLabel') }} <span class="text-red-500">*</span></label>
               <select
-                v-model="form.selectedPackageId"
-                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-                required
+                v-model="form.serviceName"
+                class="input h-11 appearance-none bg-no-repeat bg-[right_1rem_center]"
+                style="background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 class=%22feather feather-chevron-down%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M6 9l6 6 6-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E'); background-size: 1.25rem;"
               >
-                <option value="">{{ $t('beautyServices.noActivePackages') }}</option>
-                <option v-for="pkg in filteredPackagesByService" :key="pkg.id" :value="pkg.id">
-                  {{ pkg.serviceName }} ({{ pkg.remainingSessions }}/{{ pkg.totalSessions }})
-                </option>
+                <option value="" disabled>{{ $t('beautyServices.serviceNameSelect') }}</option>
+                <optgroup v-for="category in serviceCategories" :key="category.key" :label="category.label" class="dark:bg-slate-800">
+                  <option v-for="service in category.services" :key="service.type" :value="service.type">
+                    {{ service.label }}
+                  </option>
+                </optgroup>
               </select>
-            </div>
-          </div>
+              <p class="px-2 text-[10px] text-gray-400 dark:text-gray-500">{{ $t('beautyServices.serviceNameHint') }}</p>
 
-          <!-- Chegirma -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('beautyServices.discountLabel') }} (%)</label>
-            <input
-              v-model.number="form.discountPercent"
-              type="number"
-              min="0"
-              max="100"
-              step="0.1"
-              :placeholder="$t('beautyServices.discountPlaceholder')"
-              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-            />
-          </div>
+              <!-- Action Types -->
+              <div class="flex gap-2 p-1 glass rounded-full bg-gray-100/50 dark:bg-white/5 border-white/20 dark:border-white/10 mt-2">
+                <button 
+                  type="button" 
+                  v-for="action in ['service', 'package', 'use'].filter(a => a !== 'use' || activePackages.length > 0)" 
+                  :key="action"
+                  @click="form.actionType = action"
+                  class="flex-1 py-1.5 px-3 rounded-full text-xs font-bold transition-all"
+                  :class="form.actionType === action ? 'bg-white dark:bg-sky-600 dark:text-white shadow-sm text-sky-600' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                >
+                  {{ action === 'service' ? $t('beautyServices.add') : action === 'package' ? $t('beautyServices.buyPackage') : $t('beautyServices.useSession') }}
+                </button>
+              </div>
 
-          <!-- Payment Method (Faqat xizmat yoki paket sotib olayotganda) -->
-          <div v-if="form.actionType !== 'use'">
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('pos.paymentMethod') }}</label>
-            <div class="flex gap-4">
-              <label class="flex items-center gap-1.5 cursor-pointer">
-                <input type="radio" v-model="form.paymentMethod" value="CASH" class="text-sky-600 focus:ring-sky-500" />
-                <span class="text-sm text-gray-700">{{ $t('pos.cash') }}</span>
-              </label>
-              <label class="flex items-center gap-1.5 cursor-pointer">
-                <input type="radio" v-model="form.paymentMethod" value="CARD" class="text-sky-600 focus:ring-sky-500" />
-                <span class="text-sm text-gray-700">{{ $t('pos.card') }}</span>
-              </label>
-              <label class="flex items-center gap-1.5 cursor-pointer">
-                <input type="radio" v-model="form.paymentMethod" value="MIXED" class="text-orange-500 focus:ring-sky-500" />
-                <span class="text-sm text-gray-700">{{ $t('pos.mixed') }}</span>
-              </label>
-            </div>
-
-            <!-- Split Payment Details -->
-            <div v-if="form.paymentMethod === 'MIXED'" class="grid grid-cols-2 gap-4 mt-3 animate-in fade-in slide-in-from-top-2">
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.cashAmount') }}</label>
-                    <input
-                        v-model.number="form.cashAmount"
-                        type="number"
-                        class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white font-bold"
-                        @input="updateSplit('CASH')"
-                    />
+              <!-- Price Box -->
+              <div v-if="form.serviceName && serviceTypes?.prices?.[form.serviceName] && form.actionType !== 'use'" class="mt-3 rounded-2xl bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 p-4 animate-in slide-in-from-top-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-gray-500 dark:text-emerald-400/60 uppercase tracking-wider">
+                    {{ $t('beautyServices.originalPrice') }}
+                  </span>
+                  <span class="text-sm font-bold text-gray-900 dark:text-gray-100">
+                    {{ formatPrice(serviceTypes?.prices?.[form.serviceName]) }}
+                  </span>
                 </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('pos.cardAmount') }}</label>
-                    <input
-                        v-model.number="form.cardAmount"
-                        type="number"
-                        class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-sky-400 focus:outline-none bg-white font-bold"
-                        @input="updateSplit('CARD')"
-                    />
+                <div v-if="form.discountPercent > 0" class="flex items-center justify-between mt-2 pt-2 border-t border-emerald-500/10">
+                  <span class="text-xs font-bold text-red-500">{{ $t('pos.discount') }} (-{{ form.discountPercent }}%)</span>
+                  <span class="text-sm font-bold text-red-500">- {{ formatPrice(((serviceTypes?.prices?.[form.serviceName] ?? 0) * form.discountPercent) / 100) }}</span>
                 </div>
-            </div>
-          </div>
-
-          <!-- Service Date -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('beautyServices.serviceDateLabel') }}</label>
-            <input
-              v-model="form.serviceDate"
-              type="datetime-local"
-              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-            />
-          </div>
-
-          <!-- Note -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('beautyServices.noteLabel') }}</label>
-            <textarea
-              v-model="form.note"
-              rows="3"
-              :placeholder="$t('beautyServices.notePlaceholder')"
-              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-            ></textarea>
-          </div>
-
-          </div>
-
-          <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
-            <div class="flex items-center gap-2">
-              <button type="button" @click="closeModal" class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">{{ $t('common.cancel') }}</button>
-            </div>
-            
-            <div class="flex items-center gap-2">
-              <button 
-                type="button" 
-                @click="addToBasket" 
-                :disabled="!form.serviceName || !selectedMember"
-                class="rounded-lg border border-sky-600 px-3 py-2 text-sm font-semibold text-sky-600 hover:bg-sky-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {{ $t('beautyServices.addToList') }}
-              </button>
-
-              <button 
-                type="submit" 
-                :disabled="submitting || basket.length === 0" 
-                class="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-60 shadow-sm"
-              >
-                <div class="flex items-center gap-2">
-                  <span v-if="submitting" class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                  {{ submitting ? $t('beautyServices.submitting') : $t('common.save') }}
-                  <span v-if="basket.length > 0" class="ml-1 inline-flex items-center justify-center rounded-full bg-sky-500 px-2 py-0.5 text-xs font-bold">{{ basket.length }}</span>
+                <div v-if="form.discountPercent > 0" class="flex items-center justify-between mt-2 pt-2 border-t border-emerald-500/20">
+                  <span class="text-sm font-black text-emerald-600 dark:text-emerald-400">{{ $t('beautyServices.finalPrice') }}</span>
+                  <span class="text-lg font-black text-emerald-600 dark:text-emerald-400">{{ formatPrice(calculatedPrice) }}</span>
                 </div>
-              </button>
+              </div>
+
+              <!-- Package Sessions Input -->
+              <div v-if="form.actionType === 'package'" class="space-y-2 mt-4 animate-in fade-in slide-in-from-top-2">
+                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">{{ $t('beautyServices.totalSessions') }}</label>
+                <input
+                  v-model.number="form.totalSessions"
+                  type="number"
+                  min="1"
+                  class="input h-11"
+                  required
+                />
+              </div>
+
+              <!-- Select Active Package -->
+              <div v-if="form.actionType === 'use'" class="space-y-2 mt-4 animate-in fade-in slide-in-from-top-2">
+                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">{{ $t('beautyServices.packageDetails') }}</label>
+                <select
+                  v-model="form.selectedPackageId"
+                  class="input h-11"
+                  required
+                >
+                  <option value="" disabled>{{ $t('beautyServices.noActivePackages') }}</option>
+                  <option v-for="pkg in filteredPackagesByService" :key="pkg.id" :value="pkg.id">
+                    {{ pkg.serviceName }} ({{ pkg.remainingSessions }}/{{ pkg.totalSessions }})
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Payment Method & Details -->
+            <div v-if="form.actionType !== 'use'" class="space-y-4">
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">{{ $t('pos.paymentMethod') }}</label>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <button 
+                    v-for="method in ['CASH', 'UZCARD', 'HUMO', 'VISA', 'CLICK', 'PAYME', 'MIXED']" 
+                    :key="method"
+                    type="button"
+                    @click="form.paymentMethod = method"
+                    class="py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border"
+                    :class="form.paymentMethod === method ? 'bg-sky-500/10 border-sky-500/40 text-sky-600 dark:text-sky-400' : 'border-gray-200 dark:border-white/5 text-gray-500 dark:hover:bg-white/5'"
+                  >
+                    {{ method === 'CASH' ? $t('pos.cash') : method === 'MIXED' ? $t('pos.mixed') : $t(`pos.${method.toLowerCase()}`) }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Split Details -->
+              <div v-if="form.paymentMethod === 'MIXED'" class="grid grid-cols-2 gap-4 animate-in slide-in-from-bottom-2">
+                  <div class="space-y-1.5">
+                      <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">{{ $t('pos.cashAmount') }}</label>
+                      <input
+                          v-model.number="form.cashAmount"
+                          type="number"
+                          class="input h-11 font-bold dark:bg-sky-500/5 text-emerald-600"
+                          @input="updateSplit('CASH')"
+                      />
+                  </div>
+                  <div class="space-y-1.5">
+                      <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">{{ $t('pos.cardAmount') }}</label>
+                      <input
+                          v-model.number="form.cardAmount"
+                          type="number"
+                          class="input h-11 font-bold dark:bg-purple-500/5 text-purple-600"
+                          @input="updateSplit('CARD')"
+                      />
+                  </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">{{ $t('beautyServices.serviceDateLabel') }}</label>
+                <input v-model="form.serviceDate" type="datetime-local" class="input h-11" />
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">{{ $t('pos.discount') }} (%)</label>
+                <input v-model.number="form.discountPercent" type="number" min="0" max="100" class="input h-11" />
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">{{ $t('beautyServices.noteLabel') }}</label>
+              <textarea
+                v-model="form.note"
+                rows="2"
+                class="input rounded-2xl resize-none py-3"
+                :placeholder="$t('beautyServices.notePlaceholder')"
+              ></textarea>
+            </div>
+
+            <!-- Basket Table (Inside Modal) -->
+            <div v-if="basket.length > 0" class="space-y-3 animate-in fade-in zoom-in-95">
+              <h4 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1 flex items-center justify-between">
+                {{ $t('beautyServices.selectedServices') }}
+                <span class="bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full text-[10px]">{{ basket.length }}</span>
+              </h4>
+              <div class="glass rounded-2xl overflow-hidden border-white/20 dark:border-white/10 shadow-inner">
+                <table class="min-w-full divide-y divide-white/10 dark:divide-white/5">
+                  <thead class="bg-black/5 dark:bg-white/5">
+                    <tr>
+                      <th class="px-4 py-2 text-left text-[10px] font-bold text-gray-500 uppercase">{{ $t('beautyServices.serviceNameLabel') }}</th>
+                      <th class="px-4 py-2 text-left text-[10px] font-bold text-gray-500 uppercase">{{ $t('beautyServices.columns.price') }}</th>
+                      <th class="px-4 py-2 text-right"></th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-white/10 dark:divide-white/5 bg-white/20 dark:bg-transparent">
+                    <tr v-for="(item, index) in basket" :key="index" class="hover:bg-white/40 dark:hover:bg-white/5 transition-colors">
+                      <td class="px-4 py-3">
+                        <div class="font-bold text-sm text-gray-900 dark:text-gray-100">{{ item.serviceNameLabel }}</div>
+                        <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full border border-sky-500/20 text-sky-500">
+                          {{ item.actionType === 'package' ? $t('beautyServices.buyPackage') : item.actionType === 'use' ? $t('beautyServices.useSession') : $t('beautyServices.add') }}
+                        </span>
+                      </td>
+                      <td class="px-4 py-3 text-sm font-black text-emerald-600 dark:text-emerald-400">
+                        {{ item.actionType === 'use' ? '—' : formatPrice(item.finalAmount) }}
+                      </td>
+                      <td class="px-4 py-3 text-right">
+                        <button type="button" @click="removeFromBasket(index)" class="h-8 w-8 rounded-full flex items-center justify-center text-red-500 hover:bg-red-500/10 transition-colors">
+                          <TrashIcon class="h-4 w-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
-          <!-- Savat (Basket) Jadvali -->
-          <div v-if="basket.length > 0" class="mt-6 border-t border-gray-100 pt-4">
-            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{{ $t('beautyServices.selectedServices') }}</h4>
-            <div class="max-h-48 overflow-y-auto rounded-lg border border-gray-100">
-              <table class="min-w-full divide-y divide-gray-100">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase">{{ $t('beautyServices.serviceNameLabel') }}</th>
-                    <th class="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase">{{ $t('beautyServices.columns.price') }}</th>
-                    <th class="px-3 py-2 text-right text-[11px] font-semibold text-gray-500 uppercase"></th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 bg-white">
-                  <tr v-for="(item, index) in basket" :key="index" class="hover:bg-gray-50">
-                    <td class="px-3 py-2 text-xs text-gray-900">
-                      <div class="font-medium">{{ item.serviceNameLabel }}</div>
-                      <div class="text-[10px] text-gray-500">
-                        <span v-if="item.actionType === 'package'" class="text-purple-600 font-medium">[{{ $t('beautyServices.buyPackage') }}: {{ item.totalSessions }}]</span>
-                        <span v-else-if="item.actionType === 'use'" class="text-orange-600 font-medium">[{{ $t('beautyServices.useSession') }}]</span>
-                        <span v-else class="text-blue-600 font-medium">[{{ $t('beautyServices.add') }}]</span>
-                      </div>
-                    </td>
-                    <td class="px-3 py-2 text-xs text-gray-600">
-                      {{ item.actionType === 'use' ? '—' : formatPrice(item.finalAmount) }}
-                    </td>
-                    <td class="px-3 py-2 text-right">
-                      <button type="button" @click="removeFromBasket(index)" class="text-red-400 hover:text-red-600">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          <div class="flex items-center justify-between gap-4 px-6 py-5 border-t border-white/20 dark:border-white/5 bg-white/10 dark:bg-black/20 flex-shrink-0">
+            <button 
+              type="button" 
+              @click="addToBasket" 
+              :disabled="!form.serviceName || !selectedMember"
+              class="flex-1 rounded-full border border-sky-600 dark:border-sky-500 px-4 py-2.5 text-sm font-bold text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-500/10 disabled:opacity-30 transition-all flex items-center justify-center gap-2"
+            >
+              <PlusIcon class="h-4 w-4" />
+              {{ $t('beautyServices.addToList') }}
+            </button>
+
+            <button 
+              type="submit" 
+              :disabled="submitting || (basket.length === 0 && (!form.serviceName || !selectedMember))" 
+              class="flex-[1.5] rounded-full bg-sky-600 px-6 py-2.5 text-sm font-black text-white shadow-lg shadow-sky-600/30 hover:bg-sky-500 hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none transition-all"
+            >
+              <div class="flex items-center justify-center gap-3">
+                <span v-if="submitting" class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"></span>
+                {{ submitting ? $t('beautyServices.submitting') : $t('common.save') }}
+                <div v-if="basket.length > 0" class="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
+                  {{ basket.length }}
+                </div>
+              </div>
+            </button>
           </div>
         </form>
       </div>
     </div>
+    </Teleport>
   </div>
 </template>
 
@@ -387,7 +493,17 @@ import { useI18n } from 'vue-i18n'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
 import { beautyService, membersService, cashSessionsService } from '../services/supabaseService'
 import * as XLSX from 'xlsx'
-import { TableCellsIcon, DocumentTextIcon } from '@heroicons/vue/24/outline'
+import { 
+  TableCellsIcon, 
+  DocumentTextIcon,
+  PlusIcon,
+  ArrowPathIcon,
+  MagnifyingGlassIcon,
+  IdentificationIcon,
+  TrashIcon,
+  UserIcon,
+  CalendarIcon
+} from '@heroicons/vue/24/outline'
 import { formatDate, getCurrentDateTimeISO } from '../lib/dateUtils'
 import { useToast } from '../composables/useToast'
 import { useConfirm } from '../composables/useConfirm'
@@ -406,6 +522,7 @@ type Service = {
   fullName?: string
   amount?: number
   isPackage?: boolean
+  paymentMethod?: string
 }
 
 type Member = {
@@ -689,6 +806,16 @@ const serviceTypes = ref<{ types: string[], labels: Record<string, string>, cate
     'zumba_month': 400000, 'zumba_session': 80000, 'yoga_month': 600000, 'pilates_group': 120000, 'pilates_individual': 200000, 'nutrition_plan': 600000, 'fitness_12m': 4200000, 'fitness_3m': 1200000, 'fitness_6m': 2250000
   }
 })
+
+const calculatedPrice = computed(() => {
+  if (!form.value.serviceName || !serviceTypes.value?.prices) return 0
+  const originalPrice = serviceTypes.value.prices[form.value.serviceName] ?? 0
+  if (originalPrice === 0) return 0
+  const discount = form.value.discountPercent || 0
+  if (discount === 0) return originalPrice
+  return originalPrice - (originalPrice * discount) / 100
+})
+
 const serviceCategories = computed(() => {
   if (!serviceTypes.value) return []
   
@@ -712,20 +839,7 @@ const serviceCategories = computed(() => {
 
 // Endi availableServiceNames kerak emas, chunki barcha xizmatlar bitta dropdown'da
 
-// Chegirma bilan hisoblangan narx
-const calculatedPrice = computed(() => {
-  if (!form.value.serviceName || !serviceTypes.value?.prices?.[form.value.serviceName]) {
-    return null
-  }
-  const originalPrice = serviceTypes.value.prices[form.value.serviceName]
-  if (!originalPrice || originalPrice === 0) return null
-  
-  const discount = form.value.discountPercent || 0
-  if (discount <= 0) return originalPrice
-  
-  const discountAmount = (originalPrice * discount) / 100
-  return originalPrice - discountAmount
-})
+// To'lov usuli o'zgarganda split miqdorlarni tozalash
 
 const updateSplit = (source: 'CASH' | 'CARD') => {
     const total = calculatedPrice.value || 0;
@@ -865,7 +979,7 @@ const addToBasket = () => {
     serviceNameLabel,
     finalAmount,
     cashAmount: form.value.paymentMethod === 'MIXED' ? form.value.cashAmount : (form.value.paymentMethod === 'CASH' ? finalAmount : 0),
-    cardAmount: form.value.paymentMethod === 'MIXED' ? form.value.cardAmount : (form.value.paymentMethod === 'CARD' ? finalAmount : 0),
+    cardAmount: form.value.paymentMethod === 'MIXED' ? form.value.cardAmount : (['UZCARD', 'HUMO', 'VISA', 'CLICK', 'PAYME'].includes(form.value.paymentMethod) ? finalAmount : 0),
     memberId: selectedMember.value.id,
     memberName: selectedMember.value.fullName
   })
@@ -1108,6 +1222,75 @@ const resetFilters = () => {
   onlyToday.value = false
 }
 
+const processedServices = computed(() => {
+  const list = filteredServices.value;
+  if (list.length === 0) return [];
+
+  const result: any[] = [];
+  const handledIds = new Set<string>();
+
+  // 1. Birinchi paketlarni aniqlaymiz
+  const packages = list.filter(s => s.isPackage);
+  
+  // 2. Har bir paket uchun unga tegishli seanslarni topamiz
+  packages.forEach(pkg => {
+    result.push(pkg);
+    handledIds.add('p-' + pkg.id);
+
+    // Paket nomini normallashtirish (qavs ichidagi seanslar sonini olib tashlash)
+    const basePkgName = pkg.serviceName.split(' (')[0].trim().toLowerCase();
+
+    // Paketga mos keladigan seanslarni qidiramiz
+    const sessions = list.filter(s => {
+      if (s.isPackage || handledIds.has('s-' + s.id)) return false;
+      
+      const baseSessionName = s.serviceName.split(' (')[0].trim().toLowerCase();
+      
+      // Shartlar: 
+      // 1. Mijoz bir xil
+      // 2. Nom asosi bir xil
+      // 3. Summasi 0 yoki to'lov turi PACKAGE orqali
+      const isCorrectService = s.memberId === pkg.memberId && 
+                               (baseSessionName === basePkgName || basePkgName.includes(baseSessionName));
+                               
+      const isFreeOrPackage = s.amount === 0 || s.paymentMethod === 'PACKAGE';
+      
+      // 4. Sana: Paket olingan kunda yoki undan keyin (vaqt farqi biroz bo'lishi mumkin)
+      const pkgDate = new Date(pkg.serviceDate);
+      const sessionDate = new Date(s.serviceDate);
+      
+      // Bir xil kun yoki seans keyinroq
+      const isSameDay = pkgDate.getFullYear() === sessionDate.getFullYear() &&
+                        pkgDate.getMonth() === sessionDate.getMonth() &&
+                        pkgDate.getDate() === sessionDate.getDate();
+                        
+      const isAfter = sessionDate >= pkgDate;
+
+      return isCorrectService && isFreeOrPackage && (isSameDay || isAfter);
+    }).sort((a, b) => new Date(a.serviceDate).getTime() - new Date(b.serviceDate).getTime());
+
+    sessions.forEach((session, index) => {
+      result.push({
+        ...session,
+        isSession: true,
+        parentPackageId: pkg.id,
+        isLastChild: index === sessions.length - 1
+      });
+      handledIds.add('s-' + session.id);
+    });
+  });
+
+  // 3. Qolgan oddiy xizmatlarni qo'shamiz
+  list.forEach(s => {
+    const key = (s.isPackage ? 'p-' : 's-') + s.id;
+    if (!handledIds.has(key)) {
+      result.push(s);
+    }
+  });
+
+  return result;
+});
+
 // formatDate funksiyasi utility'dan import qilingan
 
 // Narxni formatlash funksiyasi
@@ -1266,6 +1449,7 @@ const exportToPDF = () => {
   `)
 
   printWindow.document.close()
+  
   setTimeout(() => {
     printWindow.print()
   }, 250)
@@ -1290,4 +1474,93 @@ const onDeleteService = async (service: any) => {
   }
 }
 </script>
+
+<style scoped>
+/* Glass & UI Base */
+.glass {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+:global(.dark) .glass {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.glass-bg {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+:global(.dark) .glass-bg {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  color: #111827;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 1px 3px rgba(0,0,0,0.08);
+  outline: none;
+}
+.input:focus {
+  outline: none;
+  border-color: rgba(14, 165, 233, 0.5);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12);
+}
+
+/* Dark mode inputs */
+:global(.dark) .input {
+  background: #28282829 !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #e2e8f0;
+  box-shadow: none;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+:global(.dark) .input::placeholder { color: #475569; }
+:global(.dark) .input:focus {
+  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+/* Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(155, 155, 155, 0.4);
+  border-radius: 20px;
+}
+
+/* Fix for Select in Dark Mode */
+:global(.dark) select option {
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+/* Shake Animation for Errors */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.shake {
+  animation: shake 0.3s ease-in-out;
+}
+</style>
 

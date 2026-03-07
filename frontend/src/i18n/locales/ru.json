@@ -440,7 +440,9 @@
     "appointmentTime": "Время записи",
     "soldViaCashier": "Продано через кассу",
     "staff": "Сотрудник",
-    "errorLoadingHistory": "Ошибка при загрузке истории"
+    "errorLoadingHistory": "Ошибка при загрузке истории",
+    "session": "Сеанс",
+    "includedInPackage": "Включено в пакет"
   },
   "barcode": {
     "title": "Штрих-код",
@@ -519,6 +521,7 @@
     "newProduct": "Новый товар",
     "categories": "Категории",
     "allCategories": "Все категории",
+    "noProducts": "Товары не найдены",
     "searchPlaceholder": "Поиск по названию, артикулу или штрих-коду...",
     "columns": {
       "name": "Наименование",
@@ -608,7 +611,12 @@
     "cashAmount": "Сумма Наличными",
     "cardAmount": "Сумма Картой",
     "debt": "Долг (Рассрочка)",
-    "dueDate": "Срок оплаты"
+    "dueDate": "Срок оплаты",
+    "uzcard": "Uzcard",
+    "humo": "Humo",
+    "visa": "Visa",
+    "click": "Click",
+    "payme": "Payme"
   },
   "invoice": {
     "title": "Счёт",
@@ -676,9 +684,13 @@
     "newAppointment": "Новая запись",
     "noAppointments": "Записей не найдено",
     "confirmComplete": "Вы уверены, что хотите завершить эту запись и списать сеанс?",
+    "today": "Сегодня",
     "view": {
       "calendar": "Календарь",
-      "list": "Список"
+      "list": "Список",
+      "month": "Месяц",
+      "week": "Неделя",
+      "day": "День"
     },
     "columns": {
       "customer": "Клиент / Гость",

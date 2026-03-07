@@ -1,22 +1,14 @@
 <template>
   <header 
-    class="fixed top-0 right-0 z-[110] flex h-16 items-center gap-x-4 glass px-4 transition-all duration-500 no-print"
+    class="fixed z-[110] flex items-center justify-end px-5 transition-all duration-500 no-print"
     :style="headerStyle"
   >
-    <!-- Mobile menu button (faqat mobile'da) -->
-    <button 
-      @click="$emit('menu')"
-      class="lg:hidden rounded-md p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-      :title="$t('topbar.menu')"
-    >
-      <Bars3Icon class="h-6 w-6" />
-    </button>
-    
-    <div class="flex flex-1 justify-end items-center gap-4">
+    <div class="flex items-center gap-3">
+
       <!-- Theme toggle -->
       <button
         @click="toggleTheme"
-        class="glass rounded-lg p-2 text-black dark:text-white hover:bg-sky-600/10 transition-colors"
+        class="glass-pill rounded-full h-9 w-9 flex items-center justify-center text-gray-700 dark:text-gray-200"
         :title="isDark ? 'Light mode' : 'Dark mode'"
       >
         <SunIcon v-if="isDark" class="h-5 w-5" />
@@ -27,70 +19,51 @@
       <div class="relative language-selector">
         <button 
           @click="showLangDropdown = !showLangDropdown"
-          class="flex items-center gap-2 rounded-lg glass px-3 py-2 text-sm font-bold text-black dark:text-white hover:bg-sky-600/10 transition-colors"
+          class="flex items-center gap-2 glass-pill rounded-full h-9 px-3.5 text-sm font-semibold text-gray-700 dark:text-gray-200"
           :title="$t('topbar.selectLanguage')"
         >
-          <GlobeAltIcon class="h-5 w-5 text-gray-800 dark:text-gray-300" />
+          <GlobeAltIcon class="h-4 w-4" />
           <span class="hidden sm:inline">{{ currentLanguage.code.toUpperCase() }}</span>
-          <svg class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          <svg class="h-3.5 w-3.5 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
-        <div 
-          v-if="showLangDropdown"
-          class="absolute right-0 mt-2 w-48 rounded-lg glass z-[120] overflow-hidden"
+
+        <Transition
+          enter-active-class="transition duration-200 ease-out"
+          enter-from-class="opacity-0 scale-95 -translate-y-1"
+          enter-to-class="opacity-100 scale-100 translate-y-0"
+          leave-active-class="transition duration-150 ease-in"
+          leave-from-class="opacity-100 scale-100 translate-y-0"
+          leave-to-class="opacity-0 scale-95 -translate-y-1"
         >
-          <div class="py-1">
-            <button
-              v-for="lang in languages"
-              :key="lang.code"
-              @click="setLocale(lang.code)"
-              :class="[
-                'w-full flex items-center gap-3 px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-bold',
-                currentLocale === lang.code ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-800 dark:text-sky-400' : 'text-gray-800 dark:text-gray-300'
-              ]"
-            >
-              <GlobeAltIcon class="h-4 w-4 text-gray-500" />
-              <span class="flex-1">{{ lang.name }}</span>
-              <svg v-if="currentLocale === lang.code" class="h-4 w-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-            </button>
+          <div 
+            v-if="showLangDropdown"
+            class="absolute right-0 mt-2 w-48 rounded-2xl glass-dropdown z-[120] overflow-hidden"
+          >
+            <div class="py-1.5 px-1">
+              <button
+                v-for="lang in languages"
+                :key="lang.code"
+                @click="setLocale(lang.code)"
+                :class="[
+                  'w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-full transition-all duration-200 font-medium',
+                  currentLocale === lang.code
+                    ? 'bg-white/70 dark:bg-white/10 backdrop-blur-sm border border-white/80 dark:border-white/15 text-gray-900 dark:text-white font-semibold shadow-sm'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/6'
+                ]"
+              >
+                <GlobeAltIcon class="h-4 w-4 opacity-60" />
+                <span class="flex-1">{{ lang.name }}</span>
+                <svg v-if="currentLocale === lang.code" class="h-3.5 w-3.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
+        </Transition>
       </div>
 
-      <div class="relative">
-        <button 
-          @click="showUserMenu = !showUserMenu"
-          class="flex items-center gap-2 rounded-full glass px-3 py-1 hover:bg-sky-600/10 transition-colors"
-        >
-          <span class="h-8 w-8 rounded-full bg-sky-600 text-white flex items-center justify-center text-sm font-black shadow-sm">A</span>
-          <div class="hidden sm:block text-left">
-            <div class="text-sm font-black text-black dark:text-white">{{ currentUser?.username || $t('topbar.admin') }}</div>
-            <div class="text-[10px] font-bold uppercase tracking-wider text-gray-600">{{ $t('roles.' + (currentUser?.role || 'admin')) }}</div>
-          </div>
-          <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-        <div 
-          v-if="showUserMenu"
-          class="absolute right-0 mt-2 w-48 rounded-lg glass z-[120] overflow-hidden"
-        >
-          <div class="py-1">
-            <button
-              @click="handleLogout"
-              class="w-full flex items-center gap-3 px-4 py-2 text-sm text-left text-red-600 hover:bg-red-50 transition-colors"
-            >
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              <span>{{ $t('sidebar.logout') }}</span>
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   </header>
 </template>
@@ -197,15 +170,24 @@ onUnmounted(() => {
 })
 
 const headerStyle = computed(() => {
-  // Desktop'da sidebar kengligiga moslashadi
+  const MARGIN = '12px'
+  const TOP = '10px'
+  // Desktop: sidebar kengligiga moslashadi + pill margin
   if (props.sidebarOpen && !isMobile.value) {
-    const left = props.sidebarCollapsed ? '80px' : '288px'
-    return { 
-      left: `clamp(0px, ${left}, 100%)`,
-      right: '0'
+    // Sidebar: width 13rem (208px) or 3.5rem (56px) + ml-2 (8px)
+    const sidebarWidth = props.sidebarCollapsed ? 56 : 208
+    const totalSidebarOffset = sidebarWidth + 8 // width + margin-left
+    return {
+      top: TOP,
+      left: `calc(${totalSidebarOffset}px + ${MARGIN})`,
+      right: MARGIN,
     }
   }
-  // Mobile'da to'liq kenglik
-  return { left: '0', right: '0' }
+  // Mobile: faqat yon chekkalar
+  return {
+    top: TOP,
+    left: MARGIN,
+    right: MARGIN,
+  }
 })
 </script>
